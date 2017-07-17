@@ -5,8 +5,8 @@ robot-arm (api)
 ## Note
 This software is designed to work with Python2.7 under following conditions:
 - This software depends on the following libraries:
- - OpenCV3.2 (need to be compiled from source.)
-  - Refer to [setup/README.md](../setup/README.md) for installation.
+  - OpenCV3.2 (need to be compiled from source)
+    - Refer to [setup/README.md](../setup/README.md) for installation.
 - Environment variables
     ```
     export FLASK_ENV='prd'   # choices are 'prd', 'stg' or 'dev'
