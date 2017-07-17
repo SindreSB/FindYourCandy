@@ -3,7 +3,7 @@ robot-arm (api)
 ===
 
 ## Note
-This software is design to work with Python2.7 under following condition.
+This software is designed to work with Python2.7 under following conditions:
 - This software depends on the following libraries:
  - OpenCV3.2 (need to be compiled from source.)
   - Refer to [setup/README.md](../setup/README.md) for installation.
