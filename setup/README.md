@@ -104,7 +104,7 @@ The following instructions illustrates how to adjust the camera position.
   sudo systemctl stop  nginx.service # just make sure
   sudo systemctl start uwsgi-robot.service
   ```
-2. Execute [(cd script ; python2 robot_tune.py)](./script/robot_tune.py) to start tuning the coordinates of arm.
+2. Execute [(cd setup/script ; python2 robot_tune.py)](./script/robot_tune.py) to start tuning the coordinates of arm.
 3. Hit `Enter` key to initialize the robot arm.
 4. Push the `release` button (which has symbol of `unlock` ) while you holding the robot arm by the other hand. Please be aware when the button is pressed, the robot arm looses friction and will start falling instantly. To avoid damaging your robot or desk, you should always assist robot arm when you press the `release` button.
 5. Slowly land the arm edge to the center of `Maker A`. (still pressing the button.) Not on the letter 'A' but the target sign printed by the letter
