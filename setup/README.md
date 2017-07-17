@@ -87,7 +87,7 @@ This demo requires API credential for Google Cloud Platform(GCP). If this is you
 The following instructions illustrates how to adjust the camera position.
 
 1. Boot up linux box and login to the desktop.
-2. Execute [(cd script ; python2 camera_tune.py)](./script/camera_tune.py) that is included in this demo software. And see the camera view in the window.
+2. Execute [(cd setup/script ; python2 camera_tune.py)](./script/camera_tune.py) that is included in this demo software. And see the camera view in the window.
 3. If you cannot see 'OK' sign in the window, tweak the camera or its extension and have whole image of A3 paper.
    - You may also try to get better focus by switching the AF slide between S and C on the camera.
    - In most cases, keeping the slide to S and pressing `[・] (focus)` button a few times does good in our environment.
