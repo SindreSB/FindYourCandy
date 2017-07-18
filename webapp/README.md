@@ -3,11 +3,11 @@ webapp
 ===
 
 ## Note
-This software is design to work with Python2.7 under following condtion.
+This software is designed to work with Python2.7 under following condtions:
 - This software depends on the following libraries:
-  - OpenCV3.2 (need to be compiled from source.)
-  - Refer to installation_instructions.md for installation.
-  - Softwares you install by pip
+  - OpenCV 3.2 (need to be compiled from source)
+    - Refer to [installation instructions](../setup/linux_box.md), under _OpenCV3.2 installation_ for installation.
+  - Software you install with pip
   ```
   $ pip install -r requirements.txt
   # ex)
