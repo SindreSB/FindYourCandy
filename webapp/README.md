@@ -73,7 +73,8 @@ CLOUD_ML_DATA_DIR      = 'gs://{YOUR-OWN-BUCKET-NAME}/{job_id}/features'
 ```
 # replace {YOUR-OWN-BUCKET-NAME} to your own bukcet name
 $ cd ~/FindYourCandy/train
-$ bash build_package.sh gs://{YOUR-OWN-BUCKET-NAME}/package
+$ bash build_package.sh gs://{YOUR-OWN-BUCKET-NAME}/package/
+# make sure you have a trailing slash at the end of the command above
 ```
 
 ### Configuration files
