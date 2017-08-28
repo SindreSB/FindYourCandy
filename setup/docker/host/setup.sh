@@ -9,7 +9,8 @@ fi
 cwd=$(dirname $0)
 
 ansible-playbook \
-  -u root \
+  -u friday \
+  --ask-su-pass \
   -i $1 \
   --private-key $2 \
   ${cwd}/site.yml

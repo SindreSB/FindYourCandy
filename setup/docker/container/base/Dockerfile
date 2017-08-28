@@ -1,7 +1,7 @@
 FROM ubuntu:16.04
 
 RUN set -ex \
-  && sed -i -e "s%http://archive.ubuntu.com/ubuntu/%http://jp.archive.ubuntu.com/ubuntu/%g" /etc/apt/sources.list \
+  && sed -i -e "s%http://archive.ubuntu.com/ubuntu/%http://no.archive.ubuntu.com/ubuntu/%g" /etc/apt/sources.list \
   && apt-get update && apt-get install -y \
     libblas3 \
     liblapack3 \

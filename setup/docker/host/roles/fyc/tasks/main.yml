@@ -55,11 +55,11 @@
     group: "{{user}}"
     mode: 0644
   with_items:
-    - {src: "docker-compose.yaml",                          dest: "{{fyc_home}}/"}
-    - {src: "credentials.json",                             dest: "{{fyc_home}}/data/"}
-    - {src: "models/classify_image_graph_def.pb",           dest: "{{fyc_home}}/data/models/"}
-    - {src: "models/GoogleNews-vectors-negative300.bin.gz", dest: "{{fyc_home}}/data/models/"}
-    - {src: "models/model.vec",                             dest: "{{fyc_home}}/data/models/"}
+    - {src: "{{fyc_home}}/_installationfiles/docker-compose.yaml",                          dest: "{{fyc_home}}/"}
+    - {src: "{{fyc_home}}/_installationfiles/credentials.json",                             dest: "{{fyc_home}}/data/"}
+    - {src: "{{fyc_home}}/_installationfiles/models/classify_image_graph_def.pb",           dest: "{{fyc_home}}/data/models/"}
+    - {src: "{{fyc_home}}/_installationfiles/models/GoogleNews-vectors-negative300.bin.gz", dest: "{{fyc_home}}/data/models/"}
+    #- {src: "{{fyc_home}}/_installationfiles/models/model.vec",                             dest: "{{fyc_home}}/data/models/"}
 
 - name: Copy udev rules
   copy:
