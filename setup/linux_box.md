@@ -42,9 +42,8 @@ sudo apt-get install python-pip
 sudo pip install ansible==2.3.0.0
 ```
 
--- Make sure that ~/.ansible is own by the user that will be running everything (i.e., not root)
-
--- Check that everything is set up correctly
+- Make sure that ~/.ansible is own by the user that will be running everything (i.e., not root)
+- Check that everything is set up correctly
 ```
 ansible -i hosts.file servers -m ping -vvv
 ```
@@ -99,6 +98,7 @@ $ ./build.sh robot
 $ ./build.sh webapp
 ```
 - Tune the camera and the robot arm
+```
 ~/FindYourCandy/bin$ ./tune_camera.sh
 ~/FindYourCandy/bin$ ./tune_robot.sh
-
+```
