@@ -74,7 +74,7 @@ cd setup/docker/host
 cp hosts.example hosts.file
 ```
 
-- Update `hosts.file` with IP to the machine that will be running the slution. If it is the same machine as the one you are running the commands from, use ```ifconfig```. To update the IP, make sure that you put the right IP under `\[servers\]`
+- Update `hosts.file` with IP to the machine that will be running the slution. If it is the same machine as the one you are running the commands from, use ```ifconfig```. To update the IP, make sure that you put the right IP under `[servers]`
 
 - Create `_installationfiles` folder:
 ```
