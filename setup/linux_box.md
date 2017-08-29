@@ -81,9 +81,9 @@ cp hosts.example hosts.file
 $ mkdir -p ~/FindYourCandy/_installationfiles/models
 ```
 
-- Copy credentials.json to /home/friday/FindYourCandy/_installationfiles
-
-- Copy GoogleNews-vectors-negative300.bin.gz to _installationfiles
+- Copy credentials.json to `_installationfiles`
+- Copy `GoogleNews-vectors-negative300.bin.gz` to `_installationfiles/models`
+- Copy inception model to `_installationfiles/models`
 ```
 $ cd ~/FindYourCandy/_installationfiles/models
 $ wget http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz
