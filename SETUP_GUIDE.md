@@ -147,10 +147,6 @@ Feel free to log on to [GCP Console](https://cloud.google.com), navigate to the 
 
 
 ## Success
-```
-$ bin/start_all.sh
-```
-Note that even though the command returns immediately, the webapp will take some time to start the first time
 
 ### Calibrate
 
@@ -164,4 +160,8 @@ $ bin/tune_camera.sh
 $ bin/tune_robot.sh
 ```
 
-You can now begin training the model or jump straight into serving mode.
+### Run
+```
+$ bin/start_all.sh
+```
+Note that even though the command returns immediately, the webapp will take some time to start the first time
