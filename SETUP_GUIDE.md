@@ -1,11 +1,3 @@
-
-
-
-
-
-
-
-
 # Step 1: Hardware setup
 1. Print out [the marker sheet](./setup/image/marker_paper.pdf) in A3 paper and stick it on the center
 (This sheet will be used during both setup and demo.)
@@ -165,3 +157,5 @@ $ bin/tune_robot.sh
 $ bin/start_all.sh
 ```
 Note that even though the command returns immediately, the webapp will take some time to start the first time
+
+Go to settings and ensure that the correct microphone/input is selected, as this is often an issue it seems. 
