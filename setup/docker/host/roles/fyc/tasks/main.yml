@@ -81,7 +81,22 @@
 - name: Enable fyc service
   systemd: name=fyc enabled=yes
 
-- name: Download images
-  shell: docker-compose pull
+- name: Docker - Build base image
+  shell: build.sh base
   args:
-    chdir: "{{fyc_home}}"
+    chdir: "{{fyc_home}}/docker/container"
+
+- name: Docker - Build opencv image
+  shell: build.sh opencv
+  args:
+    chdir: "{{fyc_home}}/docker/container"
+
+- name: Docker - Build robot image
+  shell: build.sh robot
+  args:
+    chdir: "{{fyc_home}}/docker/container"
+
+- name: Docker - Build webapp image
+  shell: build.sh webapp
+  args:
+    chdir: "{{fyc_home}}/docker/container"

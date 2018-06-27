@@ -19,6 +19,8 @@ Note: Due to unavailability of 'CDVU-04IP-A1' in some regions including japan, a
 
 ## Basic setup
 
+* Ubuntu 18.01
+
 ### Update your installation
 ```
 $ sudo apt-get update && sudo apt-get upgrade -y && sudo reboot
@@ -31,8 +33,10 @@ $ sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stab
 $ sudo apt-get update && sudo apt-get install google-chrome-stable
 ```
 
-### Install ansible
+### Install Git, Python and curl
 ```
+$ sudo apt install git python2.7 python-pip curl
+$ sudo apt install 
 $ sudo pip install ansible==2.3.0.0
 ```
 
@@ -48,6 +52,18 @@ $ mkdir -p _installationfiles/models
 ```
 
 ###  Setting up the Google Cloud Platform access
+
+#### Install gsutil
+To install gsutil (python application for managing google could storage) it is easier to just install the google cloud SKD
+
+```
+$ cd ~
+$ curl https://sdk.cloud.google.com | bash
+```
+
+Close and reopen the shell for the changes to take effect.
+
+#### Setup account and APIs
 This demo requires API credential for Google Cloud Platform(GCP). If this is your first project to use GCP, you can get an account from [cloud.google.com](https://cloud.google.com/).
 
 1. Create a new GCP project
@@ -59,15 +75,17 @@ This demo requires API credential for Google Cloud Platform(GCP). If this is you
   - Natural Language API
   - Cloud ML API
 
-3. Create a service account key file
+3. Create a Storage Bucket - For all future steps, the name of this will be your bucket id.
+
+4. Create a service account key file
 
     See [this doc](https://cloud.google.com/vision/docs/common/auth#set_up_a_service_account) to create a service account key
     - Service account: Compute Engine default service account
     - Key type: JSON
-      - Save the JSON as /home/brainpad/FindYourCandy/credential.json
+      - Save the JSON as /home/brainpad/FindYourCandy/credential.json and a copy in /home as well
       - (* Saving to different path or filename may require editing webapp.ini later)
 
-4. Create a Storage Bucket - For all future steps, the name of this will be your bucket id.
+
 
 5. Give the service account previously created access to the storage bucket. The required permissions are: 
     - Storage Object Admin (only this might suffice) 
@@ -96,7 +114,7 @@ $ wget http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05
 $ tar xvzf inception-2015-12-05.tgz
 ```
 Copy the .pb file to _installationfiles/models
-NB! It is only the .pd file we need. 
+
 
 
 ## Using Ansible to install requrements and move scripts
