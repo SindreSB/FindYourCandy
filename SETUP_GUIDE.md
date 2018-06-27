@@ -26,13 +26,6 @@ Note: Due to unavailability of 'CDVU-04IP-A1' in some regions including japan, a
 $ sudo apt-get update && sudo apt-get upgrade -y && sudo reboot
 ```
 
-### Install Google Chrome (done by ansible)
-```
-$ wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add - 
-$ sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
-$ sudo apt-get update && sudo apt-get install google-chrome-stable
-```
-
 ### Install Git, Python and curl
 ```
 $ sudo apt install git python2.7 python-pip curl ansible
@@ -50,6 +43,7 @@ $ mkdir -p _installationfiles/models
 ```
 
 ###  Setting up the Google Cloud Platform access
+
 
 #### Install gsutil
 To install gsutil (python application for managing google could storage) it is easier to just install the google cloud SKD
@@ -139,21 +133,18 @@ cloud_ml_bucket={the name of the Cloud Storage Bucket you created previously}
 $ ./script.sh hosts.file
 ```
 
+This script will install Chrome, create required folders and move requried scripts. It will also build the docker images from source. 
+
+
+
 ### Upload ML model to Google Cloud storage 
 ```
 $ cd /train
+$ gcloud auth activate-service-account --key-file=../_installationfiles/credentials.json
 $ ./build_package.sh gs://{bucket-id}/package/
 ```
 Feel free to log on to [GCP Console](https://cloud.google.com), navigate to the storage bucket and ensure that the model has been uploaded. 
 
-### Build new Docker images from source
-```
-$ cd ~/FindYourCandy/setup/docker/container
-$ ./build.sh base
-$ ./build.sh opencv
-$ ./build.sh robot
-$ ./build.sh webapp
-```
 
 ## Success
 ```
