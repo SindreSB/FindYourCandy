@@ -55,7 +55,7 @@
     group: "{{user}}"
     mode: 0644
   with_items:
-    - {src: "{{fyc_home}}/_installationfiles/docker-compose.yaml",                          dest: "{{fyc_home}}/"}
+    - {src: "files/docker-compose.yaml",                                                    dest: "{{fyc_home}}/"}
     - {src: "{{fyc_home}}/_installationfiles/credentials.json",                             dest: "{{fyc_home}}/data/"}
     - {src: "{{fyc_home}}/_installationfiles/models/classify_image_graph_def.pb",           dest: "{{fyc_home}}/data/models/"}
     - {src: "{{fyc_home}}/_installationfiles/models/GoogleNews-vectors-negative300.bin.gz", dest: "{{fyc_home}}/data/models/"}
@@ -81,7 +81,22 @@
 - name: Enable fyc service
   systemd: name=fyc enabled=yes
 
-- name: Download images
-  shell: docker-compose pull
+- name: Docker - Build base image
+  shell: ./build.sh base
   args:
-    chdir: "{{fyc_home}}"
+    chdir: "{{fyc_home}}/setup/docker/container"
+
+- name: Docker - Build opencv image
+  shell: ./build.sh opencv
+  args:
+    chdir: "{{fyc_home}}/setup/docker/container"
+
+- name: Docker - Build robot image
+  shell: ./build.sh robot
+  args:
+    chdir: "{{fyc_home}}/setup/docker/container"
+
+- name: Docker - Build webapp image
+  shell: ./build.sh webapp
+  args:
+    chdir: "{{fyc_home}}/setup/docker/container"
