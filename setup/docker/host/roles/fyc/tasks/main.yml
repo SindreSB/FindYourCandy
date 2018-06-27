@@ -84,19 +84,19 @@
 - name: Docker - Build base image
   shell: build.sh base
   args:
-    chdir: "{{fyc_home}}/docker/container"
+    chdir: "{{fyc_home}}/setup/docker/container"
 
 - name: Docker - Build opencv image
   shell: build.sh opencv
   args:
-    chdir: "{{fyc_home}}/docker/container"
+    chdir: "{{fyc_home}}/setup/docker/container"
 
 - name: Docker - Build robot image
   shell: build.sh robot
   args:
-    chdir: "{{fyc_home}}/docker/container"
+    chdir: "{{fyc_home}}/setup/docker/container"
 
 - name: Docker - Build webapp image
   shell: build.sh webapp
   args:
-    chdir: "{{fyc_home}}/docker/container"
+    chdir: "{{fyc_home}}/setup/docker/container"

@@ -35,9 +35,7 @@ $ sudo apt-get update && sudo apt-get install google-chrome-stable
 
 ### Install Git, Python and curl
 ```
-$ sudo apt install git python2.7 python-pip curl
-$ sudo apt install 
-$ sudo pip install ansible==2.3.0.0
+$ sudo apt install git python2.7 python-pip curl ansible
 ```
 
 ### Clone this repository
