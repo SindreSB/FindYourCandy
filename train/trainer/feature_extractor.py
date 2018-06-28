@@ -22,7 +22,7 @@ import json
 import sys
 
 import tensorflow as tf
-import cv2
+#import cv2
 
 INPUT_DATA_TENSOR_NAME = 'DecodeJpeg:0'
 FEATURE_TENSOR_NAME = 'pool_3/_reshape:0'
@@ -156,13 +156,13 @@ def write_labels(labels, labels_data_path):
 
 def main():
     parser = argparse.ArgumentParser(description='Run Dobot WebAPI.')
-    parser.add_argument('output_dir', nargs=1, type=str)
-    parser.add_argument('--image_dir', type=str)
-    parser.add_argument('--model_file', type=str, default=None)
+    parser.add_argument('--output_dir', default ='output',nargs=1, type=str)
+    parser.add_argument('--image_dir', default='image', type=str)
+    parser.add_argument('--model_file', type=str, default='classify_image_graph_def.pb')
     parser.add_argument('--for_prediction', action='store_true')
 
     args = parser.parse_args()
-    output_dir = args.output_dir[0]
+    output_dir = args.output_dir
 
     labels_file = os.path.join(output_dir, 'labels.json')
     features_file = os.path.join(output_dir, 'features.json')

@@ -29,7 +29,7 @@ class FeaturesDataReader(object):
 
     def read_features(self):
         with tf.gfile.FastGFile(self.features_file) as i_:
-            features = map(lambda l: json.loads(l)['feature_vector'], i_.readlines())
+            features = list(map(lambda l: json.loads(l)['feature_vector'], i_.readlines()))
         return np.array(features, dtype='float32')
 
     def read_labels(self):
@@ -39,7 +39,7 @@ class FeaturesDataReader(object):
 
     def read_feature_metadata(self, key):
         with tf.gfile.FastGFile(self.features_file) as i_:
-            features = map(lambda l: json.loads(l)[key], i_.readlines())
+            features = list(map(lambda l: json.loads(l)[key], i_.readlines()))
         return np.array(features)
 
 
@@ -47,6 +47,6 @@ class TrainingFeaturesDataReader(FeaturesDataReader):
     def read_features(self):
         with tf.gfile.FastGFile(self.features_file) as i_:
             lines = i_.readlines()
-            features = map(lambda l: json.loads(l)['feature_vector'], lines)
-            label_ids = map(lambda l: json.loads(l)['label_id'], lines)
+            features = list(map(lambda l: json.loads(l)['feature_vector'], lines))
+            label_ids = list(map(lambda l: json.loads(l)['label_id'], lines))
         return np.array(features, dtype='float32'), np.array(label_ids, dtype='int32')

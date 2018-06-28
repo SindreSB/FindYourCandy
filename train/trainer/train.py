@@ -21,11 +21,12 @@ import logging
 import os
 import random
 
+import numpy as np
 import tensorflow as tf
 import time
-
-import trainer.model as model
-from trainer.utils import TrainingFeaturesDataReader
+import matplotlib.pyplot as plt
+import model as model
+from utils import TrainingFeaturesDataReader
 
 JPEG_EXT = 'jpg'
 
@@ -44,6 +45,8 @@ class DataSet(object):
         data = reader.read_features()
         uris = reader.read_feature_metadata('image_uri')
         labels = reader.read_labels()
+        print(data[0],  data[1], uris, labels)
+
         return cls(data[0], data[1], uris, labels)
 
     def n_samples(self):
@@ -120,8 +123,8 @@ class Trainer(object):
         loss_log = []
         with tf.Session() as sess:
             summary_writer = tf.summary.FileWriter(self.log_dir, graph=sess.graph)
-            sess.run(tf.global_variables_initializer())
-
+            sess.run(tf.initialize_all_variables())
+            losses = []
             for epoch in range(self.train_config.epochs):
                 # Shuffle data for batching
                 shuffled_idx = list(range(n_samples))
@@ -135,7 +138,10 @@ class Trainer(object):
                     [self.model.loss_op, self.model.summary_op],
                     self.model.feed_for_training(*dataset.all())
                 )
+                print('------------------------------------------------')
+                print(in_sample_loss)
                 loss_log.append(in_sample_loss)
+                losses.append(in_sample_loss)
 
                 summary_writer.add_summary(summary, epoch)
 
@@ -149,7 +155,9 @@ class Trainer(object):
                     )
 
                     # write loss and predicted probabilities
-                    probs = map(lambda a: a.tolist(), features[0])
+                    probs = list(map(lambda a: a.tolist(), features[0]))
+                    print('probs')
+                    print(probs)
                     max_l = max(loss_log)
                     loss_norm = [float(l) / max_l for l in loss_log]
                     with tf.gfile.FastGFile(self._epoch_log_path(epoch), 'w') as f:
@@ -158,9 +166,12 @@ class Trainer(object):
                             'loss': loss_norm,
                         }
                         probs_with_uri = []
+                        lids = []
 
                         for i, p in enumerate(probs):
                             meta = dataset.get_meta(i)
+
+                            lids.append(int(meta['lid']))
                             item = {
                                 'probs': p,
                                 'url': meta['url'],
@@ -173,13 +184,15 @@ class Trainer(object):
 
                         data['probs'] = probs_with_uri
                         f.write(json.dumps(data))
-
+                    print(lids)
                 # FIXME: sleep to show convergence slowly on UI
                 if epoch < 200 and loss_log[-1] > max(loss_log) * 0.01:
                     time.sleep(self._sleep_sec)
-
+            plt.plot(losses)
+            plt.show()
             self.model.saver.save(sess, checkpoint_path, global_step=self.model.global_step)
             summary_writer.close()
+
 
     def _needs_logging(self, loss_log):
         if len(loss_log) < self._check_interval or len(loss_log) % self._check_interval != 0:
@@ -212,7 +225,7 @@ def main(_):
     parser.add_argument('--hidden_size', type=int, default=3, help="Number of units in hidden layer.")
     parser.add_argument('--epochs', type=int, default=2000, help="Number of epochs of training")
     parser.add_argument('--learning_rate', type=float, default=1e-3)
-    parser.add_argument('--data_dir', type=str, default='data', help="Directory for training data.")
+    parser.add_argument('--data_dir', type=str, default='output', help="Directory for training data.")
     parser.add_argument('--log_dir', type=str, default='log', help="Directory for TensorBoard logs.")
     parser.add_argument('--train_dir', type=str, default='train', help="Directory for checkpoints.")
 
@@ -223,8 +236,11 @@ def main(_):
 
     dataset = DataSet.from_reader(reader)
 
+    print('hei')
+    print(dataset)
+
     train_config = TrainingConfig(
-        epochs=2000,
+        epochs=200,
         batch_size=16,
         optimizer_class=tf.train.RMSPropOptimizer,
         optimizer_args={"learning_rate": 1e-3},
