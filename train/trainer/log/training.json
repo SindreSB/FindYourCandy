@@ -1,1 +1,1 @@
-{"epochs": 200, "batch_size": 16, "keep_prob": 1.0, "optimizer": {"name": "RMSPropOptimizer", "args": {"learning_rate": 0.001}}}
+{"epochs": 100, "batch_size": 16, "keep_prob": 1.0, "optimizer": {"name": "RMSPropOptimizer", "args": {"learning_rate": 0.001}}}

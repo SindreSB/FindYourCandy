@@ -157,7 +157,8 @@ def write_labels(labels, labels_data_path):
 def main():
     parser = argparse.ArgumentParser(description='Run Dobot WebAPI.')
     parser.add_argument('--output_dir', default ='output',nargs=1, type=str)
-    parser.add_argument('--image_dir', default='image', type=str)
+    parser.add_argument('--image_dir', default='image/train', type=str)
+    parser.add_argument('--image_dir_test', default='image/test', type=str)
     parser.add_argument('--model_file', type=str, default='classify_image_graph_def.pb')
     parser.add_argument('--for_prediction', action='store_true')
 
@@ -165,7 +166,8 @@ def main():
     output_dir = args.output_dir
 
     labels_file = os.path.join(output_dir, 'labels.json')
-    features_file = os.path.join(output_dir, 'features.json')
+    features_file_train = os.path.join(output_dir, 'trainfeatures.json')
+    features_file_test = os.path.join(output_dir, 'testfeatures.json')
     model_file = args.model_file
 
     if args.for_prediction:
@@ -178,9 +180,10 @@ def main():
     extractor = FeatureExtractor(model_file)
     writer = FeaturesDataWriter(path_gen, extractor)
 
-    logger.info("writing features file: {}".format(features_file))
-    writer.write_features(features_file)
-
+    logger.info("writing features file: {}".format(features_file_train))
+    writer.write_features(features_file_train)
+    logger.info("writing features file: {}".format(features_file_test))
+    writer.write_features(features_file_test)
 
 if __name__ == "__main__":
     main()

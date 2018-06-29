@@ -88,9 +88,10 @@ class TrainingConfig(object):
 
 
 class Trainer(object):
-    def __init__(self, train_config, model_params, train_dir, log_dir):
+    def __init__(self, train_config, model_params, test_dir, train_dir, log_dir):
         self.train_config = train_config
         self.model_params = model_params
+        self.test_dir = test_dir
         self.train_dir = train_dir
         self.log_dir = log_dir
 
@@ -108,8 +109,8 @@ class Trainer(object):
     def _epoch_log_path(self, num_epoch):
         return os.path.join(self.log_dir, 'epochs', '{}.json'.format(str(num_epoch).zfill(6)))
 
-    def train(self, dataset):
-        n_samples = dataset.n_samples()
+    def train(self, trainingset, testingset):
+        n_samples = trainingset.n_samples()
 
         logger.info('Build transfer network.')
 
@@ -125,21 +126,21 @@ class Trainer(object):
             summary_writer = tf.summary.FileWriter(self.log_dir, graph=sess.graph)
             sess.run(tf.initialize_all_variables())
             losses = []
+            accuracies = []
             for epoch in range(self.train_config.epochs):
                 # Shuffle data for batching
                 shuffled_idx = list(range(n_samples))
                 random.shuffle(shuffled_idx)
                 for begin_idx in range(0, n_samples, self.train_config.batch_size):
                     batch_idx = shuffled_idx[begin_idx: begin_idx + self.train_config.batch_size]
-                    sess.run(self.train_op, self.model.feed_for_training(*dataset.get(batch_idx)))
+                    sess.run(self.train_op, self.model.feed_for_training(*trainingset.get(batch_idx)))
 
                 # Print and write summaries.
                 in_sample_loss, summary = sess.run(
                     [self.model.loss_op, self.model.summary_op],
-                    self.model.feed_for_training(*dataset.all())
+                    self.model.feed_for_training(*trainingset.all())
                 )
-                print('------------------------------------------------')
-                print(in_sample_loss)
+
                 loss_log.append(in_sample_loss)
                 losses.append(in_sample_loss)
 
@@ -148,16 +149,17 @@ class Trainer(object):
                 if epoch % 100 == 0 or epoch == self.train_config.epochs - 1:
                     logger.info('{}th epoch end with loss {}.'.format(epoch, in_sample_loss))
 
-                if self._needs_logging(loss_log):
+                if True:
                     features = sess.run(
                         [self.model.softmax_op],
-                        self.model.feed_for_training(*dataset.all())
+                        self.model.feed_for_training(*testingset.all()) #feed testing data?
                     )
 
                     # write loss and predicted probabilities
                     probs = list(map(lambda a: a.tolist(), features[0]))
                     print('probs')
                     print(probs)
+                    averageAccuracy = 0
                     max_l = max(loss_log)
                     loss_norm = [float(l) / max_l for l in loss_log]
                     with tf.gfile.FastGFile(self._epoch_log_path(epoch), 'w') as f:
@@ -166,12 +168,13 @@ class Trainer(object):
                             'loss': loss_norm,
                         }
                         probs_with_uri = []
-                        lids = []
+                        correctCount = 0
 
                         for i, p in enumerate(probs):
-                            meta = dataset.get_meta(i)
-
-                            lids.append(int(meta['lid']))
+                            meta = testingset.get_meta(i) # metadata for testing
+                            predicted = np.argmax(p)
+                            if predicted == int(meta['lid']):
+                                correctCount += 1
                             item = {
                                 'probs': p,
                                 'url': meta['url'],
@@ -182,13 +185,20 @@ class Trainer(object):
                             }
                             probs_with_uri.append(item)
 
+                        averageAccuracy += correctCount/len(probs)
+                        print ('average accuracy ', averageAccuracy)
+
+
+                        accuracies.append(averageAccuracy)
                         data['probs'] = probs_with_uri
                         f.write(json.dumps(data))
-                    print(lids)
+                        print('accuracy in epoch : ',  ' is : ', (correctCount/len(probs)))
+
                 # FIXME: sleep to show convergence slowly on UI
                 if epoch < 200 and loss_log[-1] > max(loss_log) * 0.01:
                     time.sleep(self._sleep_sec)
-            plt.plot(losses)
+            plt.plot(losses, color='r')
+            plt.plot(accuracies, color='b')
             plt.show()
             self.model.saver.save(sess, checkpoint_path, global_step=self.model.global_step)
             summary_writer.close()
@@ -226,21 +236,28 @@ def main(_):
     parser.add_argument('--epochs', type=int, default=2000, help="Number of epochs of training")
     parser.add_argument('--learning_rate', type=float, default=1e-3)
     parser.add_argument('--data_dir', type=str, default='output', help="Directory for training data.")
+    parser.add_argument('--test_dir', type=str, default='output', help="Directory for test data.")
     parser.add_argument('--log_dir', type=str, default='log', help="Directory for TensorBoard logs.")
     parser.add_argument('--train_dir', type=str, default='train', help="Directory for checkpoints.")
 
     args = parser.parse_args()
 
     data_dir = args.data_dir
-    reader = TrainingFeaturesDataReader(data_dir)
+    test_dir = args.test_dir
 
-    dataset = DataSet.from_reader(reader)
+    reader = TrainingFeaturesDataReader(data_dir, features_file_name='trainfeatures.json')
+    reader2 = TrainingFeaturesDataReader(test_dir, features_file_name='testfeatures.json')
+
+    trainingset = DataSet.from_reader(reader)
+    testingset = DataSet.from_reader(reader2)
 
     print('hei')
-    print(dataset)
+    print(trainingset)
+    print('----------test----------')
+    print(testingset)
 
     train_config = TrainingConfig(
-        epochs=200,
+        epochs=100,
         batch_size=16,
         optimizer_class=tf.train.RMSPropOptimizer,
         optimizer_args={"learning_rate": 1e-3},
@@ -248,14 +265,15 @@ def main(_):
     )
 
     params = model.ModelParams(
-        labels=dataset.labels,
+        labels=trainingset.labels,
         hidden_size=args.hidden_size,
-        features_size=dataset.feature_size()
+        features_size=trainingset.feature_size()
     )
 
     trainer = Trainer(
         train_config=train_config,
         model_params=params,
+        test_dir=args.test_dir,
         train_dir=args.train_dir,
         log_dir=args.log_dir,
     )
@@ -272,7 +290,7 @@ def main(_):
     with tf.gfile.FastGFile(os.path.join(args.log_dir, 'training.json'), 'w') as f:
         f.write(train_config.to_json())
 
-    trainer.train(dataset)
+    trainer.train(trainingset, testingset)
 
 
 if __name__ == '__main__':
