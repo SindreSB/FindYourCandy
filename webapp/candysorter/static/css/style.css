@@ -2,41 +2,41 @@
 /* all */
 html,
 body { width: 100%; height: 100%; }
-body { color: #fff; font-family: "Roboto", sans-serif; font-weight: 300; line-height: 1.5; background: #222; -webkit-font-smoothing: antialiased; }
+body { color: #fff; font-family: "Roboto", sans-serif; font-weight: 300; line-height: 1.5; background: #003459; -webkit-font-smoothing: antialiased; }
 input { font-size: 100%; }
 p { margin: 30px 0; }
 a { color: #fff; text-decoration: none; }
 svg { vertical-align: top; }
 * { box-sizing: border-box; }
 /* parts */
-.btn { display: inline-block; font-size: 24px; font-weight: 300; width: 270px; height: 60px; line-height: 60px; border-radius: 3px; background: #ef5350; text-align: center; }
+.btn { display: inline-block; font-size: 24px; font-weight: 300; width: 270px; height: 60px; line-height: 60px; border-radius: 3px; background: #ff5f63; text-align: center; }
 .btn-g { background: #666; }
 /* color */
 .label-0 circle { fill: rgba(0,0,0,0); }
-.label-1 circle { fill: #ef5350; }
-.label-2 circle { fill: #42A5F5; }
-.label-3 circle { fill: #66BB6A; }
-.label-4 circle { fill: #FFCA28; }
+.label-1 circle { fill: #ff5f63; }
+.label-2 circle { fill: #29cff5; }
+.label-3 circle { fill: #49bca1; }
+.label-4 circle { fill: #fed546; }
 .label-5 circle { fill: #AB47BC; }
 .label-6 circle { fill: #26A69A; }
 .label-7 circle { fill: #FF7043; }
 .label-8 circle { fill: #EC407A; }
 .label-9 circle { fill: #7E57C2; }
 .label-10 circle { fill: #FFEE58; }
-dd.label-1 { background: #ef5350; }
-dd.label-2 { background: #42A5F5; }
-dd.label-3 { background: #66BB6A; }
-dd.label-4 { background: #FFCA28; }
+dd.label-1 { background: #ff5f63; }
+dd.label-2 { background: #29cff5; }
+dd.label-3 { background: #49bca1; }
+dd.label-4 { background: #fed546; }
 dd.label-5 { background: #AB47BC; }
 dd.label-6 { background: #26A69A; }
 dd.label-7 { background: #FF7043; }
 dd.label-8 { background: #EC407A; }
 dd.label-9 { background: #7E57C2; }
 dd.label-10 { background: #FFEE58; }
-polygon.label-1 { stroke: #ef5350; }
-polygon.label-2 { stroke: #42A5F5; }
-polygon.label-3 { stroke: #66BB6A; }
-polygon.label-4 { stroke: #FFCA28; }
+polygon.label-1 { stroke: #ff5f63; }
+polygon.label-2 { stroke: #29cff5; }
+polygon.label-3 { stroke: #49bca1; }
+polygon.label-4 { stroke: #fed546; }
 polygon.label-5 { stroke: #AB47BC; }
 polygon.label-6 { stroke: #26A69A; }
 polygon.label-7 { stroke: #FF7043; }
