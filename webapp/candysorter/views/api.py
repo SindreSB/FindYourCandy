@@ -40,6 +40,7 @@ from candysorter.models.images.detect import CandyDetector, detect_labels
 from candysorter.models.images.filter import exclude_unpickables
 from candysorter.models.images.train import CandyTrainer
 from candysorter.utils import load_class, random_str, symlink_force
+from candysorter.ext.google.cloud.translation import TranslatorClient
 
 logger = logging.getLogger(__name__)
 
@@ -47,12 +48,14 @@ api = Blueprint('api', __name__, url_prefix='/api')
 config = None
 cache = Cache()
 
+text_translator = None
 text_analyzer = None
 candy_detector = None
 candy_classifier = None
 candy_trainer = None
 image_capture = None
 image_calibrator = None
+
 
 
 @api.record
@@ -80,6 +83,9 @@ def record(state):
     global image_calibrator
     image_calibrator = ImageCalibrator.from_config(config)
 
+    global text_translator
+    text_translator = TranslatorClient()
+
 
 @api.errorhandler(400)
 def handle_http_error(e):
@@ -105,6 +111,22 @@ def id_required(f):
         return f(*args, **kwargs)
 
     return wrapper
+
+
+
+@api.route('/translate', methods=['POST'])
+@id_required
+def translate():
+    text = request.json.get('text')
+    source_lang = request.json.get('source')
+    if not text or source_lang:
+        abort(400)
+
+    target_lang = request.json.get('target', 'en')
+
+    translation_result = text_translator.translate(text, source_lang=source_lang, target_lang=target_lang)
+
+    return jsonify(translation_result)
 
 
 @api.route('/morphs', methods=['POST'])
