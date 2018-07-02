@@ -28,4 +28,4 @@ args = parser.parse_args()
 app = create_app(args.instance_path)
 
 if __name__ == '__main__':
-    app.run(host=args.host, port=args.port)
+    app.run(host=args.host, port=args.port, use_reloader=False)
