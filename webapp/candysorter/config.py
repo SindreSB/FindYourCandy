@@ -105,7 +105,7 @@ class DevelopmentConfig(DefaultConfig):
 
     CLASS_TEXT_ANALYZER = 'candysorter.models.texts.FakeTextAnalyzer'
     CLASS_IMAGE_CAPTURE = 'candysorter.models.images.capture.FakeImageCapture'
-    DUMMY_IMAGE_FILE    = './candysorter/resources/data/candies_with_label_multi.jpg'
+    DUMMY_IMAGE_FILE    = os.path.join(DefaultConfig.RESOURCE_DIR, 'dummy_image.jpg')
 
 
 class StagingConfig(DefaultConfig):
