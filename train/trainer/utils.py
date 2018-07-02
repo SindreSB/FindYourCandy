@@ -23,7 +23,7 @@ import tensorflow as tf
 
 
 class FeaturesDataReader(object):
-    def __init__(self, data_dir, labels_file_name='labels.json', features_file_name='features.json'):
+    def __init__(self, data_dir, features_file_name, labels_file_name='labels.json'):
         self.labels_file = os.path.join(data_dir, labels_file_name)
         self.features_file = os.path.join(data_dir, features_file_name)
 
@@ -45,6 +45,7 @@ class FeaturesDataReader(object):
 
 class TrainingFeaturesDataReader(FeaturesDataReader):
     def read_features(self):
+        print("Reading file:",self.features_file)
         with tf.gfile.FastGFile(self.features_file) as i_:
             lines = i_.readlines()
             features = list(map(lambda l: json.loads(l)['feature_vector'], lines))

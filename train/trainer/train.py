@@ -127,6 +127,9 @@ class Trainer(object):
             sess.run(tf.initialize_all_variables())
             losses = []
             accuracies = []
+            accuracies_train = []
+            fails_on_image = []
+            thought_label_was = []
             for epoch in range(self.train_config.epochs):
                 # Shuffle data for batching
                 shuffled_idx = list(range(n_samples))
@@ -152,16 +155,15 @@ class Trainer(object):
                 if True:
                     features = sess.run(
                         [self.model.softmax_op],
-                        self.model.feed_for_training(*testingset.all()) #feed testing data?
+                        self.model.feed_for_training(*testingset.all()) #feed testing data
                     )
 
-                    # write loss and predicted probabilities
+                    # write loss and predicted probabilities Test
                     probs = list(map(lambda a: a.tolist(), features[0]))
-                    print('probs')
-                    print(probs)
                     averageAccuracy = 0
                     max_l = max(loss_log)
                     loss_norm = [float(l) / max_l for l in loss_log]
+
                     with tf.gfile.FastGFile(self._epoch_log_path(epoch), 'w') as f:
                         data = {
                             'epoch': epoch,
@@ -175,6 +177,10 @@ class Trainer(object):
                             predicted = np.argmax(p)
                             if predicted == int(meta['lid']):
                                 correctCount += 1
+                            elif epoch == 47 :
+                                fails_on_image.append(meta['url'])
+                                thought_label_was.append(predicted)
+
                             item = {
                                 'probs': p,
                                 'url': meta['url'],
@@ -186,20 +192,65 @@ class Trainer(object):
                             probs_with_uri.append(item)
 
                         averageAccuracy += correctCount/len(probs)
-                        print ('average accuracy ', averageAccuracy)
-
-
                         accuracies.append(averageAccuracy)
                         data['probs'] = probs_with_uri
                         f.write(json.dumps(data))
-                        print('accuracy in epoch : ',  ' is : ', (correctCount/len(probs)))
+#--------
+
+                if True:
+                    features = sess.run(
+                        [self.model.softmax_op],
+                        self.model.feed_for_training(*trainingset.all())  # feed training data
+                    )
+
+                    # write loss and predicted probabilities
+                    probs = list(map(lambda a: a.tolist(), features[0]))
+                    averageAccuracy = 0
+                    max_l = max(loss_log)
+                    loss_norm = [float(l) / max_l for l in loss_log]
+                    with tf.gfile.FastGFile(self._epoch_log_path(epoch+1000), 'w') as f:
+                        data = {
+                            'epoch': epoch+1000,
+                            'loss': loss_norm,
+                        }
+                        probs_with_uri = []
+                        correctCount = 0
+
+                        for i, p in enumerate(probs):
+                            meta = trainingset.get_meta(i)  # metadata for training
+                            predicted = np.argmax(p)
+                            if predicted == int(meta['lid']):
+                                correctCount += 1
+                            item = {
+                                'probs': p,
+                                'url': meta['url'],
+                                'property': {
+                                    'label': meta['label'],
+                                    'lid': int(meta['lid'])
+                                }
+                            }
+                            probs_with_uri.append(item)
+
+                        averageAccuracy += correctCount / len(probs)
+                        accuracies_train.append(averageAccuracy)
+                        data['probs'] = probs_with_uri
+                        f.write(json.dumps(data))
 
                 # FIXME: sleep to show convergence slowly on UI
                 if epoch < 200 and loss_log[-1] > max(loss_log) * 0.01:
                     time.sleep(self._sleep_sec)
-            plt.plot(losses, color='r')
-            plt.plot(accuracies, color='b')
+            print('epic fails: ', fails_on_image )
+            print('thought it was: ', thought_label_was )
+            print(len(fails_on_image))
+            ax = plt.subplot(111)
+            plot_loss = ax.plot(losses, color='r', label="loss")
+            plot_test_accuracy = ax.plot(accuracies, color='b', label="test accuracy")
+            plot_train_accuracy = ax.plot(accuracies_train, color='y', label="train accuracy")
+            print('accuracy train: ', accuracies_train)
+            print('accuracy test', accuracies)
+            ax.legend()
             plt.show()
+
             self.model.saver.save(sess, checkpoint_path, global_step=self.model.global_step)
             summary_writer.close()
 
@@ -251,13 +302,13 @@ def main(_):
     trainingset = DataSet.from_reader(reader)
     testingset = DataSet.from_reader(reader2)
 
-    print('hei')
+
     print(trainingset)
     print('----------test----------')
     print(testingset)
 
     train_config = TrainingConfig(
-        epochs=100,
+        epochs=50,
         batch_size=16,
         optimizer_class=tf.train.RMSPropOptimizer,
         optimizer_args={"learning_rate": 1e-3},

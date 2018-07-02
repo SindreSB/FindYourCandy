@@ -23,8 +23,8 @@ import numpy
 import numpy as np
 import tensorflow as tf
 
-import trainer.model as model
-from trainer.utils import FeaturesDataReader
+import model as model
+from utils import FeaturesDataReader
 
 logger = logging.getLogger(__name__)
 
@@ -58,11 +58,9 @@ class Predictor(object):
         prob = mo.restore_and_predict(self.features_data, checkpoint_path)
 
         label_ids = np.argmax(prob, axis=1)
-        print('HER                    {}'.format(label_ids))
         return label_ids, prob
 
     def predict_to_json(self):
-        print('hei')
         print(self.result_to_json(*self.predict()))
         return self.result_to_json(*self.predict())
 
@@ -71,16 +69,15 @@ class Predictor(object):
         result = []
         image_urls = self.data_reader.read_feature_metadata('image_uri')
         for i in range(len(label_ids)):
-            lid = label_ids[i]
+            lid = int(label_ids[i])
             result.append({
                 "url": image_urls[i],
                 "top_lid": lid,
                 "top_label": self.model_params.labels[lid],
-                "probs": prob[i].tolist()
+                "probs": list(np.float64(prob[i]))
             })
-        print('etter dette')
         print(list(result))
-        return json.dumps(result)
+        return json.dumps(list(result))
 
 
 def main(_):
@@ -96,8 +93,7 @@ def main(_):
 
     args = parser.parse_args()
 
-    reader = FeaturesDataReader(args.data_dir)
-
+    reader = FeaturesDataReader(args.data_dir, 'trainfeatures.json')
     predictor = Predictor(reader, args.train_dir, args.train_dir+'/params.json')
     print(predictor.predict_to_json())
 
