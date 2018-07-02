@@ -66,7 +66,7 @@ This demo requires API credential for Google Cloud Platform(GCP). If this is you
     See [this doc](https://cloud.google.com/vision/docs/common/auth#set_up_a_service_account) to create a service account key
     - Service account: Compute Engine default service account
     - Key type: JSON
-      - Save the JSON as /home/brainpad/FindYourCandy/credential.json and a copy in /home as well
+      - Save the JSON as /home/{user}/FindYourCandy/credentials.json and a copy in /home as well
       - (* Saving to different path or filename may require editing webapp.ini later)
 
 
@@ -122,7 +122,7 @@ cloud_ml_bucket={the name of the Cloud Storage Bucket you created previously}
 
 ### Execute the ansible script
 ```
-$ ./script.sh hosts.file
+$ ./setup.sh hosts.file
 ```
 
 This script will install Chrome, create required folders and move requried scripts. It will also build the docker images from source. 
