@@ -118,13 +118,13 @@ def id_required(f):
 @id_required
 def translate():
     text = request.json.get('text')
-    source_lang = request.json.get('source')
-    if not text or source_lang:
+    if not text:
         abort(400)
 
+    source_lang = request.json.get('source', None)
     target_lang = request.json.get('target', 'en')
 
-    translation_result = text_translator.translate(text, source_lang=source_lang, target_lang=target_lang)
+    translation_result = text_translator.translate_text(text, source_lang=source_lang, target_lang=target_lang)
 
     return jsonify(translation_result)
 
