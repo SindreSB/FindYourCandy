@@ -233,7 +233,7 @@ def similarities():
         return list(rsim)
 
     def _box_as_json(box_coords):
-        return [[x.astype(int), y.astype(int)] for x, y in box_coords]
+        return [[int(x), int(y)] for x, y in box_coords]
 
     return jsonify(similarities=dict(
         force=_sim_as_json(speech_sim),
@@ -471,7 +471,7 @@ def _create_save_dir(session_id):
 def _candy_file(save_dir, i):
     # e.g. /tmp/download/image/20170209_130952_reqid/candy_01_xxxxxxxx.png
     return os.path.join(
-        save_dir, 'candy_{:02d}_{}.jpg'.format(i, random_str(8, string.lowercase + string.digits)))
+        save_dir, 'candy_{:02d}_{}.jpg'.format(i, random_str(8, string.ascii_lowercase + string.digits)))
 
 
 def _image_url(image_file):

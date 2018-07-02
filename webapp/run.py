@@ -17,7 +17,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import argparse
 
-from candysorter import create_app
+from candysorter.app import create_app
 
 parser = argparse.ArgumentParser(description='CandySorter WebApp')
 parser.add_argument('--host', type=str, default='0.0.0.0')
@@ -28,4 +28,4 @@ args = parser.parse_args()
 app = create_app(args.instance_path)
 
 if __name__ == '__main__':
-    app.run(host=args.host, port=args.port, use_reloader=False)
+    app.run(host=args.host, port=args.port, use_reloader=False, threaded=False)

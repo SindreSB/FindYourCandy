@@ -90,12 +90,12 @@ class DefaultConfig(object):
     TRAIN_LABEL_AREA_HEIGHT = 285
 
     # replace "YOUR-OWN-BUCKET-NAME" to your own bucket name
-    CLOUD_ML_BUCKET          = 'gs://{YOUR-OWN-BUCKET-NAME}'
-    CLOUD_ML_PACKAGE_URIS    = ['gs://{YOUR-OWN-BUCKET-NAME}/package/trainer-0.0.0.tar.gz']
+    CLOUD_ML_BUCKET          = 'gs://sb-robotas'
+    CLOUD_ML_PACKAGE_URIS    = ['gs://sb-robotas/package/trainer-0.0.0.tar.gz']
     CLOUD_ML_PYTHON_MODULE   = 'trainer.train'
-    CLOUD_ML_TRAIN_DIR       = 'gs://{YOUR-OWN-BUCKET-NAME}/{job_id}/checkpoints'
-    CLOUD_ML_LOG_DIR         = 'gs://{YOUR-OWN-BUCKET-NAME}/logs/{job_id}'
-    CLOUD_ML_DATA_DIR        = 'gs://{YOUR-OWN-BUCKET-NAME}/{job_id}/features'
+    CLOUD_ML_TRAIN_DIR       = 'gs://sb-robotas/{job_id}/checkpoints'
+    CLOUD_ML_LOG_DIR         = 'gs://sb-robotas/logs/{job_id}'
+    CLOUD_ML_DATA_DIR        = 'gs://sb-robotas/{job_id}/features'
     CLOUD_ML_RUNTIME_VERSION = '1.0'
 
 
