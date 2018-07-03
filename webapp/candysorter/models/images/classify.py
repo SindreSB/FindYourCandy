@@ -20,8 +20,8 @@ import os
 
 import tensorflow as tf
 
-from feature_extractor import FeatureExtractor
-from model import ModelParams, TransferModel
+from trainer.feature_extractor import FeatureExtractor
+from trainer.model import ModelParams, TransferModel
 
 logger = logging.getLogger(__name__)
 
