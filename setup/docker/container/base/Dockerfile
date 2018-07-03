@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 RUN set -ex \
   && sed -i -e "s%http://archive.ubuntu.com/ubuntu/%http://no.archive.ubuntu.com/ubuntu/%g" /etc/apt/sources.list \
@@ -6,8 +6,8 @@ RUN set -ex \
     libblas3 \
     liblapack3 \
     nginx \
-    python-dev \
-    python-pip \
+    python3-dev \
+    python3-pip \
     supervisor \
     vim \
   && rm /etc/nginx/sites-enabled/default \
