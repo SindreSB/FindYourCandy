@@ -1,1 +1,1 @@
-{"labels": ["label1", "label2", "label3", "label4"], "features_size": 2048, "hidden_size": 3}
+{"labels": ["label1", "label2", "label3", "label4"], "features_size": 2048, "hidden_size": 2}

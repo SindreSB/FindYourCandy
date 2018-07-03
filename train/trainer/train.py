@@ -20,11 +20,12 @@ import json
 import logging
 import os
 import random
+#import csv
 
 import numpy as np
 import tensorflow as tf
 import time
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import model as model
 from utils import TrainingFeaturesDataReader
 
@@ -45,7 +46,7 @@ class DataSet(object):
         data = reader.read_features()
         uris = reader.read_feature_metadata('image_uri')
         labels = reader.read_labels()
-        print(data[0],  data[1], uris, labels)
+        #print(data[0],  data[1], uris, labels)
 
         return cls(data[0], data[1], uris, labels)
 
@@ -125,11 +126,13 @@ class Trainer(object):
         with tf.Session() as sess:
             summary_writer = tf.summary.FileWriter(self.log_dir, graph=sess.graph)
             sess.run(tf.initialize_all_variables())
+
             losses = []
             accuracies = []
             accuracies_train = []
             fails_on_image = []
             thought_label_was = []
+
             for epoch in range(self.train_config.epochs):
                 # Shuffle data for batching
                 shuffled_idx = list(range(n_samples))
@@ -151,6 +154,8 @@ class Trainer(object):
 
                 if epoch % 100 == 0 or epoch == self.train_config.epochs - 1:
                     logger.info('{}th epoch end with loss {}.'.format(epoch, in_sample_loss))
+
+#-------- Accuracy for test set:
 
                 if True:
                     features = sess.run(
@@ -195,7 +200,8 @@ class Trainer(object):
                         accuracies.append(averageAccuracy)
                         data['probs'] = probs_with_uri
                         f.write(json.dumps(data))
-#--------
+
+#-------- Accuracy for training set:
 
                 if True:
                     features = sess.run(
@@ -239,17 +245,20 @@ class Trainer(object):
                 # FIXME: sleep to show convergence slowly on UI
                 if epoch < 200 and loss_log[-1] > max(loss_log) * 0.01:
                     time.sleep(self._sleep_sec)
-            print('epic fails: ', fails_on_image )
-            print('thought it was: ', thought_label_was )
-            print(len(fails_on_image))
-            ax = plt.subplot(111)
-            plot_loss = ax.plot(losses, color='r', label="loss")
-            plot_test_accuracy = ax.plot(accuracies, color='b', label="test accuracy")
-            plot_train_accuracy = ax.plot(accuracies_train, color='y', label="train accuracy")
-            print('accuracy train: ', accuracies_train)
-            print('accuracy test', accuracies)
-            ax.legend()
-            plt.show()
+
+            # writes accuracy for testing and training to a csv file for plotting
+            #with open('accuracies_per_epoch.csv', 'w+') as csv_file:
+            #    writer = csv.writer(csv_file, delimiter=',')
+            #    for i in range(len(accuracies)):
+            #        writer.writerow([i, float(accuracies_train[i]), float(accuracies[i])])
+
+            #ax = plt.subplot(111)
+            #ax.plot(losses, color='r', label="loss")
+            #ax.plot(accuracies, color='b', label="test accuracy")
+            #ax.plot(accuracies_train, color='y', label="train accuracy")
+
+            #ax.legend()
+            #plt.show()
 
             self.model.saver.save(sess, checkpoint_path, global_step=self.model.global_step)
             summary_writer.close()
@@ -282,9 +291,9 @@ def main(_):
     logger.info('tf version: {}'.format(tf.__version__))
 
     parser = argparse.ArgumentParser(description='Run Dobot WebAPI.')
-    parser.add_argument('--batch_size', type=int, default=16)
-    parser.add_argument('--hidden_size', type=int, default=3, help="Number of units in hidden layer.")
-    parser.add_argument('--epochs', type=int, default=2000, help="Number of epochs of training")
+    parser.add_argument('--batch_size', type=int, default=8)
+    parser.add_argument('--hidden_size', type=int, default=2, help="Number of units in hidden layer.")
+    parser.add_argument('--epochs', type=int, default=50, help="Number of epochs of training")
     parser.add_argument('--learning_rate', type=float, default=1e-3)
     parser.add_argument('--data_dir', type=str, default='output', help="Directory for training data.")
     parser.add_argument('--test_dir', type=str, default='output', help="Directory for test data.")
@@ -302,14 +311,9 @@ def main(_):
     trainingset = DataSet.from_reader(reader)
     testingset = DataSet.from_reader(reader2)
 
-
-    print(trainingset)
-    print('----------test----------')
-    print(testingset)
-
     train_config = TrainingConfig(
         epochs=50,
-        batch_size=16,
+        batch_size=8,
         optimizer_class=tf.train.RMSPropOptimizer,
         optimizer_args={"learning_rate": 1e-3},
         keep_prob=1.0,

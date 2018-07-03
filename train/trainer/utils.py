@@ -45,7 +45,7 @@ class FeaturesDataReader(object):
 
 class TrainingFeaturesDataReader(FeaturesDataReader):
     def read_features(self):
-        print("Reading file:",self.features_file)
+
         with tf.gfile.FastGFile(self.features_file) as i_:
             lines = i_.readlines()
             features = list(map(lambda l: json.loads(l)['feature_vector'], lines))
