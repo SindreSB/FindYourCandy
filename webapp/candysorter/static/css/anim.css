@@ -162,3 +162,59 @@ stroke-dashoffset: 0;
 .mode-sorry-t-start .cap,
 .mode-sorry-t-start .train { height: 0; opacity: 0; }
 .mode-sorry-t-end .sorry { height: 100%; opacity: 1; }
+
+
+@keyframes blinking {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes hand {
+    0% {
+        /* top:200px; */
+        transform: translatex(0px) translatey(0px);
+        -webkit-animation-timing-function: ease-in;
+        opacity:0.8;
+    }
+    100% {
+        /*top: 0px;
+        left:-50px; */
+        transform: translatex(-100px) translatey(-350px);
+        -webkit-animation-timing-function: ease-out;
+        opacity:0.8;
+
+    }
+}
+
+@keyframes blink {
+
+    0% {
+        opacity: .2;
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        opacity: .2;
+    }
+}
+
+.saving span {
+    animation-name: blink;
+    animation-duration: 1.4s;
+    animation-iteration-count: infinite;
+    animation-fill-mode: both;
+}
+.saving span:nth-child(2) {
+    animation-delay: .2s;
+}
+.saving span:nth-child(3) {
+    animation-delay: .4s;
+}
