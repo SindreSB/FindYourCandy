@@ -19,7 +19,7 @@ import json
 import logging
 import os
 
-from gensim.models import Word2Vec
+from gensim.models import KeyedVectors
 import numpy as np
 from scipy import spatial
 
@@ -60,7 +60,7 @@ class TextAnalyzer(object):
         self.models = {}
         for l, v in self.model_files.items():
             logger.info('Loading %s word2vec model...', l)
-            self.models[l] = Word2Vec.load_word2vec_format(v['file'], binary=v['binary'])
+            self.models[l] = KeyedVectors.load_word2vec_format(v['file'], binary=v['binary'])
             logger.info('Finished %s loading word2vec model.', l)
 
     def _load_labels(self):
