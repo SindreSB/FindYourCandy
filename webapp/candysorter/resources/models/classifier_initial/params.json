@@ -1,1 +1,1 @@
-{"labels": ["MINT CANDY", "CANDY CHOCOLATE", "CHEWY CANDY", "SALTY SNACKS"], "hidden_size": 3, "features_size": 2048}
+{"labels": ["chocolate", "gum", "liquorice", "smurf"], "features_size": 2048, "hidden_size": 2}
