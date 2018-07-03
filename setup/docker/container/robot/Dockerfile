@@ -1,4 +1,4 @@
-FROM brainpad/fyc-base:latest
+FROM computas/fyc-base:latest
 
 WORKDIR /opt/FindYourCandy
 ARG container_dir="setup/docker/container/robot"

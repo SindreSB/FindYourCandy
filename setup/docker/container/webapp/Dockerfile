@@ -1,4 +1,4 @@
-FROM brainpad/fyc-opencv:latest
+FROM computas/fyc-opencv:latest
 
 WORKDIR /opt/FindYourCandy
 ARG container_dir="setup/docker/container/webapp"

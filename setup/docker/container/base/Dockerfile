@@ -11,6 +11,6 @@ RUN set -ex \
     supervisor \
     vim \
   && rm /etc/nginx/sites-enabled/default \
-  && pip install --upgrade pip \
+  && pip3 install --upgrade pip \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*

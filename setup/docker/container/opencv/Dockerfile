@@ -1,4 +1,4 @@
-FROM comp/fyc-base:latest
+FROM computas/fyc-base:latest
 
 RUN set -ex \
   && apt-get update && apt-get install -y \
@@ -12,7 +12,7 @@ RUN set -ex \
     libavcodec-dev \
     libavformat-dev \
     libswscale-dev \
-    libv4l-dev
+    libv4l-dev \
     libxvidcore-dev \
     libx264-dev \
     libgtk-3-dev \
@@ -49,7 +49,8 @@ RUN set -ex \
   && make -j $(nproc) \
   && make install \
   && ldconfig \
-  && cp lib/cv2.so /usr/local/lib/python3.6/dist-packages/ \
-  && cd ../.. \
-  && rm -f opencv-3.2.0.zip opencv_contrib-3.2.0.zip \
-  && rm -rf opencv-3.2.0 opencv_contrib-3.2.0 \
+  && cd /usr/local/lib/python3.6/dist-packages/ \
+  && mv cv2.cpython-36m-x86_64-linux-gnu.so cv2.so \
+  && cd /opt \
+  && rm -f opencv.zip opencv_contrib.zip \
+  && rm -rf opencv-3.4.1 opencv_contrib-3.4.1 \
