@@ -1,4 +1,4 @@
-#Model setup, training, and testing.
+# Model setup, training, and testing.
 
 
 
@@ -41,13 +41,13 @@
 
 
 ### Preperation
-#####Set up image directory for test and training data.
+##### Set up image directory for test and training data.
     You will need two separat directories separating test and training data, naming each folder inside the two directories after the label. 
     It is important to not have any duplicates.
 
 
 
-#####Set features and labels
+##### Set features and labels
     After adding train and test data, run feature_extractor.py to write features and labels to json files.
  
   
