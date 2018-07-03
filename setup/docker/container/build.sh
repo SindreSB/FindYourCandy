@@ -15,7 +15,7 @@ fi
 
 case "$1" in
   base | opencv | robot | webapp)
-    repos="brainpad/fyc-$1"
+    repos="computas/fyc-$1"
     tag=$(date '+%Y%m%d%H%M')
 
     echo "${repos}:${tag}"
