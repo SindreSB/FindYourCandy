@@ -37,6 +37,28 @@ def create_app(dobot_port, tuner_file, instance_path):
     return app
 
 
+"""
+Removed file logging as this seems to cause issues with supervisor and docker
+'file_app': {
+                'class': 'logging.handlers.TimedRotatingFileHandler',
+                'formatter': 'default',
+                'filename': os.path.join(app.config['LOG_DIR'], 'app.log'),
+                'when': 'd',
+                'interval': 1,
+                'backupCount': 14,
+            },
+            'file_access': {
+                'class': 'logging.handlers.TimedRotatingFileHandler',
+                'formatter': 'access',
+                'filename': os.path.join(app.config['LOG_DIR'], 'access.log'),
+                'when': 'd',
+                'interval': 1,
+                'backupCount': 14,
+            },
+
+"""
+
+
 def _configure_logging(app):
     app.logger
     logging.config.dictConfig({
@@ -59,38 +81,21 @@ def _configure_logging(app):
                 'class': 'logging.StreamHandler',
                 'formatter': 'access',
             },
-            'file_app': {
-                'class': 'logging.handlers.TimedRotatingFileHandler',
-                'formatter': 'default',
-                'filename': os.path.join(app.config['LOG_DIR'], 'app.log'),
-                'when': 'd',
-                'interval': 1,
-                'backupCount': 14,
-            },
-            'file_access': {
-                'class': 'logging.handlers.TimedRotatingFileHandler',
-                'formatter': 'access',
-                'filename': os.path.join(app.config['LOG_DIR'], 'access.log'),
-                'when': 'd',
-                'interval': 1,
-                'backupCount': 14,
-            },
-
         },
         'loggers': {
             '': {
                 'level': app.config['LOG_LEVEL'],
-                'handlers': ['file_app'] if not app.debug else ['console_app'],
+                'handlers': ['console_app'] if not app.debug else ['console_app'],
                 'propagate': False,
             },
             'werkzeug': {
                 'level': app.config['LOG_LEVEL'],
-                'handlers': ['file_access'] if not app.debug else ['console_access'],
+                'handlers': ['console_access'] if not app.debug else ['console_access'],
                 'propagate': False,
             },
         },
         'root': {
             'level': app.config['LOG_LEVEL'],
-            'handlers': ['file_app'] if not app.debug else ['console_app'],
+            'handlers': ['console_app'] if not app.debug else ['console_app'],
         },
     })
