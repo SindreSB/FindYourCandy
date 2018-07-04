@@ -140,6 +140,10 @@ def morphs():
     logger.info('=== Analyze text: id=%s ===', g.id)
 
     tokens = text_analyzer.analyze_syntax(text, lang)
+
+    cache.set('lang', lang)
+    cache.set('tokens', tokens)
+
     return jsonify(morphs=[
         dict(
             word=t.text.content,
@@ -154,20 +158,28 @@ def morphs():
 @api.route('/similarities', methods=['POST'])
 @id_required
 def similarities():
-    text = request.json.get('text')
-    if not text:
-        abort(400)
-    lang = request.json.get('lang', 'en')
-
-    logger.info('=== Calculate similarities: id=%s ===', g.id)
-
     # Session
     session_id = _session_id()
 
-    # Analyze text
-    logger.info('Analyaing text.')
     labels = text_analyzer.labels
-    tokens = text_analyzer.analyze_syntax(text, lang)
+
+    logger.info('=== Calculate similarities: id=%s ===', g.id)
+
+    # See if we already have analyzed the text
+    lang = cache.get('lang')
+    tokens = cache.get('tokens')
+
+    if not tokens or not lang:
+        text = request.json.get('text')
+        if not text:
+            abort(400)
+        lang = request.json.get('lang', 'en')
+
+        # Analyze text
+        logger.info('Analyzing text.')
+        tokens = text_analyzer.analyze_syntax(text, lang)
+    else:
+        logger.info('Using cached text analysis')
 
     # Calculate speech similarity
     logger.info('Calculating speech similarity.')
