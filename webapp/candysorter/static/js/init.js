@@ -20,7 +20,7 @@ $(function () {
 
 	// process of voice recognition
 	/* DISABLED FOR TESTING */
-
+/*
 	var speech = function () {
 		$("body").addClass("mode-speech-start");
 		recognition.lang = lang;
@@ -47,7 +47,7 @@ $(function () {
 
 
 /*
-
+*/
     var speech = function () {
         $("body").addClass("mode-speech-start");
         recognition.lang = lang;
@@ -63,7 +63,7 @@ $(function () {
         });
     }
 
-*/
+
 	// switch language
 	$(".speech-lang a").click(function () {
 		if ($(this).text() == "EN") {

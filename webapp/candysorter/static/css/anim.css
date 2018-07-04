@@ -180,23 +180,23 @@ stroke-dashoffset: 0;
     0% {
         /* top:200px; */
         opacity:0;
-        transform: translatex(350px) translatey(-50px);
+        transform: translatex(350px) translatey(50px);
         -webkit-animation-timing-function: ease-in;
         animation-delay: 5s;
     }
     45% {
         /*top: 0px;
         left:-50px; */
-        transform: translatex(10px) translatey(-250px);
+        transform: translatex(10px) translatey(-150px);
         opacity:.7;
         -webkit-animation-timing-function: ease-out;
     }
     55%{
-        transform: perspective(500px) translatex(10px) translatey(-250px) translateZ(-50px);
+        transform: perspective(500px) translatex(10px) translatey(-150px) translateZ(-50px);
         opacity: 1;
     }
     65% {
-        transform: translatex(10px) translatey(-250px);
+        transform: translatex(10px) translatey(-150px);
         -webkit-animation-timing-function: both;
         opacity: 1;
     }
@@ -205,7 +205,7 @@ stroke-dashoffset: 0;
     }
     100% {
         opacity: 0;
-        transform: translatex(350px) translatey(-50px);
+        transform: translatex(350px) translatey(50px);
     }
 }
 
