@@ -19,7 +19,8 @@ $(function () {
 	var winH = window.innerHeight;
 
 	// process of voice recognition
-	/* DISABLED FOR TESTING
+	/* DISABLED FOR TESTING */
+
 	var speech = function () {
 		$("body").addClass("mode-speech-start");
 		recognition.lang = lang;
@@ -29,7 +30,8 @@ $(function () {
 				border: "solid 0 #ff5f63"
 				}
 			);
-			$("body").addClass("mode-speech-in");
+            $(".speech-hand-animation").hide();
+            $("body").addClass("mode-speech-in");
 			recognition.start();
 		});
 		recognition.onerror = function () {
@@ -43,8 +45,8 @@ $(function () {
 		};
 	}
 
-    */
 
+/*
 
     var speech = function () {
         $("body").addClass("mode-speech-start");
@@ -61,6 +63,7 @@ $(function () {
         });
     }
 
+*/
 	// switch language
 	$(".speech-lang a").click(function () {
 		if ($(this).text() == "EN") {
