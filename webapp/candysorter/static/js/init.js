@@ -45,6 +45,7 @@ $(function () {
 
     */
 
+
     var speech = function () {
         $("body").addClass("mode-speech-start");
         recognition.lang = lang;
@@ -54,6 +55,7 @@ $(function () {
                     border: "solid 0 #ff5f63"
                 }
             );
+            $(".speech-hand-animation").hide();
             $("body").addClass("mode-speech-in");
             setTimeout(nl, 1500);
         });

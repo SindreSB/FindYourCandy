@@ -179,17 +179,33 @@ stroke-dashoffset: 0;
 @keyframes hand {
     0% {
         /* top:200px; */
-        transform: translatex(0px) translatey(0px);
+        opacity:0;
+        transform: translatex(350px) translatey(-50px);
         -webkit-animation-timing-function: ease-in;
-        opacity:0.8;
+        animation-delay: 5s;
     }
-    100% {
+    45% {
         /*top: 0px;
         left:-50px; */
-        transform: translatex(-100px) translatey(-350px);
+        transform: translatex(10px) translatey(-250px);
+        opacity:.7;
         -webkit-animation-timing-function: ease-out;
-        opacity:0.8;
-
+    }
+    55%{
+        transform: perspective(500px) translatex(10px) translatey(-250px) translateZ(-50px);
+        opacity: 1;
+    }
+    65% {
+        transform: translatex(10px) translatey(-250px);
+        -webkit-animation-timing-function: both;
+        opacity: 1;
+    }
+    70%{
+        opacity: .5;
+    }
+    100% {
+        opacity: 0;
+        transform: translatex(350px) translatey(-50px);
     }
 }
 
@@ -204,17 +220,4 @@ stroke-dashoffset: 0;
     100% {
         opacity: .2;
     }
-}
-
-.saving span {
-    animation-name: blink;
-    animation-duration: 1.4s;
-    animation-iteration-count: infinite;
-    animation-fill-mode: both;
-}
-.saving span:nth-child(2) {
-    animation-delay: .2s;
-}
-.saving span:nth-child(3) {
-    animation-delay: .4s;
 }
