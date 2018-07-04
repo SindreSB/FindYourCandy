@@ -17,6 +17,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import logging
 import os
+from webapp.candysorter.utils import get_classifier_dir
 
 import tensorflow as tf
 
@@ -36,7 +37,7 @@ class CandyClassifier(object):
 
     @classmethod
     def from_config(cls, config):
-        checkpoint_dir = config['CLASSIFIER_MODEL_DIR']
+        checkpoint_dir = get_classifier_dir(config)
         return cls(
             checkpoint_dir=checkpoint_dir,
             params_file=os.path.join(checkpoint_dir, 'params.json'),
