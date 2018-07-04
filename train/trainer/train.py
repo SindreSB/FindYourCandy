@@ -26,8 +26,8 @@ import numpy as np
 import tensorflow as tf
 import time
 #import matplotlib.pyplot as plt
-import model as model
-from utils import TrainingFeaturesDataReader
+import trainer.model as model
+from trainer.utils import TrainingFeaturesDataReader
 
 JPEG_EXT = 'jpg'
 
@@ -89,10 +89,10 @@ class TrainingConfig(object):
 
 
 class Trainer(object):
-    def __init__(self, train_config, model_params, test_dir, train_dir, log_dir):
+    def __init__(self, train_config, model_params, train_dir, log_dir):
         self.train_config = train_config
         self.model_params = model_params
-        self.test_dir = test_dir
+        #self.test_dir = test_dir
         self.train_dir = train_dir
         self.log_dir = log_dir
 
@@ -110,7 +110,7 @@ class Trainer(object):
     def _epoch_log_path(self, num_epoch):
         return os.path.join(self.log_dir, 'epochs', '{}.json'.format(str(num_epoch).zfill(6)))
 
-    def train(self, trainingset, testingset):
+    def train(self, trainingset):
         n_samples = trainingset.n_samples()
 
         logger.info('Build transfer network.')
@@ -157,7 +157,7 @@ class Trainer(object):
 
 #-------- Accuracy for test set:
 
-                if True:
+                if False:
                     features = sess.run(
                         [self.model.softmax_op],
                         self.model.feed_for_training(*testingset.all()) #feed testing data
@@ -296,20 +296,20 @@ def main(_):
     parser.add_argument('--epochs', type=int, default=50, help="Number of epochs of training")
     parser.add_argument('--learning_rate', type=float, default=1e-3)
     parser.add_argument('--data_dir', type=str, default='output', help="Directory for training data.")
-    parser.add_argument('--test_dir', type=str, default='output', help="Directory for test data.")
+   # parser.add_argument('--test_dir', type=str, default='output', help="Directory for test data.")
     parser.add_argument('--log_dir', type=str, default='log', help="Directory for TensorBoard logs.")
     parser.add_argument('--train_dir', type=str, default='train', help="Directory for checkpoints.")
 
     args = parser.parse_args()
 
     data_dir = args.data_dir
-    test_dir = args.test_dir
+  #  test_dir = args.test_dir
 
-    reader = TrainingFeaturesDataReader(data_dir, features_file_name='trainfeatures.json')
-    reader2 = TrainingFeaturesDataReader(test_dir, features_file_name='testfeatures.json')
+    reader = TrainingFeaturesDataReader(data_dir, features_file_name='features.json')
+    #reader2 = TrainingFeaturesDataReader(test_dir, features_file_name='testfeatures.json')
 
     trainingset = DataSet.from_reader(reader)
-    testingset = DataSet.from_reader(reader2)
+    #testingset = DataSet.from_reader(reader2)
 
     train_config = TrainingConfig(
         epochs=50,
@@ -328,7 +328,7 @@ def main(_):
     trainer = Trainer(
         train_config=train_config,
         model_params=params,
-        test_dir=args.test_dir,
+     #   test_dir=args.test_dir,
         train_dir=args.train_dir,
         log_dir=args.log_dir,
     )
@@ -345,8 +345,8 @@ def main(_):
     with tf.gfile.FastGFile(os.path.join(args.log_dir, 'training.json'), 'w') as f:
         f.write(train_config.to_json())
 
-    trainer.train(trainingset, testingset)
-
+    #trainer.train(trainingset, testingset)
+    trainer.train(trainingset)
 
 if __name__ == '__main__':
     tf.app.run()
