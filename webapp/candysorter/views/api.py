@@ -20,6 +20,7 @@ from functools import wraps
 import glob
 import logging
 import os
+import platform
 import shutil
 import string
 import time
@@ -477,6 +478,11 @@ def _candy_file(save_dir, i):
 def _image_url(image_file):
     # e.g. 20170209_130952_reqid/candy_01_xxxxxxxx.png
     rel = os.path.relpath(image_file, config['DOWNLOAD_IMAGE_DIR'])
+
+    # On Windows, the url will not contain slash, but the encoded \ which will return a 404
+    # So we replace it with forward slash
+    if platform.system() == 'Windows':
+        rel = rel.replace('\\', '/')
 
     # e.g. /image/20170209_130952_reqid/candy_01_xxxxxxxx.png
     return url_for('ui.image', filename=rel)
