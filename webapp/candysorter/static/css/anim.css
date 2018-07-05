@@ -188,19 +188,19 @@ stroke-dashoffset: 0;
         /*top: 0px;
         left:-50px; */
         transform: translatex(10px) translatey(-150px);
-        opacity:.7;
+        opacity:.6;
         -webkit-animation-timing-function: ease-out;
     }
     55%{
         transform: perspective(500px) translatex(10px) translatey(-150px) translateZ(-50px);
-        opacity: 1;
+        opacity: .8;
     }
     65% {
         transform: translatex(10px) translatey(-150px);
         -webkit-animation-timing-function: both;
-        opacity: 1;
+        opacity: .8;
     }
-    70%{
+    75%{
         opacity: .5;
     }
     100% {

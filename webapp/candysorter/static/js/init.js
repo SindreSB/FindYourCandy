@@ -17,6 +17,7 @@ $(function () {
 	var sim = "";
 	var winW = window.innerWidth;
 	var winH = window.innerHeight;
+	var examples = ["\"Kan jeg få sjokolade?\"","\"Jeg liker smurf\"","\"Kan jeg få lakris?\"", "\"Kan jeg få noe søtt?\""]
 
 	// process of voice recognition
 	/* DISABLED FOR TESTING */
@@ -48,6 +49,21 @@ $(function () {
 
 /*
 */
+
+// variable to keep track of last text displayed
+    var i = 0;
+    var textTimer = function() {
+        if (i >= examples.length) { i = 0; }
+        $("#example-text").fadeOut(1000, function(){
+            $(this).text(examples[i]);
+        });
+        $("#example-text").fadeIn();
+        i++;
+    }
+    $("#example-text").text(examples[i++]); // initialize with first quote
+    setInterval(textTimer, 3500);
+
+
     var speech = function () {
         $("body").addClass("mode-speech-start");
         recognition.lang = lang;
@@ -57,12 +73,22 @@ $(function () {
                     border: "solid 0 #ff5f63"
                 }
             );
-            $(".speech-hand-animation").hide();
+            $(".speech-footer").hide();
+            $(".speech-hand-animation").hide(); //Hide demo animation when record starts
             $("body").addClass("mode-speech-in");
-            setTimeout(nl, 1500);
+            setTimeout(function () {
+                translation();
+                nl()
+            }, 1500);
         });
     }
 
+    var translation = function () {
+        var speechTran = "Kan jeg få sjokolade";
+        console.log(speechTran);
+
+
+    }
 
 	// switch language
 	$(".speech-lang a").click(function () {
@@ -149,6 +175,7 @@ $(function () {
 						width: w + "px"
 					});
 				});
+				/*FOOTER LOADING ANIMATION*/
 				setInterval(function () {
                     $(".nl-footer").show();
                 }, 1000);
@@ -163,7 +190,7 @@ $(function () {
 				$(".nl-label, .nl-depend dd").css("transition-delay", 3 + "s"); //endret fra 2.5
 				$("body").addClass("mode-nl-loaded");
 
-                /*MAKES IT LOOK VERY CRASHED WHEN DISABLED*/
+                /*MAKES IT LOOK VERY CRASHED WHEN DISABLED WITHOUT FOOTER ANIMATION*/
 				// repeat effects
 				/*setInterval(function () {
 					$("body").addClass("mode-nl-repeat");
