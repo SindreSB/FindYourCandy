@@ -199,6 +199,12 @@ class SetEndEffectorSuctionCup(Command):
         self.params = struct.pack('<BB', is_ctrl_enabled, is_sucked)
 
 
+class SetEndEffectorGripper(Command):
+    def __init__(self, is_ctrl_enabled, is_gripped):
+        super(SetEndEffectorGripper, self).__init__(63, 1, 1)
+        self.params = struct.pack('<BB', is_ctrl_enabled, is_gripped)
+
+
 class SetQueuedCmdStartExec(Command):
     def __init__(self):
         super(SetQueuedCmdStartExec, self).__init__(240, 1, 0)
