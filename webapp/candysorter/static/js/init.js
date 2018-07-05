@@ -21,7 +21,6 @@ $(function () {
 
 	// process of voice recognition
 	/* DISABLED FOR TESTING */
-/*
 	var speech = function () {
 		$("body").addClass("mode-speech-start");
 		recognition.lang = lang;
@@ -47,9 +46,6 @@ $(function () {
 	}
 
 
-/*
-*/
-
 // variable to keep track of last text displayed
     var i = 0;
     var textTimer = function() {
@@ -63,7 +59,7 @@ $(function () {
     $("#example-text").text(examples[i++]); // initialize with first quote
     setInterval(textTimer, 3500);
 
-
+/*
     var speech = function () {
         $("body").addClass("mode-speech-start");
         recognition.lang = lang;
@@ -82,7 +78,7 @@ $(function () {
             }, 1500);
         });
     }
-
+*/
     var translation = function () {
         var speechTran = "Kan jeg få sjokolade";
         console.log(speechTran);
