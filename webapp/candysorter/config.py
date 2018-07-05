@@ -53,8 +53,12 @@ class DefaultConfig(object):
             'binary': False,
         },
     }
-    CLASSIFIER_MODEL_DIR         = os.path.join(MODEL_DIR, 'classifier')
-    CLASSIFIER_MODEL_DIR_INITIAL = os.path.join(MODEL_DIR, 'classifier_initial')
+
+    CLASSIFIER_DIR_NAME          = 'classifier'
+    CLASSIFIER_DIR_NAME_INITIAL  = 'classifier_initial'
+    CLASSIFIER_MODEL_DIR         = os.path.join(MODEL_DIR, CLASSIFIER_DIR_NAME)
+    CLASSIFIER_MODEL_DIR_INITIAL = os.path.join(MODEL_DIR, CLASSIFIER_DIR_NAME_INITIAL)
+
     INCEPTION_MODEL_FILE         = os.path.join(MODEL_DIR, 'classify_image_graph_def.pb')
 
     POS_WEIGHTS = {

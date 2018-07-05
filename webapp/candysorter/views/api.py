@@ -40,7 +40,7 @@ from candysorter.models.images.classify import CandyClassifier
 from candysorter.models.images.detect import CandyDetector, detect_labels
 from candysorter.models.images.filter import exclude_unpickables
 from candysorter.models.images.train import CandyTrainer
-from candysorter.utils import load_class, random_str, symlink_force
+from candysorter.utils import load_class, random_str, symlink_force, reset_classifier_dir, update_classifier_dir
 from candysorter.ext.google.cloud.translation import TranslatorClient
 
 logger = logging.getLogger(__name__)
@@ -427,8 +427,8 @@ def status():
         key = 'model_updated_{}'.format(job_id)
         if not cache.get(key):
             logger.info('Training completed, updating model: job_id=%s', job_id)
-            new_checkpoint_dir = candy_trainer.download_checkpoints(job_id)
-            symlink_force(new_checkpoint_dir, config['CLASSIFIER_MODEL_DIR'])
+            candy_trainer.download_checkpoints(job_id)
+            update_classifier_dir(config, job_id)
             text_analyzer.reload()
             candy_classifier.reload()
             cache.set(key, True)
@@ -450,8 +450,7 @@ def reload():
 
 @api.route('/_reset', methods=['POST'])
 def reset():
-    symlink_force(
-        os.path.basename(config['CLASSIFIER_MODEL_DIR_INITIAL']), config['CLASSIFIER_MODEL_DIR'])
+    reset_classifier_dir(config)
     text_analyzer.reload()
     candy_classifier.reload()
     return jsonify({})

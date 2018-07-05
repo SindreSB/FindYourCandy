@@ -18,6 +18,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import json
 import logging
 import os
+from webapp.candysorter.utils import get_classifier_dir
 
 from gensim.models import KeyedVectors
 import numpy as np
@@ -45,7 +46,7 @@ class TextAnalyzer(object):
 
     @classmethod
     def from_config(cls, config):
-        return cls(params_file=os.path.join(config['CLASSIFIER_MODEL_DIR'], 'params.json'),
+        return cls(params_file=os.path.join(get_classifier_dir(config), 'params.json'),
                    model_files=config['WORD2VEC_MODEL_FILES'],
                    pos_weights=config['POS_WEIGHTS'])
 
