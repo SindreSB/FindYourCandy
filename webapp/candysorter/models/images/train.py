@@ -17,7 +17,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import json
 import os
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 from google.cloud import storage
 from sklearn.decomposition import PCA

@@ -86,5 +86,8 @@ class Dobot(object):
     def pump(self, on):
         self.serial.call(command.SetEndEffectorSuctionCup(1, on))
 
+    def grip(self, grip):
+        self.serial.call(command.SetEndEffectorGripper(1, grip))
+
     def close(self):
         self.serial.close()

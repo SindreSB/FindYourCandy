@@ -98,7 +98,7 @@ class TransferModel(object):
                 self.global_step = tf.Variable(0, name='global_step', trainable=False)
             # Summaries
             with tf.variable_scope('summaries'):
-                tf.summary.scalar('in_sample_loss', self.loss_op)
+                tf.summary.scalar('in sample loss', self.loss_op)
                 self.summary_op = tf.summary.merge_all()
 
     @classmethod

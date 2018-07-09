@@ -102,7 +102,7 @@ class PacketParser(object):
 
 
 def checksum(payload):
-    return 0xFF & (0x100 - (sum([ord(c) for c in payload])))
+    return 0xFF & (0x100 - (sum([c for c in payload])))
 
 
 def ctrl(rw, is_queued):
@@ -197,6 +197,12 @@ class SetEndEffectorSuctionCup(Command):
     def __init__(self, is_ctrl_enabled, is_sucked):
         super(SetEndEffectorSuctionCup, self).__init__(62, 1, 1)
         self.params = struct.pack('<BB', is_ctrl_enabled, is_sucked)
+
+
+class SetEndEffectorGripper(Command):
+    def __init__(self, is_ctrl_enabled, is_gripped):
+        super(SetEndEffectorGripper, self).__init__(63, 1, 1)
+        self.params = struct.pack('<BB', is_ctrl_enabled, is_gripped)
 
 
 class SetQueuedCmdStartExec(Command):

@@ -26,12 +26,13 @@ class ScaleTier(object):
 
 class TrainingInput(object):
     def __init__(self, package_uris, python_module, scale_tier=ScaleTier.BASIC,
-                 region='us-central1', runtime_version='1.0'):
+                 region='us-central1', runtime_version='1.8', python_version='3.5'):
         self.package_uris = package_uris
         self.python_module = python_module
         self.scale_tier = scale_tier
         self.region = region
         self.runtime_version = runtime_version
+        self.python_version = python_version
         self._properties = {}
 
     @classmethod
@@ -40,7 +41,8 @@ class TrainingInput(object):
                              python_module=resource.get('pythonModule'),
                              scale_tier=resource.get('scaleTier'),
                              region=resource.get('region'),
-                             runtime_version=resource.get('runtimeVersion'))
+                             runtime_version=resource.get('runtimeVersion'),
+                             python_version=resource.get('pythonVersion'))
         if 'args' in resource:
             training_input._properties['args'] = resource['args']
         return training_input
@@ -52,6 +54,7 @@ class TrainingInput(object):
             'pythonModule': self.python_module,
             'region': self.region,
             'runtimeVersion': self.runtime_version,
+            'pythonVersion': self.python_version,
         }
         _args = self._properties.get('args')
         if _args is not None:

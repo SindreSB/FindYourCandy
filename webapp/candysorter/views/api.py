@@ -20,6 +20,7 @@ from functools import wraps
 import glob
 import logging
 import os
+import platform
 import shutil
 import string
 import time
@@ -39,7 +40,7 @@ from candysorter.models.images.classify import CandyClassifier
 from candysorter.models.images.detect import CandyDetector, detect_labels
 from candysorter.models.images.filter import exclude_unpickables
 from candysorter.models.images.train import CandyTrainer
-from candysorter.utils import load_class, random_str, symlink_force
+from candysorter.utils import load_class, random_str, symlink_force, reset_classifier_dir, update_classifier_dir
 from candysorter.ext.google.cloud.translation import TranslatorClient
 
 logger = logging.getLogger(__name__)
@@ -140,6 +141,10 @@ def morphs():
     logger.info('=== Analyze text: id=%s ===', g.id)
 
     tokens = text_analyzer.analyze_syntax(text, lang)
+
+    cache.set('lang', lang)
+    cache.set('tokens', tokens)
+
     return jsonify(morphs=[
         dict(
             word=t.text.content,
@@ -154,20 +159,28 @@ def morphs():
 @api.route('/similarities', methods=['POST'])
 @id_required
 def similarities():
-    text = request.json.get('text')
-    if not text:
-        abort(400)
-    lang = request.json.get('lang', 'en')
-
-    logger.info('=== Calculate similarities: id=%s ===', g.id)
-
     # Session
     session_id = _session_id()
 
-    # Analyze text
-    logger.info('Analyaing text.')
     labels = text_analyzer.labels
-    tokens = text_analyzer.analyze_syntax(text, lang)
+
+    logger.info('=== Calculate similarities: id=%s ===', g.id)
+
+    # See if we already have analyzed the text
+    lang = cache.get('lang')
+    tokens = cache.get('tokens')
+
+    if not tokens or not lang:
+        text = request.json.get('text')
+        if not text:
+            abort(400)
+        lang = request.json.get('lang', 'en')
+
+        # Analyze text
+        logger.info('Analyzing text.')
+        tokens = text_analyzer.analyze_syntax(text, lang)
+    else:
+        logger.info('Using cached text analysis')
 
     # Calculate speech similarity
     logger.info('Calculating speech similarity.')
@@ -233,7 +246,7 @@ def similarities():
         return list(rsim)
 
     def _box_as_json(box_coords):
-        return [[x.astype(int), y.astype(int)] for x, y in box_coords]
+        return [[int(x), int(y)] for x, y in box_coords]
 
     return jsonify(similarities=dict(
         force=_sim_as_json(speech_sim),
@@ -414,8 +427,8 @@ def status():
         key = 'model_updated_{}'.format(job_id)
         if not cache.get(key):
             logger.info('Training completed, updating model: job_id=%s', job_id)
-            new_checkpoint_dir = candy_trainer.download_checkpoints(job_id)
-            symlink_force(new_checkpoint_dir, config['CLASSIFIER_MODEL_DIR'])
+            candy_trainer.download_checkpoints(job_id)
+            update_classifier_dir(config, job_id)
             text_analyzer.reload()
             candy_classifier.reload()
             cache.set(key, True)
@@ -437,8 +450,7 @@ def reload():
 
 @api.route('/_reset', methods=['POST'])
 def reset():
-    symlink_force(
-        os.path.basename(config['CLASSIFIER_MODEL_DIR_INITIAL']), config['CLASSIFIER_MODEL_DIR'])
+    reset_classifier_dir(config)
     text_analyzer.reload()
     candy_classifier.reload()
     return jsonify({})
@@ -471,12 +483,17 @@ def _create_save_dir(session_id):
 def _candy_file(save_dir, i):
     # e.g. /tmp/download/image/20170209_130952_reqid/candy_01_xxxxxxxx.png
     return os.path.join(
-        save_dir, 'candy_{:02d}_{}.jpg'.format(i, random_str(8, string.lowercase + string.digits)))
+        save_dir, 'candy_{:02d}_{}.jpg'.format(i, random_str(8, string.ascii_lowercase + string.digits)))
 
 
 def _image_url(image_file):
     # e.g. 20170209_130952_reqid/candy_01_xxxxxxxx.png
     rel = os.path.relpath(image_file, config['DOWNLOAD_IMAGE_DIR'])
+
+    # On Windows, the url will not contain slash, but the encoded \ which will return a 404
+    # So we replace it with forward slash
+    if platform.system() == 'Windows':
+        rel = rel.replace('\\', '/')
 
     # e.g. /image/20170209_130952_reqid/candy_01_xxxxxxxx.png
     return url_for('ui.image', filename=rel)

@@ -69,7 +69,7 @@ $(function () {
         setInterval(textTimer, 3500);
     }, 15000);
 
-
+/*
     var speech = function () {
         $("body").addClass("mode-speech-start");
         recognition.lang = lang;
@@ -85,7 +85,7 @@ $(function () {
             translation();
         });
     }
-
+*/
     var translation = function () {
         $.ajax({
             type: "POST",
