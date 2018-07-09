@@ -89,5 +89,8 @@ class Dobot(object):
     def grip(self, grip):
         self.serial.call(command.SetEndEffectorGripper(1, grip))
 
+    def stepper_motor(self, index, enabled, reverse=False):
+        self.serial.call(command.SetEMotor(index, enabled, -10000 if reverse else 10000))
+
     def close(self):
         self.serial.close()
