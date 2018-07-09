@@ -234,7 +234,7 @@ class Trainer(object):
                                        correctCount += 1
                                    else:
                                        num_errors_per_label[meta['lid']] += 1
-                                       #print('error on ', meta['url'], ' with label ', meta['label'], 'thought it was ', predicted)
+                                       print('error on ', meta['url'], ' with label ', meta['label'], 'thought it was ', predicted)
 
                                    item = {
                                        'probs': p,
@@ -252,11 +252,9 @@ class Trainer(object):
                                f.write(json.dumps(data))
 
 
-
-
-                   # FIXME: sleep to show convergence slowly on UI
-                   if epoch < 200 and loss_log[-1] > max(loss_log) * 0.01:
-                       time.sleep(self._sleep_sec)
+                  # FIXME: sleep to show convergence slowly on UI
+                  # if epoch < 200 and loss_log[-1] > max(loss_log) * 0.01:
+                  #     time.sleep(self._sleep_sec)
 
                    for i in range (len(label_accuracy)):
                        print('errors ',num_errors_per_label[i], 'of total img ', num_img_per_label[i])
@@ -264,11 +262,13 @@ class Trainer(object):
                        if (num_errors_per_label[i] != 0):
                            label_accuracy[i].append(100-(num_errors_per_label[i]/num_img_per_label[i])*100)
                            print('gives accuracy ',100-(num_errors_per_label[i]/num_img_per_label[i])*100)
-                       else:
+                       elif ((num_errors_per_label[i] == 0 ) and (num_img_per_label != 0)):
                            label_accuracy[i].append(100)
                            print(100)
-    
-                   self.plot_accuracies(losses, accuracies_train, accuracies_test, label_accuracy, testingset.labels)
+                       else:
+                           label_accuracy[i].append(0)
+                           print(0)
+           self.plot_accuracies(losses, accuracies_train, accuracies_test, label_accuracy, testingset.labels)
 
 
            self.model.saver.save(sess, checkpoint_path, global_step=self.model.global_step)
@@ -304,6 +304,7 @@ class Trainer(object):
        ax = plt.subplot(111)
        for i in range (len(accuracy_per_label)):
            ax.plot(accuracy_per_label[i], label=labels[i])
+           print(accuracy_per_label[i])
        ax.legend()
        plt.show()
 
