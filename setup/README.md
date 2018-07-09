@@ -86,7 +86,7 @@ This demo requires API credential for Google Cloud Platform(GCP). If this is you
 7. Reopen the shell so that it takes effect
 
 
-### Models
+## Models
 
 ### English word vector
 1. Download https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM 
@@ -98,7 +98,6 @@ $ wget http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05
 $ tar xvzf inception-2015-12-05.tgz
 ```
 Copy the .pb file to _installationfiles/models
-
 
 
 ## Using Ansible to install requrements and move scripts
@@ -118,15 +117,12 @@ fyc_home={root directory of Find your candy}
 cloud_ml_bucket={the name of the Cloud Storage Bucket you created previously}
 ```
 
-
-
 ### Execute the ansible script
 ```
 $ ./setup.sh hosts.file
 ```
 
 This script will install Chrome, create required folders and move requried scripts. It will also build the docker images from source. 
-
 
 
 ### Upload ML model to Google Cloud storage 

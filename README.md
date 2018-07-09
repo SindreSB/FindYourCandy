@@ -29,6 +29,9 @@ In the training mode, the system uses Inception model with transfer learning on 
 ## Troublehooting
 - See [this page](/setup/troubleshooting.md) in case you encounter any errors or unexpected behaviour.
 
+## Troublehooting
+- See [this page](/setup/troubleshooting.md) in case you encounter any errors or unexpected behaviour.
+
 ## Note
 - Currently, the system is not using Cloud Speech API. It uses Web Speech API that shares the same voice recognition backend.
 - For Learning mode it is using Cloud ML training. For Serving mode it is not using Cloud ML prediction.
