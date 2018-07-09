@@ -15,7 +15,7 @@ $(function () {
     var recognition = new webkitSpeechRecognition();
     var speechLang = "no"; //spoken language setting
     var lang = "en"; // language seting
-    var inputSpeech = "Kan jeg få sjokolade";
+    var inputSpeech = "Kan jeg få noe lakris";
     var speechTxt = "";
     var sim = "";
     var winW = window.innerWidth;
@@ -69,7 +69,7 @@ $(function () {
         setInterval(textTimer, 3500);
     }, 15000);
 
-/*
+
     var speech = function () {
         $("body").addClass("mode-speech-start");
         recognition.lang = lang;
@@ -82,10 +82,12 @@ $(function () {
             $(".speech-footer").hide();
             $(".speech-hand-animation").hide(); //Hide demo animation when record starts
             $("body").addClass("mode-speech-in");
-            translation();
+            setTimeout(function () {
+                translation();
+            },3500);
         });
     }
-*/
+
     var translation = function () {
         $.ajax({
             type: "POST",
@@ -102,9 +104,16 @@ $(function () {
             },
             success: function (data) {
                 speechTxt = data[0].translatedText;
+                $("body").addClass("mode-tran-loaded");
+                $(".tran-word").text(inputSpeech);
+
+                /*FOOTER LOADING ANIMATION*/
+                setTimeout(function () {
+                    $(".tran-footer").show();
+                }, 500);
                 setTimeout(function () {
                     nl()
-                }, 1500);
+                }, 4000);
             }
         });
         // inputTxt --> translateAPI
@@ -149,6 +158,8 @@ $(function () {
             },
             success: function (data) {
                 // generate morpheme
+                $("body").addClass("mode-tran-finish");
+
                 data = data.morphs
                 for (var i in data) {
                     var morph = "";
@@ -292,7 +303,7 @@ $(function () {
             .nodes(dataSet.nodes)
             .links(dataSet.links)
             .size([winW, winH])
-            .linkDistance(250)
+            .linkDistance(450)
             .charge(-1000)
             .start();
         var link = svg.selectAll("line")
@@ -314,6 +325,7 @@ $(function () {
         var label = g.append("text")
             .text(function (d) {
                 //if (d.em > 0.50 && d.em < 1)
+                console.log(d);
                 return d.lid + ": " + d.label + " " + (d.em);
                 //else return d.label + " < 0.1";
             });
