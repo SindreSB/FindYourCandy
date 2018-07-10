@@ -142,6 +142,7 @@ def morphs():
 
     tokens = text_analyzer.analyze_syntax(text, lang)
 
+    cache.set('text', text)
     cache.set('lang', lang)
     cache.set('tokens', tokens)
 
@@ -167,18 +168,20 @@ def similarities():
     logger.info('=== Calculate similarities: id=%s ===', g.id)
 
     # See if we already have analyzed the text
+    text = cache.get('text')
     lang = cache.get('lang')
     tokens = cache.get('tokens')
 
-    if not tokens or not lang:
-        text = request.json.get('text')
-        if not text:
+    request_text = request.json.get('text')
+
+    if not tokens or not lang or text != request_text:
+        if not request_text:
             abort(400)
         lang = request.json.get('lang', 'en')
 
         # Analyze text
         logger.info('Analyzing text.')
-        tokens = text_analyzer.analyze_syntax(text, lang)
+        tokens = text_analyzer.analyze_syntax(request_text, lang)
     else:
         logger.info('Using cached text analysis')
 
