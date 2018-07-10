@@ -1,5 +1,5 @@
 $(function () {
-
+    console.log("1");
     // API settings
     var pid = Math.floor(Math.random() * 10000000000000000); // POST ID
     var morUrl = "/api/morphs"; // API for Morphological analysis
@@ -12,15 +12,19 @@ $(function () {
     var camSec = 7000; // display tiem of camera image(milisec)
 
     // variables
-    var recognition = new webkitSpeechRecognition();
+    var recognition = new we<bkitSpeechRecognition();
     var speechLang = "no"; //spoken language setting
-    var lang = "en"; // language seting
+    var lang = "en"; // language setting
     var inputSpeech = "Kan jeg få en smurf";
     var speechTxt = "";
     var sim = "";
     var winW = window.innerWidth;
     var winH = window.innerHeight;
     var examples = ["\"Kan jeg få sjokolade?\"","\"Jeg liker smurf\"","\"Kan jeg få lakris?\"", "\"Kan jeg få noe søtt?\""]
+
+    //Nl
+    var morXHR = null;
+    var simXHR = null;
 
 
     /* EXAMPLES OF WHAT TO SAY */
@@ -30,7 +34,7 @@ $(function () {
         var textTimer = function() {
             if (i >= examples.length) { i = 0; }
             $("#example-text").fadeOut(1000, function(){
-                $(this).text(examples[i]);
+                $(this).text("__"+examples[i]);
             });
             $("#example-text").fadeIn();
             i++;
@@ -74,25 +78,73 @@ $(function () {
     /*
     */
 
-    var speech = function () {
-        $("body").addClass("mode-speech-start");
+    var setup = function(){
+        //Speech
         recognition.lang = lang;
-        $(".speech-mic").click(function () {
-            $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
-                    background: "#ff5f63",
-                    border: "solid 0 #ff5f63"
-                }
-            );
-            $(".speech-footer").hide();
-            $(".speech-hand-animation").hide(); //Hide demo animation when record starts
-            $("body").addClass("mode-speech-in");
-            setTimeout(function () {
-                translation();
-            },3500);
-        });
     }
 
+    var recordSpeech = function () {
+        hideInactiveMic();
+        showActiveMic();
+        //recognition.start(); //TODO test
+        
+        recognition.onerror = function () {
+            hideActiveMic();
+            //TODO
+        };
+        recognition.onresult = function (e) {
+            inputSpeech = e.results[0][0].transcript;
+            showInterepretedSpeech();
+            setTimeout(function () {//TODO replace nav
+                hideActiveMic();
+                translation();
+            },3500);
+        };
+
+        //Copied for testing
+        setTimeout(function () {//TODO replace nav
+            inputSpeech="testttt";
+        showInterepretedSpeech();
+        },2000);
+        
+            setTimeout(function () {//TODO replace nav
+                hideActiveMic();
+                translation();
+            },4000);
+
+    }
+
+    var hideActiveMic = function () {
+        $("body").removeClass("mode-speech-in");
+    }
+
+    var showInterepretedSpeech = function () {
+            $(".speech-out").text(inputSpeech);
+            $("body").addClass("mode-speech-out");
+    }
+
+    
+
+    var hideInactiveMic = function (){
+        $(".speech-footer").hide();
+        $(".speech-hand-animation").hide(); //Hide demo animation when record starts
+    }
+
+    var showActiveMic = function (){
+        $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
+            background: "#ff5f63",
+            border: "solid 0 #ff5f63"
+        }
+        );
+        $("body").addClass("mode-speech-in");
+    }
+
+    var showIdleMic = function (){
+        $("body").addClass("mode-speech-start");
+        $(".speech-mic").click(recordSpeech);
+    }
     var translation = function () {
+/*
         $.ajax({
             type: "POST",
             contentType: "application/json",
@@ -105,23 +157,36 @@ $(function () {
             }),
             error: function (textStatus) {
                 console.log(textStatus);
+                //TODO
+                //For test
             },
             success: function (data) {
                 speechTxt = data[0].translatedText;
-                $("body").addClass("mode-tran-loaded");
-                $(".tran-word").text(inputSpeech);
-
-                /*FOOTER LOADING ANIMATION*/
+                showTranslation();
                 setTimeout(function () {
-                    $(".tran-footer").show();
-                }, 500);
-                setTimeout(function () {
-                    nl()
-                }, 4000);
+                    nl();
+                }, 2500);
             }
         });
         // inputTxt --> translateAPI
         // success --> speechTxt = data.string
+*/
+        //For test
+        speechTxt = "translatedTXTX";
+                showTranslation();
+                setTimeout(function () {
+                    nl();
+                }, 2500);
+    }
+
+    var showTranslation = function(){
+        $("body").addClass("mode-tran-loaded");
+        $(".tran-word").text(inputSpeech);
+
+        /*FOOTER LOADING ANIMATION*/
+        setTimeout(function () {
+            $(".tran-footer").show();
+        }, 500);
     }
 
     // switch language
@@ -137,34 +202,8 @@ $(function () {
         return false;
     });
 
-    // NL processing
-    var nl = function () {
-        var morXHR = null;
-        var simXHR = null;
-
-        morXHR = $.ajax({
-            type: "POST",
-            contentType: "application/json",
-            dataType: "json",
-            url: morUrl,
-            data: JSON.stringify({
-                "id": pid,
-                "text": speechTxt,
-                "lang": lang
-            }),
-            error: function (jqXHR, textStatus) {
-                if (textStatus == 'abort') { return; }
-                console.log(jqXHR);
-                if (simXHR !== null && simXHR.readyState > 0 && simXHR.readyState < 4) {
-                    simAjax.abort();
-                }
-                sorry();
-            },
-            success: function (data) {
-                // remove translation UI
-                $("body").addClass("mode-tran-finish");
-                // generate morpheme
-                data = data.morphs
+    var createAndShowMorph = function(data){
+        data = data.morphs
                 for (var i in data) {
                     var morph = "";
                     for (key in data[i].pos) {
@@ -180,6 +219,8 @@ $(function () {
                     desc += "<dd class='nl-pos'>" + morph + "</dd>";
                     desc += "</dl>"
                     $(".nl-syntax").append(desc);
+
+
                     // generate arrow
                     for (var j in data[i].depend.index) {
                         $(".nl-depend").append("<dd data-from=" + i + " data-to=" + data[i].depend.index[j] + "></dd>");
@@ -225,21 +266,44 @@ $(function () {
                 });
                 $(".nl-label, .nl-depend dd").css("transition-delay", 3 + "s"); //endret fra 2.5
                 $("body").addClass("mode-nl-loaded");
+    }
 
-                /*MAKES IT LOOK VERY CRASHED WHEN DISABLED WITHOUT FOOTER LOADING ANIMATION*/
-                // repeat effects
-                /*setInterval(function () {
-                    $("body").addClass("mode-nl-repeat");
-                    setTimeout(function () {
-                        $("body").removeClass("mode-nl-loaded");
-                    }, 400);
-                    setTimeout(function () {
-                        $("body").addClass("mode-nl-loaded");
-                        $("body").removeClass("mode-nl-repeat");
-                    }, 500);
-                }, 6000);*/
+    var hideTranslatedText = function (){
+        $("body").addClass("mode-tran-finish");
+    }
+
+    // NL processing
+    var nl = function () {
+        morXHR = null;
+        simXHR = null;
+
+        morXHR = $.ajax({
+            type: "POST",
+            contentType: "application/json",
+            dataType: "json",
+            url: morUrl,
+            data: JSON.stringify({
+                "id": pid,
+                "text": speechTxt,
+                "lang": lang
+            }),
+            error: function (jqXHR, textStatus) {
+                hideTranslatedText();
+                /* Un-comment after test
+                if (textStatus == 'abort') { return; }
+                console.log(jqXHR);
+                if (simXHR !== null && simXHR.readyState > 0 && simXHR.readyState < 4) {
+                    simAjax.abort();
+                }
+                sorry();*/
+            },
+            success: function (data) {
+                hideTranslatedText();
+                createAndShowMorph(data);
             }
         });
+
+        console.log("H");
         // retrieve inference data
         simXHR = $.ajax({
             type: "POST",
@@ -491,5 +555,8 @@ $(function () {
         $("body").addClass("mode-sorry-p");
     };
 
-    speech();
+
+    setup();
+    console.log("1");
+    showIdleMic();
 });
