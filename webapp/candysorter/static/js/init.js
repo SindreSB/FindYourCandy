@@ -36,11 +36,11 @@ $(function () {
         setInterval(textTimer, 3500);
     }, 15000);
     // process of voice recognition
-    /* DISABLED FOR TESTING */
-    /*
+    /*/* DISABLED FOR TESTING */
+
         var speech = function () {
             $("body").addClass("mode-speech-start");
-            recognition.lang = lang;
+            recognition.lang = speechLang;
             $(".speech-mic").click(function () {
                 $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
                     background: "#ff5f63",
@@ -51,6 +51,7 @@ $(function () {
                 $(".speech-hand-animation").hide();
                 $("body").addClass("mode-speech-in");
                 recognition.start();
+                mic(); //needs a stop function
             });
             recognition.onerror = function () {
                 $("body").removeClass("mode-speech-in");
@@ -58,14 +59,15 @@ $(function () {
             recognition.onresult = function (e) {
                 inputSpeech = e.results[0][0].transcript
                 //$(".speech-out").text(inputSpeech);
-                $("body").addClass("mode-speech-out");
+                $("body").addClass("mode-speech-in");
+                micStop();
                 setTimeout(function () {
                     translation();
                 },3500);
             };
         }
     /*
-    */
+
     var speech = function () {
         $("body").addClass("mode-speech-start");
         recognition.lang = lang;
@@ -75,7 +77,7 @@ $(function () {
                     border: "solid 0 #D12F33" // #ff5f63"
                 }
             );
-            mic(); //needs a stop function, and test if it works with webspeechApi
+            mic(); //needs a stop function
             $(".speech-footer").hide();
             $(".speech-hand-animation").hide(); //Hide demo animation when record starts
             $("body").addClass("mode-speech-in");
@@ -84,6 +86,9 @@ $(function () {
             },3500);
         });
     }
+        */
+
+
     var translation = function () {
         $.ajax({
             type: "POST",
