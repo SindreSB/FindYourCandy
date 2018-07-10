@@ -39,15 +39,12 @@ function clickOrWait(durMax,cancelThisFunc, functionBack, functionForward){
     waitToNav(durMax);
 }
 
-document.body.onkeydown = function(e){
+document.onkeyup = function(e){
     if(e.keyCode==waitKey){
         if(keepChecking){
             keepChecking=false;//automatic forwards navigation is prevented by 1 press of the wait key. 
-            waitDebounceStamp=Date.now()+(checkFreq*1.5);
-        } else if (Date.now()>waitDebounceStamp){
-            keepChecking=true;
-            checkMaxDurPassed(durMaxStamp);
-            waitDebounceStamp=Date.now()+(checkFreq*1.5);
+        } else{
+            forward();
         }
     } else if(e.keyCode==forwardKey){
         forward();
@@ -67,9 +64,9 @@ document.body.onkeydown = function(e){
 }
 
 var cleanUp = function(){
-    cancelRunncingFunc();
     keepChecking=false;
     clearTimeout(checkerTimeout);
+    cancelRunncingFunc();
 }
 
 var forward = function(){
@@ -91,22 +88,22 @@ var one = function(){
 var two = function(){
     clickToNav(cancelAFunc, one,three);
     console.log("two");
-    waitToNav( 1000);
+    waitToNav(500);
 }
 var three = function(){
     clickToNav(cancelAFunc, two,four);
     console.log("three");
-    waitToNav( 2000);
+    waitToNav(500);
 }
 var four = function(){
     clickToNav(cancelAFunc,  three,five);
     console.log("four");
-    waitToNav( 3500);
+    waitToNav(500);
 }
 var five = function(){
     clickToNav(cancelAFunc, four,one);
     console.log("five");
-    waitToNav( 4000);
+    waitToNav(500);
 }
 
 var cancelAFunc= function(){
