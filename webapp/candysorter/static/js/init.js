@@ -1,5 +1,4 @@
 $(function () {
-
     // API settings
     var pid = Math.floor(Math.random() * 10000000000000000); // POST ID
     var morUrl = "/api/morphs"; // API for Morphological analysis
@@ -10,7 +9,6 @@ $(function () {
     var simNoWaitNum = 5;
     var plotSec = 5000; // display time of scatter plot(milisec）
     var camSec = 7000; // display tiem of camera image(milisec)
-
     // variables
     var recognition = new webkitSpeechRecognition();
     var speechLang = "no"; //spoken language setting
@@ -21,8 +19,6 @@ $(function () {
     var winW = window.innerWidth;
     var winH = window.innerHeight;
     var examples = ["\"Kan jeg få sjokolade?\"","\"Jeg liker smurf\"","\"Kan jeg få lakris?\"", "\"Kan jeg få noe søtt?\""]
-
-
     /* EXAMPLES OF WHAT TO SAY */
     // variable to keep track of last text displayed
     setTimeout(function () {
@@ -39,7 +35,6 @@ $(function () {
         $("#example-text").text(examples[i++]); // initialize with first quote
         setInterval(textTimer, 3500);
     }, 15000);
-
     // process of voice recognition
     /* DISABLED FOR TESTING */
     /*
@@ -69,20 +64,18 @@ $(function () {
                 },3500);
             };
         }
-
-
     /*
     */
-
     var speech = function () {
         $("body").addClass("mode-speech-start");
         recognition.lang = lang;
         $(".speech-mic").click(function () {
             $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
-                    background: "#ff5f63",
-                    border: "solid 0 #ff5f63"
+                    background: "#D12F33",//"#ff5f63",
+                    border: "solid 0 #D12F33" // #ff5f63"
                 }
             );
+            mic(); //needs a stop function, and test if it works with webspeechApi
             $(".speech-footer").hide();
             $(".speech-hand-animation").hide(); //Hide demo animation when record starts
             $("body").addClass("mode-speech-in");
@@ -91,7 +84,6 @@ $(function () {
             },3500);
         });
     }
-
     var translation = function () {
         $.ajax({
             type: "POST",
@@ -110,7 +102,6 @@ $(function () {
                 speechTxt = data[0].translatedText;
                 $("body").addClass("mode-tran-loaded");
                 $(".tran-word").text(inputSpeech);
-
                 /*FOOTER LOADING ANIMATION*/
                 setTimeout(function () {
                     $(".tran-footer").show();
@@ -123,7 +114,6 @@ $(function () {
         // inputTxt --> translateAPI
         // success --> speechTxt = data.string
     }
-
     // switch language
     $(".speech-lang a").click(function () {
         if ($(this).text() == "EN") {
@@ -136,12 +126,10 @@ $(function () {
         recognition.lang = lang;
         return false;
     });
-
     // NL processing
     var nl = function () {
         var morXHR = null;
         var simXHR = null;
-
         morXHR = $.ajax({
             type: "POST",
             contentType: "application/json",
@@ -192,7 +180,6 @@ $(function () {
                     var w = $(".nl-syntax dl:nth-child(" + (index + 1) + ")").outerWidth();
                     dependX.push(Math.round(x + w / 2));
                 });
-
                 // rearrange arrow
                 $(".nl-depend dd").each(function (index) {
                     var from = $(this).data().from;
@@ -215,7 +202,6 @@ $(function () {
                 setTimeout(function () {
                     $(".nl-footer").show();
                 }, 1000);
-
                 // effect settings
                 $(".nl-word").each(function (index) {
                     $(this).css("transition-delay", index / 5 + "s");
@@ -225,7 +211,6 @@ $(function () {
                 });
                 $(".nl-label, .nl-depend dd").css("transition-delay", 3 + "s"); //endret fra 2.5
                 $("body").addClass("mode-nl-loaded");
-
                 /*MAKES IT LOOK VERY CRASHED WHEN DISABLED WITHOUT FOOTER LOADING ANIMATION*/
                 // repeat effects
                 /*setInterval(function () {
@@ -271,7 +256,6 @@ $(function () {
             }
         });
     };
-
     // drow force layout
     var force = function () {
         $("body").addClass("mode-force-start");
@@ -360,7 +344,6 @@ $(function () {
             left: (winW - txtW) / 2 + "px"
         });
     };
-
     // draw scatter plot
     var plot = function () {
         // generate dataset
@@ -425,7 +408,6 @@ $(function () {
             cam();
         }, 8000);//plotSec); //This times how long the camera images should be presented next to the circles
     };
-
     // output camera image
     var cam = function () {
         var imgUrl = sim.similarities.url;
@@ -474,7 +456,6 @@ $(function () {
             thanks();
         }, camSec);
     };
-
     // draw endroll
     var thanks = function () {
         $("body").addClass("mode-thanks-start");
@@ -485,11 +466,9 @@ $(function () {
             $("body").addClass("mode-thanks-btn");
         }, 5000); //WAS 5000
     };
-
     // draw sorry
     var sorry = function () {
         $("body").addClass("mode-sorry-p");
     };
-
     speech();
 });
