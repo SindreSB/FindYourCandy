@@ -78,6 +78,15 @@ class Dobot(object):
             time.sleep(sleep_sec)
             self.linear_move(x, y, z_high, 0, velocity, accel)
 
+    def pickup_gripper(self, x, y, r, z_low=0, z_high=100, sleep_sec=1, velocity=200, accel=100, num_trials=1):
+        self.move(x, y, z_high, 0,  velocity, accel)
+        self.grip(0)
+        for i in range(num_trials):
+            self.linear_move(x, y, z_low, r, velocity, accel)
+            self.grip(1)
+            time.sleep(sleep_sec)
+            self.linear_move(x, y, z_high, r, velocity, accel)
+
     def adjust_z(self, z):
         self.wait()
         pose = self.serial.call(command.GetPose())

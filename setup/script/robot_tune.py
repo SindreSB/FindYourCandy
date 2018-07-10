@@ -43,13 +43,13 @@ class HTTPDobotCalibrator(object):
 
     def __init__(self, ipaddress):
         self.base_url = "http://{}".format(ipaddress)
-        print self.base_url
+        print(self.base_url)
 
     def get_position(self):
         r = requests.get(self.base_url + '/api/status')
 
         if 200 != r.status_code:
-            print "Error: unable to connect to server."
+            print("Error: unable to connect to server.")
             msg = "Error: Please check network or the 'robot api' is working on host machine."
             raise Exception(msg)
 
@@ -67,14 +67,14 @@ class HTTPDobotCalibrator(object):
 def _request(url):
     r = requests.get(url)
     if 200 != r.status_code:
-        print "Error: unable to connect to server."
+        print("Error: unable to connect to server.")
         msg = "Error: Please check network or the 'robot api' is working on host machine."
         raise Exception(msg)
     return r.content
 
 
 def wait_for_keystroke(mark_id):
-    raw_input(
+    input(
         "Push the button (marked as 'unlock') which is located in middle of  arm) to release the arm and then slowly move the arm edge to slightly touch \n '{}' on marker sheet.\nAfter you finished, press Enter.".format(
             mark_id))
 
@@ -107,28 +107,28 @@ if '__main__' == __name__:
 
     val_arr = []
 
-    raw_input("PRESS Enter to start dobot arm initialization protocol.")
+    input("PRESS Enter to start dobot arm initialization protocol.")
     tuner.initialize()
 
-    print ""
+    print("")
     wait_for_keystroke("Marker A")
     value = tuner.get_position()
-    print ">> Marker A(x,y,z)={}".format(value)
+    print(">> Marker A(x,y,z)={}".format(value))
     val_arr.append(value)
 
-    print ""
+    print("")
     wait_for_keystroke("Marker D")
     value = tuner.get_position()
-    print ">> Marker D(x,y,z)={}".format(value)
+    print(">> Marker D(x,y,z)={}".format(value))
     val_arr.append(value)
 
-    print ""
+    print("")
     wait_for_keystroke("Marker E")
     value = tuner.get_position()
-    print ">> Marker E(x,y,z)={}".format(value)
+    print(">> Marker E(x,y,z)={}".format(value))
     val_arr.append(value)
 
-    print ""
+    print("")
     with open(args.tuner_file, 'w') as writefile:
         for entry in val_arr:
             json.dump(entry, writefile)

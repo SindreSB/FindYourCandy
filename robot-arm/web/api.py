@@ -16,6 +16,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
+import time
 
 from flask import Blueprint, jsonify, request, current_app
 
@@ -71,6 +72,47 @@ def pickup():
     dobot.pickup(xy_conv[0], xy_conv[1], z_low=z_low, z_high=z_high, velocity=v, accel=a)
     logging.info('Serving to {}.'.format(dest))
     dobot.move(dest[0], dest[1], 0,  velocity=v, accel=a)
+    logging.info('Turning pump off.')
+    dobot.pump(0)
+    dobot.close()
+
+    return jsonify()
+
+
+@api.route('/pickup/grip', methods=['POST'])
+def pickup_grip():
+    body = request.get_json(silent=True)
+    x = float(body["x"])
+    y = float(body["y"])
+    r = float(body['r'])
+    logging.info('Starting pickup from ({}, {}, {})'.format(x, y, r))
+
+    cfg = current_app.config
+
+    cv = cfg['DOBOT_COORDINATE_CONVERTER']
+
+    dest = cfg['DOBOT_SERVE_XY']
+    z_high = cfg['DOBOT_Z_HIGH']
+    z_low = cv.z_low
+    v = cfg['DOBOT_MAX_VELOCITY']
+    a = cfg['DOBOT_MAX_ACCERALATION']
+    logging.info('Pickup parameters: z_low={}, z_high={}, velocity={}, accel={}'.format(z_low, z_high, v, a))
+
+    # TODO: Support calibration/conversion of rotation
+    xy_conv = cv.convert(x, y)
+    logging.info('Logical coordinate ({}, {}) converted to dobot coordinate {}'.format(x, y, xy_conv))
+
+
+    dobot = get_dobot(current_app.config['DOBOT_SERIAL_PORT'])
+    logging.info('Adjusting arm height to {}'.format(z_high))
+    dobot.adjust_z(z_high)
+    logging.info('Starting pickup.')
+    dobot.pickup_gripper(xy_conv[0], xy_conv[1], r, z_low=z_low, z_high=z_high, velocity=v, accel=a)
+    logging.info('Serving to {}.'.format(dest))
+    dobot.move(dest[0], dest[1], 0, velocity=v, accel=a)
+    logging.info('Releasing the candy')
+    dobot.grip(0)
+    time.sleep(2)
     logging.info('Turning pump off.')
     dobot.pump(0)
     dobot.close()
