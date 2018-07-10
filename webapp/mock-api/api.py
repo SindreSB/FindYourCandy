@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+
 from flask import Flask, make_response, send_from_directory, send_file
 
 app = Flask(__name__, static_folder='../candysorter/static')
