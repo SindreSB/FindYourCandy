@@ -96,3 +96,10 @@ def get_state():
         status[key] = pose[key]
 
     return jsonify(status)
+
+@api.route("/test")
+def test():
+    dobot = get_dobot(current_app.config['DOBOT_SERIAL_PORT'])
+    pose = dobot.get_pose()
+    dobot.close()
+    return jsonify({})

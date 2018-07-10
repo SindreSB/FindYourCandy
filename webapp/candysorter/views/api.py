@@ -182,6 +182,11 @@ def similarities():
         # Analyze text
         logger.info('Analyzing text.')
         tokens = text_analyzer.analyze_syntax(request_text, lang)
+
+        # Cache result for subsequent calls
+        cache.set('text', request_text)
+        cache.set('lang', lang)
+        cache.set('tokens', tokens)
     else:
         logger.info('Using cached text analysis')
 
