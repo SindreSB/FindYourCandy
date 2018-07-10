@@ -112,7 +112,7 @@ def pickup_grip():
     dobot.move(dest[0], dest[1], 0, velocity=v, accel=a)
     logging.info('Releasing the candy')
     dobot.grip(0)
-    time.sleep(2)
+    time.sleep(3)
     logging.info('Turning pump off.')
     dobot.pump(0)
     dobot.close()
