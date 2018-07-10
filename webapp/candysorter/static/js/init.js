@@ -15,45 +15,16 @@ $(function () {
     var recognition = new webkitSpeechRecognition();
     var speechLang = "no"; //spoken language setting
     var lang = "en"; // language seting
-    var inputSpeech = "Kan jeg få noe lakris";
+    var inputSpeech = "Kan jeg få en smurf";
     var speechTxt = "";
     var sim = "";
     var winW = window.innerWidth;
     var winH = window.innerHeight;
     var examples = ["\"Kan jeg få sjokolade?\"","\"Jeg liker smurf\"","\"Kan jeg få lakris?\"", "\"Kan jeg få noe søtt?\""]
 
-    // process of voice recognition
-    /* DISABLED FOR TESTING */
-    /*
-        var speech = function () {
-            $("body").addClass("mode-speech-start");
-            recognition.lang = lang;
-            $(".speech-mic").click(function () {
-                $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
-                    background: "#ff5f63",
-                    border: "solid 0 #ff5f63"
-                    }
-                );
-                $(".speech-hand-animation").hide();
-                $("body").addClass("mode-speech-in");
-                recognition.start();
-            });
-            recognition.onerror = function () {
-                $("body").removeClass("mode-speech-in");
-            };
-            recognition.onresult = function (e) {
-                speechTxt = e.results[0][0].transcript
-                $(".speech-out").text(speechTxt);
-                $("body").addClass("mode-speech-out");
-                setTimeout(nl, 1500);
-            };
-        }
 
-
-    /*
-    */
-
-// variable to keep track of last text displayed
+    /* EXAMPLES OF WHAT TO SAY */
+    // variable to keep track of last text displayed
     setTimeout(function () {
         var i = 0;
         var textTimer = function() {
@@ -69,6 +40,39 @@ $(function () {
         setInterval(textTimer, 3500);
     }, 15000);
 
+    // process of voice recognition
+    /* DISABLED FOR TESTING */
+    /*
+        var speech = function () {
+            $("body").addClass("mode-speech-start");
+            recognition.lang = lang;
+            $(".speech-mic").click(function () {
+                $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
+                    background: "#ff5f63",
+                    border: "solid 0 #ff5f63"
+                    }
+                );
+                $(".speech-footer").hide();
+                $(".speech-hand-animation").hide();
+                $("body").addClass("mode-speech-in");
+                recognition.start();
+            });
+            recognition.onerror = function () {
+                $("body").removeClass("mode-speech-in");
+            };
+            recognition.onresult = function (e) {
+                inputSpeech = e.results[0][0].transcript
+                //$(".speech-out").text(inputSpeech);
+                $("body").addClass("mode-speech-out");
+                setTimeout(function () {
+                    translation();
+                },3500);
+            };
+        }
+
+
+    /*
+    */
 
     var speech = function () {
         $("body").addClass("mode-speech-start");
@@ -157,9 +161,9 @@ $(function () {
                 sorry();
             },
             success: function (data) {
-                // generate morpheme
+                // remove translation UI
                 $("body").addClass("mode-tran-finish");
-
+                // generate morpheme
                 data = data.morphs
                 for (var i in data) {
                     var morph = "";
@@ -222,7 +226,7 @@ $(function () {
                 $(".nl-label, .nl-depend dd").css("transition-delay", 3 + "s"); //endret fra 2.5
                 $("body").addClass("mode-nl-loaded");
 
-                /*MAKES IT LOOK VERY CRASHED WHEN DISABLED WITHOUT FOOTER ANIMATION*/
+                /*MAKES IT LOOK VERY CRASHED WHEN DISABLED WITHOUT FOOTER LOADING ANIMATION*/
                 // repeat effects
                 /*setInterval(function () {
                     $("body").addClass("mode-nl-repeat");
@@ -326,7 +330,7 @@ $(function () {
             .text(function (d) {
                 //if (d.em > 0.50 && d.em < 1)
                 console.log(d);
-                return d.lid + ": " + d.label + " " + (d.em);
+                return d.label;
                 //else return d.label + " < 0.1";
             });
         // setting coordinate (input string（lid=0）fix the mid of display）
@@ -479,7 +483,7 @@ $(function () {
         }, 3000);
         setTimeout(function () {
             $("body").addClass("mode-thanks-btn");
-        }, 3000); //WAS 5000
+        }, 5000); //WAS 5000
     };
 
     // draw sorry
