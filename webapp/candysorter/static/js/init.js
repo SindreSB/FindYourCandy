@@ -79,8 +79,8 @@ $(function () {
         recognition.lang = lang;
         $(".speech-mic").click(function () {
             $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
-                    background: "#ff5f63",
-                    border: "solid 0 #ff5f63"
+                    background: "#D12F33",
+                    border: "solid 0 #D12F33"
                 }
             );
             $(".speech-footer").hide();
