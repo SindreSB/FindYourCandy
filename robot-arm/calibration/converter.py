@@ -22,7 +22,7 @@ from calibration.adjust import AdjustForPictureToRobot
 
 
 class CoordinateConverter(object):
-    def __init__(self, from_points, to_points, z_low=-69):
+    def __init__(self, from_points, to_points, z_low=-31):
         """
         find T that meets x_robot = T x_logical
         """

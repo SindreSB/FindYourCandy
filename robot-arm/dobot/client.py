@@ -32,6 +32,7 @@ class Dobot(object):
             port, baudrate, read_timeout_sec=read_timeout_sec, serial_timeout_sec=serial_timeout_sec
         )
 
+
     def get_pose(self):
         return self.serial.call(command.GetPose())
 
@@ -57,31 +58,41 @@ class Dobot(object):
         self.adjust_z(0)
         self.serial.call(command.SetHomeCmd())
 
-    def move(self, x, y, z, velocity=200, accel=200, jump=True):
+    def move(self, x, y, z, r=0, velocity=200, accel=200, jump=True):
         self.serial.call(command.SetPTPJointParams(velocity, velocity, velocity, velocity, accel, accel, accel, accel))
 
         mode = 0
         if not jump:
             mode = 1
 
-        self.serial.call(command.SetPTPCmd(mode, x, y, z, 0))
+        self.serial.call(command.SetPTPCmd(mode, x, y, z, r))
 
-    def linear_move(self, x, y, z, velocity=200, accel=200):
+    def linear_move(self, x, y, z, r=0, velocity=200, accel=200):
         self.serial.call(command.SetPTPCoordinateParams(velocity, velocity, accel, accel))
-        self.serial.call(command.SetPTPCmd(2, x, y, z, 0))
+        self.serial.call(command.SetPTPCmd(2, x, y, z, r))
 
     def pickup(self, x, y, z_low=0, z_high=100, sleep_sec=1, velocity=200, accel=100, num_trials=1):
-        self.move(x, y, z_high, velocity, accel)
+        self.move(x, y, z_high, 0,  velocity, accel)
         self.pump(1)
         for i in range(num_trials):
-            self.linear_move(x, y, z_low, velocity, accel)
+            self.linear_move(x, y, z_low, 0, velocity, accel)
             time.sleep(sleep_sec)
-            self.linear_move(x, y, z_high, velocity, accel)
+            self.linear_move(x, y, z_high, 0, velocity, accel)
+
+    def pickup_gripper(self, x, y, r, z_low=0, z_high=100, sleep_sec=3, velocity=200, accel=100, num_trials=1):
+        self.grip(0)
+        self.move(x, y, z_high, r,  velocity, accel)
+        for i in range(num_trials):
+            self.linear_move(x, y, z_low, r, velocity, accel)
+            time.sleep(1)
+            self.grip(1)
+            time.sleep(sleep_sec)
+            self.linear_move(x, y, z_high, r, velocity, accel)
 
     def adjust_z(self, z):
         self.wait()
         pose = self.serial.call(command.GetPose())
-        self.linear_move(pose['x'], pose['y'], z)
+        self.linear_move(pose['x'], pose['y'], z, pose['r'])
 
     def pump(self, on):
         self.serial.call(command.SetEndEffectorSuctionCup(1, on))

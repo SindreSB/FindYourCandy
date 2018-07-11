@@ -48,10 +48,6 @@ class DefaultConfig(object):
             'file': os.path.join(MODEL_DIR, 'GoogleNews-vectors-negative300.bin.gz'),
             'binary': True,
         },
-        'ja': {
-            'file': os.path.join(MODEL_DIR, 'model.vec'),
-            'binary': False,
-        },
     }
 
     CLASSIFIER_DIR_NAME          = 'classifier'
@@ -89,7 +85,9 @@ class DefaultConfig(object):
     IMAGE_CALIBRATOR_AREA  = (1625, 1100)
     IMAGE_CALIBRATOR_SCALE = 550
 
-    PICKUP_ENDOPOINT = 'http://localhost:18001/api/pickup'
+    PICKUP_TYPE = 'gripper'  # Use 'gripper' or 'suction_cup'
+    PICKUP_SUCTION_CUP_ENDPOINT = 'http://localhost:18001/api/pickup'
+    PICKUP_GRIPPER_ENDPOINT = 'http://localhost:18001/api/pickup/gripper'
 
     TRAIN_LABEL_AREA_HEIGHT = 285
 
