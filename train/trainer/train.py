@@ -20,11 +20,10 @@ import json
 import logging
 import os
 import random
-import csv
+
 
 import numpy as np
 import tensorflow as tf
-import time
 import matplotlib.pyplot as plt
 import model as model
 from utils import TrainingFeaturesDataReader
@@ -205,71 +204,73 @@ class Trainer(object):
                        data['probs'] = probs_with_uri
                        f.write(json.dumps(data))
 
-                       # -------- Accuracy for test set:
+# -------- Accuracy for test set:
 
-                       if (testingset):
-                           features = sess.run(
-                               [self.model.softmax_op],
-                               self.model.feed_for_training(*testingset.all())  # feed testing data ---------not training
-                           )
+               if (testingset):
+                   features = sess.run(
+                       [self.model.softmax_op],
+                       self.model.feed_for_training(*testingset.all())  # feed testing data ---------not training
+                   )
 
-                           # write loss and predicted probabilities Test
-                           probs = list(map(lambda a: a.tolist(), features[0]))
-                           averageAccuracy = 0
-                           max_l = max(loss_log)
-                           loss_norm = [float(l) / max_l for l in loss_log]
+                   # write loss and predicted probabilities Test
+                   probs = list(map(lambda a: a.tolist(), features[0]))
+                   averageAccuracy = 0
+                   max_l = max(loss_log)
+                   loss_norm = [float(l) / max_l for l in loss_log]
 
-                           with tf.gfile.FastGFile(self._epoch_log_path(epoch), 'w') as f:
-                               data = {
-                                   'epoch': epoch,
-                                   'loss': loss_norm,
+                   with tf.gfile.FastGFile(self._epoch_log_path(epoch), 'w') as f:
+                       data = {
+                           'epoch': epoch,
+                           'loss': loss_norm,
+                       }
+                       probs_with_uri = []
+                       correctCount = 0
+
+                       for i, p in enumerate(probs):
+                           meta = testingset.get_meta(i)  # metadata for testing
+                           num_img_per_label[(meta['lid'])] += 1
+                           predicted = np.argmax(p)
+                           if predicted == int(meta['lid']):
+                               correctCount += 1
+                           else:
+                               num_errors_per_label[meta['lid']] += 1
+                               print('error on ', meta['url'], ' with label ', meta['label'], 'thought it was ', predicted)
+
+                           item = {
+                               'probs': p,
+                               'url': meta['url'],
+                               'property': {
+                                   'label': meta['label'],
+                                   'lid': int(meta['lid'])
                                }
-                               probs_with_uri = []
-                               correctCount = 0
+                           }
+                           probs_with_uri.append(item)
 
-                               for i, p in enumerate(probs):
-                                   meta = testingset.get_meta(i)  # metadata for testing
-                                   num_img_per_label[(meta['lid'])] += 1
-                                   predicted = np.argmax(p)
-                                   if predicted == int(meta['lid']):
-                                       correctCount += 1
-                                   else:
-                                       num_errors_per_label[meta['lid']] += 1
-                                       print('error on ', meta['url'], ' with label ', meta['label'], 'thought it was ', predicted)
+                       averageAccuracy += correctCount / len(probs)
+                       accuracies_test.append(averageAccuracy)
+                       data['probs'] = probs_with_uri
+                       f.write(json.dumps(data))
 
-                                   item = {
-                                       'probs': p,
-                                       'url': meta['url'],
-                                       'property': {
-                                           'label': meta['label'],
-                                           'lid': int(meta['lid'])
-                                       }
-                                   }
-                                   probs_with_uri.append(item)
+               for i in range(len(label_accuracy)):
+                   print('fails on', num_errors_per_label[i], 'out of ', num_img_per_label[i], 'images of ', testingset.labels[i])
 
-                               averageAccuracy += correctCount / len(probs)
-                               accuracies_test.append(averageAccuracy)
-                               data['probs'] = probs_with_uri
-                               f.write(json.dumps(data))
+                   if (num_errors_per_label[i] != 0):
+                       label_accuracy[i].append(100 - (num_errors_per_label[i] / num_img_per_label[i]) * 100)
+                       print('gives accuracy ', 100 - (num_errors_per_label[i] / num_img_per_label[i]) * 100)
+                   elif ((num_errors_per_label[i] == 0) and (num_img_per_label != 0)):
+                       label_accuracy[i].append(100)
+                       print(100)
+                   else:
+                       label_accuracy[i].append(0)
+                       print(0)
 
 
-                  # FIXME: sleep to show convergence slowly on UI
-                  # if epoch < 200 and loss_log[-1] > max(loss_log) * 0.01:
-                  #     time.sleep(self._sleep_sec)
+          # FIXME: sleep to show convergence slowly on UI
+          # if epoch < 200 and loss_log[-1] > max(loss_log) * 0.01:
+          #     time.sleep(self._sleep_sec)
 
-                   for i in range (len(label_accuracy)):
-                       print('errors ',num_errors_per_label[i], 'of total img ', num_img_per_label[i])
-
-                       if (num_errors_per_label[i] != 0):
-                           label_accuracy[i].append(100-(num_errors_per_label[i]/num_img_per_label[i])*100)
-                           print('gives accuracy ',100-(num_errors_per_label[i]/num_img_per_label[i])*100)
-                       elif ((num_errors_per_label[i] == 0 ) and (num_img_per_label != 0)):
-                           label_accuracy[i].append(100)
-                           print(100)
-                       else:
-                           label_accuracy[i].append(0)
-                           print(0)
-           self.plot_accuracies(losses, accuracies_train, accuracies_test, label_accuracy, testingset.labels)
+           if(testingset):
+               self.plot_accuracies(losses, accuracies_train, accuracies_test, label_accuracy, testingset.labels)
 
 
            self.model.saver.save(sess, checkpoint_path, global_step=self.model.global_step)
@@ -305,7 +306,6 @@ class Trainer(object):
        ax = plt.subplot(111)
        for i in range (len(accuracy_per_label)):
            ax.plot(accuracy_per_label[i], label=labels[i])
-           print(accuracy_per_label[i])
        ax.legend()
        plt.show()
 
@@ -322,8 +322,7 @@ def main(_):
    parser.add_argument('--hidden_size', type=int, default=3, help="Number of units in hidden layer.")
    parser.add_argument('--epochs', type=int, default=50, help="Number of epochs of training")
    parser.add_argument('--learning_rate', type=float, default=1e-3)
-   parser.add_argument('--active_test_mode', default=False, help='Set True for testing')
-   parser.add_argument('--train_with_existing_model', default=False, help='True for training on top of existing model')
+   parser.add_argument('--active_test_mode', default=True, help='Set True for testing')
    parser.add_argument('--data_dir', type=str, default='output', help="Directory for training data.")
    parser.add_argument('--test_dir', type=str, default='output', help="Directory for test data.")
    parser.add_argument('--log_dir', type=str, default='log', help="Directory for TensorBoard logs.")

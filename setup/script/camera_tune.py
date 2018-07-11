@@ -84,7 +84,7 @@ def draw_detection(image):
 
 
 font = cv2.FONT_HERSHEY_PLAIN
-capture = cv2.VideoCapture(0)
+capture = cv2.VideoCapture(1)
 capture.set(3, 1920)
 capture.set(4, 1080)
 

@@ -162,7 +162,7 @@ def main():
     parser = argparse.ArgumentParser(description='Run Dobot WebAPI.')
     parser.add_argument('--output_dir', default ='output',nargs=1, type=str)
     parser.add_argument('--image_dir_train', default='../image/train', type=str)
-    parser.add_argument('--active_test_mode', default=True, help='Set True for testing')
+    parser.add_argument('--active_test_mode', default=False, help='Set True for testing')
     parser.add_argument('--image_dir_test', default='../image/test', type=str)
     parser.add_argument('--model_file', type=str, default='classify_image_graph_def.pb')
     parser.add_argument('--for_prediction', action='store_true')
