@@ -1,5 +1,19 @@
 $(function () {
-    console.log("1");
+    /**
+     Bugs
+     1. Mic icon shows between intepreted text and translated text
+     2. Text is placed off-center in similarities after  navigating back from cam if done rapidly
+
+     Missing
+     - Loading animations where work is actually done, not just for show. But maybe both..?
+     - Text/UI/layout from sketch prototype
+     - Test everything
+     - Cam: candy-outlines
+     - Hints don't show after returning to idle mic screen
+     - Learning mode link is a part of hints. It should be moved, if included at all
+     - Maybe a reset button to nav to first state
+     */
+
     // API settings
     var pid = Math.floor(Math.random() * 10000000000000000); // POST ID
     var morUrl = "/api/morphs"; // API for Morphological analysis
@@ -11,140 +25,169 @@ $(function () {
     var plotSec = 5000; // display time of scatter plot(milisec）
     var camSec = 7000; // display tiem of camera image(milisec)
 
-    // variables
-    var recognition = new we<bkitSpeechRecognition();
+    // Navigation settings
+    var checkFreq=200; //How often should we check whether enough time has passed considering the maximum duration.
+    var waitKey=32; //What key should prevent automatic forwards navigation. here 32: Space
+    var backKey=37;//What key navigates "backwards": <-
+    var forwardKey=39;//What key navigates "forwards": ->
+    var navDebounceDur =250;//Minimum time spent in new state before forwards navigation is possible.
+    var askEnabled = 1;//Ask if they liked the candy. Takes priority to askInThankYouScreen
+    var askInThankYouScreen = 1;//Ask if they liked the candy in the thank you screen
+
+    // Other settings
+    var debug=true; //Print out to console when true, with the print() function
     var speechLang = "no"; //spoken language setting
     var lang = "en"; // language setting
+    var examples = ["\"Kan jeg få sjokolade?\"","\"Jeg liker smurf\"","\"Kan jeg få lakris?\"", "\"Kan jeg få noe søtt?\""];
+
+    //Nl helper variables
+    var morXHR = null;
+    var simXHR = null;
+
+    // Helper variables
+    var hintTimeoutId;
+    var hintCounter = 0;
+    var hintIntervalId;
+    var noFunction = function(){};
+    var recognition;
     var inputSpeech = "Kan jeg få en smurf";
     var speechTxt = "";
     var sim = "";
     var winW = window.innerWidth;
     var winH = window.innerHeight;
-    var examples = ["\"Kan jeg få sjokolade?\"","\"Jeg liker smurf\"","\"Kan jeg få lakris?\"", "\"Kan jeg få noe søtt?\""]
+    var tranTimeoutId;    
+    var morphLoadTimeoutId;    
+    var morphData;    
+    var simTimeoutId;
+    var latesSmilaritiesAjaxData;
 
-    //Nl
-    var morXHR = null;
-    var simXHR = null;
-
-
-    /* EXAMPLES OF WHAT TO SAY */
-    // variable to keep track of last text displayed
-    setTimeout(function () {
-        var i = 0;
-        var textTimer = function() {
-            if (i >= examples.length) { i = 0; }
-            $("#example-text").fadeOut(1000, function(){
-                $(this).text("__"+examples[i]);
-            });
-            $("#example-text").fadeIn();
-            i++;
-        }
-        $(".speech-hand-animation").show();
-        $("#example-text").text(examples[i++]); // initialize with first quote
-        setInterval(textTimer, 3500);
-    }, 15000);
-
-    // process of voice recognition
-    /* DISABLED FOR TESTING */
-    /*
-        var speech = function () {
-            $("body").addClass("mode-speech-start");
-            recognition.lang = lang;
-            $(".speech-mic").click(function () {
-                $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
-                    background: "#ff5f63",
-                    border: "solid 0 #ff5f63"
-                    }
-                );
-                $(".speech-footer").hide();
-                $(".speech-hand-animation").hide();
-                $("body").addClass("mode-speech-in");
-                recognition.start();
-            });
-            recognition.onerror = function () {
-                $("body").removeClass("mode-speech-in");
-            };
-            recognition.onresult = function (e) {
-                inputSpeech = e.results[0][0].transcript
-                //$(".speech-out").text(inputSpeech);
-                $("body").addClass("mode-speech-out");
-                setTimeout(function () {
-                    translation();
-                },3500);
-            };
-        }
+    // Helper nav variables
+    var funcToCancelRunningFunc;
+    var checkerTimeout;
+    var forwardNavFunc;
+    var backwardNavFunc;
+    var keepCheckingDurNav=false;
+    var maxWaitDurTime;
+    var previousNavTime=0;
 
 
-    /*
-    */
+    var initIdleMic = function () {
+        print("startIdleMic");
+        setNavigation(hideIdleMic, noFunction, showInterepretedSpeech); //Vi gir tom function siden en ikke trenger aa gaa tilbake
+        showIdleMic();
+        hintTimeoutId= setTimeout(initHints, 10000);
+    }
 
-    var setup = function(){
-        //Speech
-        recognition.lang = lang;
+    var showIdleMic = function (){
+        print("showIdleMic");
+        $("body").addClass("mode-speech-start");
+        $(".speech-mic").click(recordSpeech);
+    }
+
+    var hideIdleMic = function (){
+        print("hideIdleMic");
+        $(".speech-footer").hide();
+        $(".speech-hand-animation").hide(); //Hide demo animation when record starts
+        stopShowingHints();
+    }
+
+    var initHints = function () { 
+        print("initHints");
+        hintCounter = 0;
+        $("#example-text").text(examples[hintCounter++]); // initialize with first quote
+        hintIntervalId=setInterval(showHints, 8500);
+        showHints();
+    }
+
+    var showHints = function() { //TODO synes ikke etter rec->tilbake
+        print("showHints");
+        if (hintCounter >= examples.length) { hintCounter = 0; }
+        $(".speech-footer").show();
+        $("#example-text").fadeIn();
+        $(".speech-hand-animation").hide();
+        $("#example-text").fadeOut(2000, function(){
+            $(this).text(examples[hintCounter]);
+            
+            $(".speech-hand-animation").show();
+        });
+        hintCounter++;
+    }
+
+    var stopShowingHints = function (){
+        print("stopShowingHints");
+        clearTimeout(hintTimeoutId);
+        clearInterval(hintIntervalId);
+        $(".speech-hand-animation").hide();
     }
 
     var recordSpeech = function () {
-        hideInactiveMic();
+        print("recordSpeech");
+        hideIdleMic();
         showActiveMic();
-        //recognition.start(); //TODO test
+        setNavigation(stopRecAndHideActiveMic, initIdleMic, showInterepretedSpeech);
+        recognition = new webkitSpeechRecognition();
+        recognition.lang = lang;
+        recognition.start();
         
         recognition.onerror = function () {
-            hideActiveMic();
+            print("recordSpeech error");
             //TODO
         };
         recognition.onresult = function (e) {
+            print("recordSpeech result");
             inputSpeech = e.results[0][0].transcript;
+            hideActiveMic();
             showInterepretedSpeech();
-            setTimeout(function () {//TODO replace nav
-                hideActiveMic();
-                translation();
-            },3500);
         };
-
-        //Copied for testing
-        setTimeout(function () {//TODO replace nav
-            inputSpeech="testttt";
-        showInterepretedSpeech();
-        },2000);
-        
-            setTimeout(function () {//TODO replace nav
-                hideActiveMic();
-                translation();
-            },4000);
-
     }
 
+    var stopRecAndHideActiveMic = function () {
+        print("stopRecAndHide");
+        recognition.abort();
+        hideActiveMic();
+    }
+    
     var hideActiveMic = function () {
+        print("hideActiveMic");
         $("body").removeClass("mode-speech-in");
+        $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
+            background: "#29cff5",
+            border: "solid 0 #444"
+        });
     }
 
     var showInterepretedSpeech = function () {
-            $(".speech-out").text(inputSpeech);
-            $("body").addClass("mode-speech-out");
+        print("showInterepretedSpeech");
+        setNavigation(hideInterepretedSpeech, initIdleMic, translateInterpretedSpeechAndShow);
+        $("body").addClass("mode-speech-start");
+        $("body").addClass("mode-speech-out");
+        $(".speech-out").text(inputSpeech);
+        navAfterDur(4000);
+    }    
+
+    var hideInterepretedSpeech = function () {
+        print("hideInterepretedSpeech");
+        $("body").removeClass("mode-speech-out");
     }
 
-    
-
-    var hideInactiveMic = function (){
-        $(".speech-footer").hide();
-        $(".speech-hand-animation").hide(); //Hide demo animation when record starts
+    var removeMic=function(){
+        print("removeMic");
+        $("body").removeClass("mode-speech-start");
     }
 
     var showActiveMic = function (){
-        $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
+        print("showActiveMic");
+        $(".speech-mic").css({ //TODO hardkoda
             background: "#ff5f63",
             border: "solid 0 #ff5f63"
         }
         );
         $("body").addClass("mode-speech-in");
     }
-
-    var showIdleMic = function (){
-        $("body").addClass("mode-speech-start");
-        $(".speech-mic").click(recordSpeech);
-    }
-    var translation = function () {
-/*
+    
+    var translateInterpretedSpeechAndShow = function () {
+        print("translateInterpretedSpeechAndShow");
+        preventNavigation();
         $.ajax({
             type: "POST",
             contentType: "application/json",
@@ -156,37 +199,38 @@ $(function () {
                 "source": "no",
             }),
             error: function (textStatus) {
-                console.log(textStatus);
+                print("Error: "+textStatus);
                 //TODO
-                //For test
             },
             success: function (data) {
+                print("Sucess: "+data);
                 speechTxt = data[0].translatedText;
-                showTranslation();
-                setTimeout(function () {
-                    nl();
-                }, 2500);
+                removeMic();
+                showTranslatedText();
             }
         });
         // inputTxt --> translateAPI
         // success --> speechTxt = data.string
-*/
-        //For test
-        speechTxt = "translatedTXTX";
-                showTranslation();
-                setTimeout(function () {
-                    nl();
-                }, 2500);
     }
 
-    var showTranslation = function(){
+    var showTranslatedText = function(){
+        print("showTranslatedText");
+        setNavigation(hideTranslatedText,showInterepretedSpeech, naturalLanguage);//TODO fix
         $("body").addClass("mode-tran-loaded");
         $(".tran-word").text(inputSpeech);
 
         /*FOOTER LOADING ANIMATION*/
-        setTimeout(function () {
+        tranTimeoutId= setTimeout(function () {
             $(".tran-footer").show();
         }, 500);
+
+        navAfterDur(3000);
+    }
+
+    var hideTranslatedText = function (){
+        $("body").removeClass("mode-tran-loaded");
+        clearTimeout(tranTimeoutId);
+        $(".tran-footer").hide();
     }
 
     // switch language
@@ -202,7 +246,19 @@ $(function () {
         return false;
     });
 
-    var createAndShowMorph = function(data){
+    var hideMorph = function(){
+        print("hideMorph");
+        $("dl").remove();
+        $("dd").remove();
+        $("body").removeClass("mode-nl-loaded");
+        $(".nl-footer").hide();
+        clearTimeout(morphLoadTimeoutId);
+}
+
+    var createAndShowMorph = function(){
+        print("createAndShowMorph");
+        data=morphData;
+        setNavigation(hideMorph, showTranslatedText, noFunction);
         data = data.morphs
                 for (var i in data) {
                     var morph = "";
@@ -253,7 +309,7 @@ $(function () {
                     });
                 });
                 /*FOOTER LOADING ANIMATION*/
-                setTimeout(function () {
+                morphLoadTimeoutId=setTimeout(function () {
                     $(".nl-footer").show();
                 }, 1000);
 
@@ -266,14 +322,15 @@ $(function () {
                 });
                 $(".nl-label, .nl-depend dd").css("transition-delay", 3 + "s"); //endret fra 2.5
                 $("body").addClass("mode-nl-loaded");
-    }
-
-    var hideTranslatedText = function (){
-        $("body").addClass("mode-tran-finish");
+                
+                findSimilarities();
+                
     }
 
     // NL processing
-    var nl = function () {
+    var naturalLanguage = function () {
+        preventNavigation();
+        print("naturalLanguage")
         morXHR = null;
         simXHR = null;
 
@@ -289,22 +346,24 @@ $(function () {
             }),
             error: function (jqXHR, textStatus) {
                 hideTranslatedText();
-                /* Un-comment after test
+
                 if (textStatus == 'abort') { return; }
-                console.log(jqXHR);
+                print(jqXHR);
                 if (simXHR !== null && simXHR.readyState > 0 && simXHR.readyState < 4) {
                     simAjax.abort();
                 }
-                sorry();*/
+                showSorryScreen();//TODO Better error handling
             },
             success: function (data) {
                 hideTranslatedText();
-                createAndShowMorph(data);
+                morphData=data;
+                createAndShowMorph();
             }
-        });
+        });        
+    };
 
-        console.log("H");
-        // retrieve inference data
+   var findSimilarities = function () {
+       print("findSimilarities");
         simXHR = $.ajax({
             type: "POST",
             contentType: "application/json",
@@ -317,27 +376,50 @@ $(function () {
             }),
             error: function (jqXHR, textStatus) {
                 if (textStatus == 'abort') { return; }
-                console.log(jqXHR);
+                print(jqXHR);
                 if (morXHR !== null && morXHR.readyState > 0 && morXHR.readyState < 4) {
                     morXHR.abort();
                 }
-                sorry();
+                showSorryScreen();//TODO
             },
             success: function (data) {
-                var sec = data.similarities.embedded.length >= simNoWaitNum ? 0 : simSec;
+                print("found sim");
+                print(data);
                 sim = data;
-                console.log("(sim = data) from simURL. Sim = ");
-                console.log(sim);
-                setTimeout(function () {
-                    force();
-                    plot();
-                }, 5000);
+                latesSmilaritiesAjaxData = data;
+                setNavigation(hideMorph, showTranslatedText, showSimilarities);
+                navAfterDur(10000);
             }
         });
-    };
+    }
+
+    var hideSimilarities = function (){
+        print("hideSimilarities");
+        clearTimeout(simTimeoutId);
+        hideForce();
+        hidePlot();
+    }
+
+
+    var showSimilarities = function(){
+        print("showSimilarities");
+        sim = latesSmilaritiesAjaxData;
+        setNavigation(hideSimilarities, createAndShowMorph, noFunction);
+        createAndDrawForce();
+        plot();
+        setNavigation(hideSimilarities, createAndShowMorph, cam);
+        navAfterDur(4000);
+        }
+
+    var hideForce = function () {
+        print("hideForce");
+        $("body").removeClass("mode-force-start");
+        $("div.force").empty();
+    }
 
     // drow force layout
-    var force = function () {
+    var createAndDrawForce = function () {
+        print("createAndDrawForce");
         $("body").addClass("mode-force-start");
         // generate dataset
         var data = sim.similarities.force;
@@ -393,7 +475,7 @@ $(function () {
         var label = g.append("text")
             .text(function (d) {
                 //if (d.em > 0.50 && d.em < 1)
-                console.log(d);
+                print(d);
                 return d.label;
                 //else return d.label + " < 0.1";
             });
@@ -425,8 +507,14 @@ $(function () {
         });
     };
 
+    var hidePlot =function () {
+        print("hidePlot");
+        $("[class^=label]").remove();
+        $("dd").remove();
+    }
     // draw scatter plot
     var plot = function () {
+        print("plot");
         // generate dataset
         var data = sim.similarities.embedded;
         var dataSet = [];
@@ -454,7 +542,7 @@ $(function () {
             if (data.similarities[i].em > em) {
                 lid = data.similarities[i].lid;
                 em = data.similarities[i].em;
-                console.log("lid: " + lid + ", label: " + data.similarities[i].label + ", em: " + em);
+                print("lid: " + lid + ", label: " + data.similarities[i].label + ", em: " + em);
             }
         }
         dataSet.push({
@@ -480,19 +568,29 @@ $(function () {
                 });
         }
         $(".plot dd:last-child").addClass("nearest");
-        // draw with time difference
-        setTimeout(function () {
-            $("body").addClass("mode-plot-start");
-        }, 4000); // WAS 3000; //How long just the circles are displayed
-        setTimeout(function () {
-            $("body").addClass("mode-plot-end");
-            cam();
-        }, 8000);//plotSec); //This times how long the camera images should be presented next to the circles
+
     };
+    var hideCam= function () { 
+        print("hideCam");
+        $("body").removeClass("mode-plot-end");
+        $("body").removeClass("mode-cam-start");
+
+    }
 
     // output camera image
     var cam = function () {
-        var imgUrl = sim.similarities.url;
+        print("cam");
+        sim=latesSmilaritiesAjaxData;
+        
+        if(askEnabled){
+            setNavigation(hideCam, showSimilarities, ask);//
+        } else if (askInThankYouScreen){
+            setNavigation(hideCam, showSimilarities, askAndThank);//
+        } else {
+            setNavigation(hideCam, showSimilarities, thanks);//
+        }
+        $("body").addClass("mode-plot-end");
+        var imgUrl = sim.similarities.url; //denne blir undef etter nav fra spoer tilbake
         // retrieve image size
         var img = new Image();
         img.src = imgUrl;
@@ -515,7 +613,6 @@ $(function () {
         var box = sim.similarities.nearest.box;
         $(".cam polygon").attr("points", box[0][0] + "," + box[0][1] + " " + box[1][0] + "," + box[1][1] + " " + box[2][0] + "," + box[2][1] + " " + box[3][0] + "," + box[3][1] + " ");
         // draw with time difference
-        setTimeout(function () {
             $("body").addClass("mode-cam-start");
             // operation of pickup
             $.ajax({
@@ -527,36 +624,154 @@ $(function () {
                     "id": pid
                 }),
                 error: function (textStatus) {
-                    console.log(textStatus);
+                    print(textStatus);
                 },
                 success: function (data) {
+                    print(sim);
                     sim = data;
                 }
             });
-        }, 2000);
-        setTimeout(function () {
-            thanks();
-        }, camSec);
+
+            navAfterDur(15000);
     };
 
-    // draw endroll
-    var thanks = function () {
+    var hideThanks = function (){
+        print("hideThanks");
+        $("body").removeClass("mode-thanks-start");
+        $("body").removeClass("mode-thanks-end");
+        $("body").removeClass("mode-thanks-btn");
+        clearTimeout(thanksTimeout1);
+        clearTimeout(thanksTimeout2);
+    }
+
+    var hideAsk = function () {
+        print("hideAsk");
+        $("body").removeClass("mode-thanks-start");
+    }
+
+    var hideAskAndThank = function () {
+        print("hideAskAndThank");
+        $("body").removeClass("mode-thanks-start");
+        $("body").removeClass("mode-thanks-end");
+    }
+
+    var hideThank = function () {
+        print("hideThank");
+        $("body").removeClass("mode-thanks-start");
+        $("body").removeClass("mode-thanks-end");
+        $("body").removeClass("mode-thanks-btn");
+    }
+
+    var ask = function () { //delay ved forovernav
+        setNavigation(hideAsk, cam, thank);
+        print("ask");
         $("body").addClass("mode-thanks-start");
-        setTimeout(function () {
-            $("body").addClass("mode-thanks-end");
-        }, 3000);
-        setTimeout(function () {
-            $("body").addClass("mode-thanks-btn");
-        }, 5000); //WAS 5000
-    };
+        navAfterDur(4000);
+    }
 
-    // draw sorry
-    var sorry = function () {
+    var askAndThank = function () {
+        print("askAndThank&t");
+        setNavigation(hideAskAndThank, cam, initIdleMic);
+        $("body").addClass("mode-thanks-start");
+        $("body").addClass("mode-thanks-end");//TODO lag
+        navAfterDur(10000);
+    }
+
+    var thank = function () {
+        print("thank");
+        if(askEnabled){
+            setNavigation(hideThank, ask, initIdleMic);
+        } else {
+            setNavigation(hideThank, cam, initIdleMic);
+        }
+        
+        $("body").addClass("mode-thanks-start");
+        $("body").addClass("mode-thanks-end");
+        $("body").addClass("mode-thanks-btn");
+        navAfterDur(10000);
+    }
+
+    var showSorryScreen = function () {
+        print("showSorryScreen");
         $("body").addClass("mode-sorry-p");
     };
 
+      // Helper functions
+      var print = function(txt){
+        if(debug) console.log(txt);
+    }
 
-    setup();
-    console.log("1");
-    showIdleMic();
-});
+    var preventNavigation = function(){
+        setNavigation(noFunction, noFunction, noFunction);
+    }
+
+
+    //Navigation logic
+    function setNavigation(dismantleCurrentRunningFunction, functionToNavBack, functionToNavForward){
+        forwardNavFunc=functionToNavForward;
+        backwardNavFunc=functionToNavBack;
+        funcToCancelRunningFunc=dismantleCurrentRunningFunction;
+    }
+
+    //Call this to enable "forwards navigation" after a given time
+    function navAfterDur(durMax){
+        maxWaitDurTime=Date.now()+durMax;
+        keepCheckingDurNav=true;
+        checkMaxDurPassed(maxWaitDurTime);
+    }
+
+    function navByClickOrDur(durMax,cancelThisFunc, functionBack, functionForward){
+        setNavigation(cancelThisFunc, functionBack, functionForward);
+        navAfterDur(durMax);
+    }
+
+    document.onkeydown = function(e){
+        print("\n\nKeypress:"+e.keyCode);
+        if(e.keyCode==waitKey){
+            if(keepCheckingDurNav){
+                keepCheckingDurNav=false;//automatic forwards navigation is prevented by 1 press of the wait key. 
+            } else{
+                navForwards();
+            }
+        } else if(e.keyCode==forwardKey){
+            navForwards();
+        } else if(e.keyCode==backKey){
+            navBackwards();
+        }
+    };
+
+    function checkMaxDurPassed(maxStamp){
+        if(keepCheckingDurNav){
+            if(Date.now()-maxStamp>=0){
+                navForwards();
+            } else {
+                checkerTimeout = setTimeout(checkMaxDurPassed, checkFreq, maxStamp);
+            }
+        }
+    }
+
+    var navCleanUp = function(){
+        keepCheckingDurNav=false;
+        clearTimeout(checkerTimeout);
+        funcToCancelRunningFunc();
+        previousNavTime=Date.now();
+    }
+
+    var navForwards = function(){
+        if(navigationDebounce()){
+            navCleanUp();
+            forwardNavFunc();
+        }
+    }
+
+    var navBackwards = function(){
+            navCleanUp();
+            backwardNavFunc();
+    }
+
+    var navigationDebounce = function(){
+        return Date.now()-previousNavTime>=navDebounceDur;
+    }
+
+        initIdleMic();
+    });
