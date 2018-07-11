@@ -12,3 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+
+
+CAM_DEVICE = 1
+CAM_HEIGHT = 1080
+CAM_WIDTH = 1920
+
+
+CANDIES = ['japp', 'nøtti', 'marsipan', 'caramel', 'golden_toffee', 'cocos', 'fransk_nougat', 'banan', 'eclairs', 'lakrids', 'nougat_crisp', 'daim', 'chocolate_toffee']

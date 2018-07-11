@@ -21,9 +21,10 @@ import cv2
 from google.cloud import vision
 import numpy as np
 
+import matplotlib.pyplot as plt
 logger = logging.getLogger(__name__)
 
-vision_client = vision.Client()
+
 
 
 class Candy(object):
@@ -86,8 +87,10 @@ class CandyDetector(object):
                    box_dim_thres=config['CANDY_DETECTOR_BOX_DIM_THRES'])
 
     def detect(self, img):
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+        print('detect')
         # Check object
         histr = cv2.calcHist([img_gray], [0], None, [256], [0, 256])
         histr = histr / histr.sum()
@@ -203,6 +206,7 @@ class CandyDetector(object):
                 continue
             cropped_img = _crop_candy(img, markers != i, box_coords, box_dims, box_centroid)
 
+
             candies.append(Candy(box_coords=box_coords,
                                  box_dims=box_dims,
                                  box_centroid=box_centroid,
@@ -283,6 +287,7 @@ def _bounding_box_of(contour):
 
 
 def detect_labels(img):
+    vision_client = vision.Client()
     image = vision_client.image(content=cv2.imencode('.jpg', img)[1].tostring())
     try:
         texts = image.detect_text()

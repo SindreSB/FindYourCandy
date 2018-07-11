@@ -31,7 +31,7 @@ def load_class(name):
 def symlink_force(source, link_name):
     try:
         os.symlink(source, link_name)
-    except OSError, e:
+    except OSError as e:
         if e.errno == errno.EEXIST:
             os.unlink(link_name)
             os.symlink(source, link_name)

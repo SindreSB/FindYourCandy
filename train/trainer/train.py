@@ -322,6 +322,7 @@ def main(_):
    parser.add_argument('--epochs', type=int, default=50, help="Number of epochs of training")
    parser.add_argument('--learning_rate', type=float, default=1e-3)
    parser.add_argument('--active_test_mode', default=True, help='Set True for testing')
+   parser.add_argument('--train_with_existing_model', default=False, help='True for training on top of existing model')
    parser.add_argument('--data_dir', type=str, default='output', help="Directory for training data.")
    parser.add_argument('--test_dir', type=str, default='output', help="Directory for test data.")
    parser.add_argument('--log_dir', type=str, default='log', help="Directory for TensorBoard logs.")
