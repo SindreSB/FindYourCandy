@@ -32,6 +32,7 @@ class Dobot(object):
             port, baudrate, read_timeout_sec=read_timeout_sec, serial_timeout_sec=serial_timeout_sec
         )
 
+
     def get_pose(self):
         return self.serial.call(command.GetPose())
 
@@ -78,11 +79,12 @@ class Dobot(object):
             time.sleep(sleep_sec)
             self.linear_move(x, y, z_high, 0, velocity, accel)
 
-    def pickup_gripper(self, x, y, r, z_low=0, z_high=100, sleep_sec=1, velocity=200, accel=100, num_trials=1):
-        self.move(x, y, z_high, 0,  velocity, accel)
+    def pickup_gripper(self, x, y, r, z_low=0, z_high=100, sleep_sec=3, velocity=200, accel=100, num_trials=1):
         self.grip(0)
+        self.move(x, y, z_high, r,  velocity, accel)
         for i in range(num_trials):
             self.linear_move(x, y, z_low, r, velocity, accel)
+            time.sleep(1)
             self.grip(1)
             time.sleep(sleep_sec)
             self.linear_move(x, y, z_high, r, velocity, accel)
@@ -90,7 +92,7 @@ class Dobot(object):
     def adjust_z(self, z):
         self.wait()
         pose = self.serial.call(command.GetPose())
-        self.linear_move(pose['x'], pose['y'], z)
+        self.linear_move(pose['x'], pose['y'], z, pose['r'])
 
     def pump(self, on):
         self.serial.call(command.SetEndEffectorSuctionCup(1, on))

@@ -79,7 +79,7 @@ def pickup():
     return jsonify()
 
 
-@api.route('/pickup/grip', methods=['POST'])
+@api.route('/pickup/gripper', methods=['POST'])
 def pickup_grip():
     body = request.get_json(silent=True)
     x = float(body["x"])
@@ -109,10 +109,11 @@ def pickup_grip():
     logging.info('Starting pickup.')
     dobot.pickup_gripper(xy_conv[0], xy_conv[1], r, z_low=z_low, z_high=z_high, velocity=v, accel=a)
     logging.info('Serving to {}.'.format(dest))
-    dobot.move(dest[0], dest[1], 0, velocity=v, accel=a)
+    dobot.move(dest[0], dest[1], 0, 0, velocity=v, accel=a)
+    dobot.wait()
     logging.info('Releasing the candy')
     dobot.grip(0)
-    time.sleep(3)
+    dobot.wait()
     logging.info('Turning pump off.')
     dobot.pump(0)
     dobot.close()

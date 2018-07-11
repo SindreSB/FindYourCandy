@@ -37,6 +37,11 @@ class SerialDobotCalibrator(object):
     def initialize(self):
         self.dobot.initialize()
 
+    def grip(self, on):
+        if on:
+            self.dobot.grip(1)
+        else:
+            self.dobot.pump(0)
 
 class HTTPDobotCalibrator(object):
     base_url = ""
@@ -63,6 +68,9 @@ class HTTPDobotCalibrator(object):
     def initialize(self):
         requests.post(self.base_url + '/api/init')
 
+    def grip(self, on):
+        raise NotImplementedError
+
 
 def _request(url):
     r = requests.get(url)
@@ -85,6 +93,7 @@ if '__main__' == __name__:
     parser.add_argument('--api-uri', type=str, default="127.0.0.1:8000")
     parser.add_argument('--dobot-port', type=str, default=None)
     parser.add_argument('--tuner-file', type=str, default='/var/tmp/robot_tuner.dat')
+    parser.add_argument('--close-gripper', action='store_true', default=False)
 
     args = parser.parse_args()
 
@@ -110,6 +119,9 @@ if '__main__' == __name__:
     input("PRESS Enter to start dobot arm initialization protocol.")
     tuner.initialize()
 
+    if args.close_gripper:
+        tuner.grip(True)
+
     print("")
     wait_for_keystroke("Marker A")
     value = tuner.get_position()
@@ -127,6 +139,9 @@ if '__main__' == __name__:
     value = tuner.get_position()
     print(">> Marker E(x,y,z)={}".format(value))
     val_arr.append(value)
+
+    if args.close_gripper:
+        tuner.grip(False)
 
     print("")
     with open(args.tuner_file, 'w') as writefile:

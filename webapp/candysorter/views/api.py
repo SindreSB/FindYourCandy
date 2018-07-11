@@ -157,6 +157,20 @@ def morphs():
     ])
 
 
+def calculate_rotation(candy):
+    tl_x, tl_y = candy.box_coords[0]
+    br_x, br_y = candy.box_coords[2]
+    bl_x, bl_y = candy.box_coords[3]
+
+    length_left = np.sqrt(np.power(tl_x - bl_x, 2) + np.power(tl_y - bl_y, 2))
+    length_bottom = np.sqrt(np.power(br_x - bl_x, 2) + np.power(br_y - bl_y, 2))
+
+    if length_left < length_bottom:
+        return -1 * candy.box_rotation
+    else:
+        return -1 * (candy.box_rotation - 90)
+
+
 @api.route('/similarities', methods=['POST'])
 @id_required
 def similarities():
@@ -240,8 +254,14 @@ def similarities():
     # Save pickup point
     logger.info('Saving pickup point.')
     nearest_centroid = candies[nearest_idx].box_centroid
-    pickup_point = image_calibrator.get_coordinate(nearest_centroid[0], nearest_centroid[1])
-    cache.set('pickup_point', pickup_point)
+    if config['PICKUP_TYPE'] == 'suction_cup':
+        pickup_point = image_calibrator.get_coordinate(nearest_centroid[0], nearest_centroid[1])
+        cache.set('pickup_point', pickup_point)
+    elif config['PICKUP_TYPE'] == 'gripper':
+        pick_x, pick_y = image_calibrator.get_coordinate(nearest_centroid[0], nearest_centroid[1])
+        rotation = calculate_rotation(candies[nearest_idx])
+        cache.set('pickup_point', (pick_x, pick_y, rotation))
+
 
     # For json
     def _sim_as_json(sim):
@@ -284,7 +304,15 @@ def pickup():
     logger.info('=== Pickup candy: id=%s ===', g.id)
 
     logger.info('Picking candy. x=%f, y=%f', pickup_point[0], pickup_point[1])
-    requests.post(config['PICKUP_ENDOPOINT'], json=dict(x=pickup_point[0], y=pickup_point[1]))
+
+    if config['PICKUP_TYPE'] == 'suction_cup':
+        requests.post(config['PICKUP_SUCTION_CUP_ENDPOINT'],
+                      json=dict(x=pickup_point[0], y=pickup_point[1]))
+
+    elif config['PICKUP_TYPE'] == 'gripper':
+        requests.post(config['PICKUP_GRIPPER_ENDPOINT'],
+                      json=dict(x=pickup_point[0], y=pickup_point[1], r=pickup_point[2]))
+
     return jsonify()
 
 
