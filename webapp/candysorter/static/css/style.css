@@ -108,7 +108,7 @@ polygon.label-10 { stroke: #FFEE58; }
 .thanks div { display: flex; justify-content: center; align-items: center; position: absolute; width: 100%; height: 100%; }
 .thanks .btn { margin: 15px; }
 .thanks img { position: absolute; top: 30px;}
-.thanks p { position: center; text-align: center; align-content: center; justify-content: center; }
+.thanks p { position: center; text-align: center; align-content: center; justify-content: center; width: 750px; }
 /* sorry */
 .sorry { position: absolute; width: 100%; height: 100%; font-size: 48px; font-weight: 100; overflow: hidden; }
 .sorry-inner { display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; text-align: center; }
