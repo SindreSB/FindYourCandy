@@ -1,5 +1,5 @@
 [servers]
-192.168.33.10
+127.0.0.1
 
 [servers:vars]
 user=some_user
