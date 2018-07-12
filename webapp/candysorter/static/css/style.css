@@ -95,7 +95,7 @@ polygon.label-10 { stroke: #FFEE58; }
 .force line { stroke: rgba(255,255,255,0.3); stroke-width: 1; }
 .force text { fill: #fff; font-size: 50px; font-weight: 100; text-anchor: middle; alignment-baseline: middle; }
 .force circle { opacity: 0.8; }
-.force-txt { position: absolute; color: #29cff5; font-size: 48px; font-weight: 100; max-width: 80%; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+.force-txt { position: absolute; color: #29cff5; font-size: 75px; font-weight: 100; max-width: 80%; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
 /* plot */
 .plot { position: absolute; width: 100%; height: 100%; overflow: hidden; }
 .plot dd { position: absolute; width: 80px; height: 80px; margin: -40px 0 0 -40px; border-radius: 100%; }
@@ -104,8 +104,9 @@ polygon.label-10 { stroke: #FFEE58; }
 .cam { display: flex; justify-content: center; align-items: center; position: absolute; width: 100%; height: 100%; overflow: hidden; }
 .cam-img { background-size: cover; }
 .cam svg { width: 100%; }
-.cam polygon { fill: rgba(0,0,0,0); stroke: #ff5f63; stroke-width: 10px; stroke-dasharray: 20 10; } /*ALWAYS USE RED COLOR AS PICUKUP OUTLINE*/
+.cam polygon { fill: rgba(0,0,0,0); stroke:  #ff5f63;  stroke-width: 10px; stroke-dasharray: 20 10; } /*ALWAYS USE RED COLOR AS PICUKUP OUTLINE*/
 .cam line { stroke: #D12F33; stroke-width: 10px; }
+.cam text { fill: #fff; font-size: 50px; font-weight: 100; text-anchor: middle; alignment-baseline: middle; }
 /* thanks */
 .thanks { position: absolute; width: 100%; height: 100%; font-size: 48px; font-weight: 100; overflow: hidden; }
 .thanks div { display: flex; justify-content: center; align-items: center; position: absolute; width: 100%; height: 100%; }

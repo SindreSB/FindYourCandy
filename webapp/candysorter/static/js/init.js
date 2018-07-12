@@ -21,7 +21,8 @@ $(function () {
     var winW = window.innerWidth;
     var winH = window.innerHeight;
     var examples = ["\"Kan jeg få sjokolade?\"","\"Jeg liker smurf\"","\"Kan jeg få lakris?\"", "\"Kan jeg få noe søtt?\""]
-
+    var box1 = "";
+    var box2 = "";
 
     /* EXAMPLES OF WHAT TO SAY */
     // variable to keep track of last text displayed
@@ -365,6 +366,8 @@ $(function () {
     var plot = function () {
         // generate dataset
         var data = sim.similarities.embedded;
+        box1 = sim.similarities.embedded[0].box;
+        box2 = sim.similarities.embedded[1].box;
         var dataSet = [];
         for (var i in data) {
             var em = 0; // extract height similarity
@@ -450,6 +453,15 @@ $(function () {
         $(".cam-img").css("background-image", "url(" + imgUrl + ")");
         var box = sim.similarities.nearest.box;
         $(".cam polygon").attr("points", box[0][0] + "," + box[0][1] + " " + box[1][0] + "," + box[1][1] + " " + box[2][0] + "," + box[2][1] + " " + box[3][0] + "," + box[3][1] + " ");
+       /*TESTING*/
+        $(".cam #p1").attr("points", box1[0][0] + "," + box1[0][1] + " " + box1[1][0] + "," + box1[1][1] + " " + box1[2][0] + "," + box1[2][1] + " " + box1[3][0] + "," + box1[3][1] + " ");
+        $(".cam #p2").attr("points", box2[0][0] + "," + box2[0][1] + " " + box2[1][0] + "," + box2[1][1] + " " + box2[2][0] + "," + box2[2][1] + " " + box2[3][0] + "," + box2[3][1] + " ");
+        //$(".cam #t1").attr("points", box[0][0] + "," + box[0][1]);
+        $(".cam #t1").text(sim.similarities.nearest.similarities[1].label + ": " + sim.similarities.nearest.similarities[1].em);
+        $(".cam #t2").text(sim.similarities.embedded[1].similarities[2].label + ": " + sim.similarities.embedded[1].similarities[2].em);
+        $(".cam #t3").text(sim.similarities.embedded[0].similarities[2].label + ": " + sim.similarities.embedded[0].similarities[2].em);
+        /* /TESTING */
+
         // draw with time difference
         setTimeout(function () {
             $("body").addClass("mode-cam-start");
