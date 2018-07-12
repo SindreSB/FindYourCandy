@@ -21,6 +21,7 @@ import time
 from flask import Blueprint, jsonify, request, current_app
 
 from dobot.client import Dobot
+from calibration.converter import CoordinateConverter
 
 DEFAULT_BAUDRATE = 115200
 
@@ -53,7 +54,7 @@ def pickup():
 
     cfg = current_app.config
 
-    cv = cfg['DOBOT_COORDINATE_CONVERTER']
+    cv: CoordinateConverter = cfg['DOBOT_COORDINATE_CONVERTER']
 
     dest = cfg['DOBOT_SERVE_XY']
     z_high = cfg['DOBOT_Z_HIGH']
@@ -71,7 +72,7 @@ def pickup():
     logging.info('Starting pickup.')
     dobot.pickup(xy_conv[0], xy_conv[1], z_low=z_low, z_high=z_high, velocity=v, accel=a)
     logging.info('Serving to {}.'.format(dest))
-    dobot.move(dest[0], dest[1], 0,  velocity=v, accel=a)
+    dobot.move(dest[0], dest[1], dest[2],  velocity=v, accel=a)
     logging.info('Turning pump off.')
     dobot.pump(0)
     dobot.close()
@@ -89,7 +90,7 @@ def pickup_grip():
 
     cfg = current_app.config
 
-    cv = cfg['DOBOT_COORDINATE_CONVERTER']
+    cv: CoordinateConverter = cfg['DOBOT_COORDINATE_CONVERTER']
 
     dest = cfg['DOBOT_SERVE_XY']
     z_high = cfg['DOBOT_Z_HIGH']
@@ -98,16 +99,16 @@ def pickup_grip():
     a = cfg['DOBOT_MAX_ACCERALATION']
     logging.info('Pickup parameters: z_low={}, z_high={}, velocity={}, accel={}'.format(z_low, z_high, v, a))
 
-    # TODO: Support calibration/conversion of rotation
-    xy_conv = cv.convert(x, y)
-    logging.info('Logical coordinate ({}, {}) converted to dobot coordinate {}'.format(x, y, xy_conv))
-
+    xy_conv = cv.convert(x, y, r)
+    logging.info('Logical coordinate ({}, {}, {}) converted to dobot coordinate {}'.format(x, y, r, xy_conv))
 
     dobot = get_dobot(current_app.config['DOBOT_SERIAL_PORT'])
+
+    # TODO: Move robot arm onto the sheet to avoid occasional crash into base
     logging.info('Adjusting arm height to {}'.format(z_high))
-    dobot.adjust_z(z_high)
+    dobot.move(100, 240, z_high)
     logging.info('Starting pickup.')
-    dobot.pickup_gripper(xy_conv[0], xy_conv[1], r, z_low=z_low, z_high=z_high, velocity=v, accel=a)
+    dobot.pickup_gripper(xy_conv[0], xy_conv[1], xy_conv[2], z_low=z_low, z_high=z_high, velocity=v, accel=a)
     logging.info('Serving to {}.'.format(dest))
     dobot.move(dest[0], dest[1], 0, 0, velocity=v, accel=a)
     dobot.wait()
