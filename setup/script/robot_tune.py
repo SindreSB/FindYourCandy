@@ -19,7 +19,6 @@ import sys
 import time
 
 import requests
-from pynput import keyboard
 
 sys.path.append('../../robot-arm')
 from dobot.client import Dobot
@@ -167,7 +166,7 @@ if '__main__' == __name__:
     if args.use_gripper:
         print("")
         # average_z = sum([v['z'] for v in val_arr]) / 3 + 4
-        tuner.move(value['x'], value['y'], value['z'], 0)
+        tuner.move(value['x'], value['y'], value['z'] + 3, 0)
         tuner.grip(0)
         tuner.wait()
         time.sleep(1)

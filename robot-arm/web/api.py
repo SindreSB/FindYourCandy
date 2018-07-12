@@ -106,11 +106,11 @@ def pickup_grip():
 
     # TODO: Move robot arm onto the sheet to avoid occasional crash into base
     logging.info('Adjusting arm height to {}'.format(z_high))
-    dobot.move(100, 240, z_high)
+    dobot.adjust_z(z_high)
     logging.info('Starting pickup.')
     dobot.pickup_gripper(xy_conv[0], xy_conv[1], xy_conv[2], z_low=z_low, z_high=z_high, velocity=v, accel=a)
     logging.info('Serving to {}.'.format(dest))
-    dobot.move(dest[0], dest[1], 0, 0, velocity=v, accel=a)
+    dobot.move(dest[0], dest[1], dest[2], 0, velocity=v, accel=a)
     dobot.wait()
     logging.info('Releasing the candy')
     dobot.grip(0)
