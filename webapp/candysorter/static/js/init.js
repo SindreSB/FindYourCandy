@@ -124,7 +124,7 @@ $(function () {
         print("recordSpeech");
         hideIdleMic();
         showActiveMic();
-        setNavigation(stopRecAndHideActiveMic, initIdleMic, showInterepretedSpeech);
+        setNavigation(stopRecAndHideActiveMic, initIdleMic, translateInterpretedSpeechAndShow);
         recognition = new webkitSpeechRecognition();
         recognition.lang = lang;
         recognition.start();
@@ -215,7 +215,7 @@ $(function () {
 
     var showTranslatedText = function(){
         print("showTranslatedText");
-        setNavigation(hideTranslatedText,showInterepretedSpeech, naturalLanguage);//TODO fix
+        setNavigation(hideTranslatedText,initIdleMic, naturalLanguage);//TODO fix
         $("body").addClass("mode-tran-loaded");
         $(".tran-word").text(inputSpeech);
 
@@ -509,7 +509,7 @@ $(function () {
 
     var hidePlot =function () {
         print("hidePlot");
-        $("[class^=label]").remove();
+        //$("[class^=label]").remove();
         $("dd").remove();
     }
     // draw scatter plot
