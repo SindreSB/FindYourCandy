@@ -461,7 +461,7 @@ $(function () {
         $(".cam-img").css("background-image", "url(" + imgUrl + ")");
         var box = sim.similarities.nearest.box;
         $(".cam polygon").addClass("polygon.label-3");
-        $(".cam polygon").attr("points", box[0][0] + "," + box[0][1] + " " + box[1][0] + "," + box[1][1] + " " + box[2][0] + "," + box[2][1] + " " + box[3][0] + "," + box[3][1] + " ");
+        $(".cam #p0").attr("points", box[0][0] + "," + box[0][1] + " " + box[1][0] + "," + box[1][1] + " " + box[2][0] + "," + box[2][1] + " " + box[3][0] + "," + box[3][1] + " ");
        /*TESTING*/
         $(".cam #p1").addClass("polygon.label-2");
         $(".cam #p1").attr("points", box1[0][0] + "," + box1[0][1] + " " + box1[1][0] + "," + box1[1][1] + " " + box1[2][0] + "," + box1[2][1] + " " + box1[3][0] + "," + box1[3][1] + " ");
@@ -501,6 +501,13 @@ $(function () {
         $(".cam #t32").text(sim.similarities.embedded[0].similarities[2].em.toFixed(3)*100 + "%");
 
 
+        setTimeout(function () {
+            $("body").addClass("mode-cam-mid");
+        }, 3000);
+        setTimeout(function () {
+            $(".cam #b1").attr("points", box1[0][0] + "," + box1[0][1] + " " + box1[1][0] + "," + box1[1][1] + " " + box1[2][0] + "," + box1[2][1] + " " + box1[3][0] + "," + box1[3][1] + " ");
+            $(".cam #b2").attr("points", box2[0][0] + "," + box2[0][1] + " " + box2[1][0] + "," + box2[1][1] + " " + box2[2][0] + "," + box2[2][1] + " " + box2[3][0] + "," + box2[3][1] + " ");
+            }, 6000);
 
 
 

@@ -111,7 +111,6 @@ polygon.label-10 { stroke: #FFEE58; }
 .cam line { stroke: #D12F33; stroke-width: 10px; }
 .cam text { fill: #fff; font-size: 40px; font-family: "Open Sans"; font-weight: 100; text-anchor: middle; alignment-baseline: middle; }
 .cam ellipse { opacity: 0.6; }
-.cam polygon b { fill: #fff; fill-opacity: 0.8; }
 
 /* thanks */
 .thanks { position: absolute; width: 100%; height: 100%; font-size: 48px; font-weight: 100; overflow: hidden; }
