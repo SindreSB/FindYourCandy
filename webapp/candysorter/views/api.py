@@ -210,12 +210,22 @@ def similarities():
 
     # Capture image
     logger.info('Capturing image.')
-    img = _capture_image()
+    try:
+        img = _capture_image()
+    except RuntimeError as e:
+        return __error_response("CAMERA", "Unable to detect barcodes and/or camera has been moved.", str(e))
+    except FileNotFoundError as e:
+        return __error_response("CAMERA", "Could not find the fake image specified in the config", str(e))
+    except Exception as e:
+        return __error_response("CAMERA", str(e))
 
     # Detect candies
     logger.info('Detecting candies.')
     candies = candy_detector.detect(img)
     logger.info('  %d candies detected.', len(candies))
+
+    if len(candies) == 0:
+        return __error_response("CANDY", "No candy detected on the table. Place candy on the table, or calibrate camera.")
 
     # Create image directory
     save_dir = _create_save_dir(session_id)
@@ -498,15 +508,19 @@ def _session_id():
 
 
 def _capture_image(retry_count=5, retry_interval=0.1):
+    error = None
     for i in range(retry_count):
         try:
             img = image_capture.capture()
             img = image_calibrator.calibrate(img)
             return img
-        except Exception:
+        except FileNotFoundError:
+            raise
+        except (RuntimeError, Exception) as e:
+            error = e
             logger.warning('  Retrying: %d times.', (i + 1))
             time.sleep(retry_interval)
-    raise Exception('Failed to capture image.')
+    raise error
 
 
 def _create_save_dir(session_id):
@@ -547,3 +561,11 @@ def _reduce_dimension(speech_sim, candy_sims):
 
 def _job_id(session_id):
     return 'candy_sorter_{}'.format(session_id)
+
+
+def __error_response(err_type, msg, error=""):
+    return jsonify({
+        'error_type': err_type,
+        'error': error,
+        'message': msg
+    }), 500

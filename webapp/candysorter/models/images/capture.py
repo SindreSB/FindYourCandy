@@ -51,7 +51,7 @@ class ImageCapture(object):
             return img
 
         capture.release()
-        raise Exception('Failed to capture image.')
+        raise Exception('Failed to capture an sufficiently crisp image. No image was above blur threshold')
 
     def _blur_index(self, img):
         img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -67,4 +67,8 @@ class FakeImageCapture(object):
         return cls(img_file=config['DUMMY_IMAGE_FILE'])
 
     def capture(self):
-        return cv2.imread(self.img_file)
+        img = cv2.imread(self.img_file)
+        if img is None:
+            raise FileNotFoundError("Could not find the fake image")
+        else:
+            return img
