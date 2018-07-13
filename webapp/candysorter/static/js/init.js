@@ -276,6 +276,7 @@ $(function () {
     // drow force layout
     var force = function () {
         $("body").addClass("mode-force-start");
+        $(".force-footer").show();
         // generate dataset
         var data = sim.similarities.force;
         var dataSet = {
@@ -330,7 +331,6 @@ $(function () {
         var label = g.append("text")
             .text(function (d) {
                 //if (d.em > 0.50 && d.em < 1)
-                console.log(d);
                 return d.label;
                 //else return d.label + " < 0.1";
             });
@@ -386,14 +386,13 @@ $(function () {
             });
         }
         // add nearest at the last of dataset
-        data = sim.similarities.nearest;
+        /*data = sim.similarities.nearest;
         em = 0; // extract high similarity label
         lid = 0;
         for (var i in data.similarities) {
             if (data.similarities[i].em > em) {
                 lid = data.similarities[i].lid;
                 em = data.similarities[i].em;
-                console.log("lid: " + lid + ", label: " + data.similarities[i].label + ", em: " + em);
             }
         }
         dataSet.push({
@@ -402,7 +401,9 @@ $(function () {
             "img": data.url,
             "lid": lid
         });
+
         $(".cam polygon").addClass("label-" + lid);
+        console.log("label-" + lid);
         // draw scatter plot
         for (var i in dataSet) {
             $(".plot").append("<dd><i></i></dd>");
@@ -413,16 +414,20 @@ $(function () {
                     transitionDelay: parseInt(i) * 0.05 + "s",
                     animationDelay: parseInt(i) * 0.05 + "s"
                 });
-            $(".plot dd:last-child i")
+            /*
+              $(".plot dd:last-child i")
                 .css({
                     backgroundImage: "url(" + dataSet[i].img + ")"
                 });
+
         }
+        */
+
         $(".plot dd:last-child").addClass("nearest");
         // draw with time difference
         setTimeout(function () {
             $("body").addClass("mode-plot-start");
-        }, 4000); // WAS 3000; //How long just the circles are displayed
+        }, 6000); // WAS 3000; //How long just the circles are displayed
         setTimeout(function () {
             $("body").addClass("mode-plot-end");
             cam();
@@ -431,6 +436,7 @@ $(function () {
 
     // output camera image
     var cam = function () {
+        $("body").addClass("mode-cam-start");
         var imgUrl = sim.similarities.url;
         // retrieve image size
         var img = new Image();
@@ -449,22 +455,63 @@ $(function () {
             }
             $(".cam-img").width(w).height(h);
         };
+
         // setting image
+        $(".cam polygon").addClass("polygon.label-1");
         $(".cam-img").css("background-image", "url(" + imgUrl + ")");
         var box = sim.similarities.nearest.box;
+        $(".cam polygon").addClass("polygon.label-3");
         $(".cam polygon").attr("points", box[0][0] + "," + box[0][1] + " " + box[1][0] + "," + box[1][1] + " " + box[2][0] + "," + box[2][1] + " " + box[3][0] + "," + box[3][1] + " ");
        /*TESTING*/
+        $(".cam #p1").addClass("polygon.label-2");
         $(".cam #p1").attr("points", box1[0][0] + "," + box1[0][1] + " " + box1[1][0] + "," + box1[1][1] + " " + box1[2][0] + "," + box1[2][1] + " " + box1[3][0] + "," + box1[3][1] + " ");
         $(".cam #p2").attr("points", box2[0][0] + "," + box2[0][1] + " " + box2[1][0] + "," + box2[1][1] + " " + box2[2][0] + "," + box2[2][1] + " " + box2[3][0] + "," + box2[3][1] + " ");
-        //$(".cam #t1").attr("points", box[0][0] + "," + box[0][1]);
-        $(".cam #t1").text(sim.similarities.nearest.similarities[1].label + ": " + sim.similarities.nearest.similarities[1].em);
-        $(".cam #t2").text(sim.similarities.embedded[1].similarities[2].label + ": " + sim.similarities.embedded[1].similarities[2].em);
-        $(".cam #t3").text(sim.similarities.embedded[0].similarities[2].label + ": " + sim.similarities.embedded[0].similarities[2].em);
+
+        $(".cam #c1").attr("cx", box[0][0]).attr("cy", box[0][1]);
+        $(".cam #c2").attr("cx", box1[0][0]).attr("cy", box1[0][1]);
+        $(".cam #c3").attr("cx", box2[0][0]).attr("cy", box2[0][1]);
+
+
+        $(".cam #t1").attr("x", box[0][0]).attr("y", box[0][1]);
+        $(".cam #t11").attr("x", box[0][0]).attr("y", (box[0][1])+15);
+        $(".cam #t12").attr("x", box[0][0]).attr("y", (box[0][1])-15);
+        $(".cam #t11").text(sim.similarities.nearest.similarities[1].label);
+        $(".cam #t12").text(sim.similarities.nearest.similarities[1].em.toFixed(3)*100 + "%");
+
+/*
+        $(".cam #t2").attr("x", box1[0][0]).attr("y", box1[0][1]);
+        $(".cam #t2").text(sim.similarities.embedded[1].similarities[2].label + ": " + sim.similarities.embedded[1].similarities[2].em.toFixed(3)*100 + "%");
+
+
+        $(".cam #t3").attr("x", box2[0][0]).attr("y", box2[0][1]);
+        $(".cam #t3").text(sim.similarities.embedded[0].similarities[2].label + ": " + sim.similarities.embedded[0].similarities[2].em.toFixed(3)*100 + "%");
+
+*/
+        $(".cam #t2").attr("x", box1[0][0]).attr("y", box1[0][1]);
+        $(".cam #t21").attr("x", box1[0][0]).attr("y", (box1[0][1])+15);
+        $(".cam #t22").attr("x", box1[0][0]).attr("y", (box1[0][1])-15);
+        $(".cam #t21").text(sim.similarities.embedded[1].similarities[2].label);
+        $(".cam #t22").text(sim.similarities.embedded[1].similarities[2].em.toFixed(3)*100 + "%");
+
+
+        $(".cam #t3").attr("x", box2[0][0]).attr("y", box2[0][1]);
+        $(".cam #t31").attr("x", box2[0][0]).attr("y", (box2[0][1])+15);
+        $(".cam #t32").attr("x", box2[0][0]).attr("y", (box2[0][1])-15);
+        $(".cam #t31").text(sim.similarities.embedded[0].similarities[2].label);
+        $(".cam #t32").text(sim.similarities.embedded[0].similarities[2].em.toFixed(3)*100 + "%");
+
+
+
+
+
+
+
+
         /* /TESTING */
 
         // draw with time difference
         setTimeout(function () {
-            $("body").addClass("mode-cam-start");
+            $("body").addClass("mode-cam-end");
             // operation of pickup
             $.ajax({
                 type: "POST",
@@ -481,10 +528,10 @@ $(function () {
                     sim = data;
                 }
             });
-        }, 2000);
+        }, 500);
         setTimeout(function () {
             thanks();
-        }, camSec);
+        }, 20000);//camSec);
     };
 
     // draw endroll

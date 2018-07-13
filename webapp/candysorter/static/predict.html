@@ -50,26 +50,46 @@
 <div class="cam">
   <div class="cam-img">
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 0 0">
-      <polygon points="0,0 0,0 0,0 0,0 "/>
-      <polygon id="p1" points="0,0 0,0 0,0 0,0 "/>
-      <polygon id="p2" points="0,0 0,0 0,0 0,0 "/>
-      <text id="t1" x="1185" y="603"></text>
-      <text id="t2" x="392" y="510"></text>
-      <text id="t3" x="1194" y="120"></text>
       /*Cam UI*/
-        <line x1="30" y1="30" x2="250" y2="30"/>
-        <line x1="30" y1="30" x2="30" y2="250"/>
-        <line x1="1595" y1="30" x2="1375" y2="30"/>
-        <line x1="1595" y1="30" x2="1595" y2="250"/>
-        <line x1="30" y1="1070" x2="250" y2="1070"/>
-        <line x1="30" y1="1070" x2="30" y2="850"/>
-        <line x1="1595" y1="1070" x2="1375" y2="1070"/>
-        <line x1="1595" y1="1070" x2="1595" y2="850"/>
+      <line x1="30" y1="30" x2="250" y2="30"/>
+      <line x1="30" y1="30" x2="30" y2="250"/>
+      <line x1="1595" y1="30" x2="1375" y2="30"/>
+      <line x1="1595" y1="30" x2="1595" y2="250"/>
+      <line x1="30" y1="1070" x2="250" y2="1070"/>
+      <line x1="30" y1="1070" x2="30" y2="850"/>
+      <line x1="1595" y1="1070" x2="1375" y2="1070"/>
+      <line x1="1595" y1="1070" x2="1595" y2="850"/>
+      /* /Cam UI*/
+
+      <polygon style="stroke:#ff5f63" points="0,0 0,0 0,0 0,0 "/>
+      <polygon style="stroke:#49bca1" id="p1" points="0,0 0,0 0,0 0,0 "/>
+      <polygon style="stroke:#fed546" id="p2" points="0,0 0,0 0,0 0,0 "/>
+      <ellipse id ="c1" style="fill: #ff5f63" rx="170" ry="170"/>
+      <ellipse id ="c2" style="fill: #49bca1" rx="170" ry="170"/>
+      <ellipse id ="c3" style="fill: #fed546" rx="170" ry="170"/>
+      <text id="t1">
+        <tspan id="t11"></tspan>
+        <tspan id="t12"></tspan>
+      </text>
+      <text id="t2">
+        <tspan id="t21"></tspan>
+        <tspan id="t22"></tspan>
+      </text>
+      <text id="t3">
+        <tspan id="t31"></tspan>
+        <tspan id="t32"></tspan>
+      </text>
+
     </svg>
   </div>
 </div>
 <div class="plot"></div>
 <div class="force">
+  <div class="force-footer" hidden>
+    <p class="force-footer">Word2vec Similarity</p><br><br>
+    <p class="working" style="font-size: 86px; bottom: 30px"><span>.</span><span>.</span><span>.</span></p>
+
+  </div>
   <div class="general-header"><img height="100px" src="/static/images/branding/Computas_symbol_blue.png"></div>
 </div>
 <div class="thanks">
