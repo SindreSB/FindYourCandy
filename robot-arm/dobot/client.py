@@ -94,6 +94,11 @@ class Dobot(object):
         pose = self.serial.call(command.GetPose())
         self.linear_move(pose['x'], pose['y'], z, pose['r'])
 
+    def adjust_r(self, r):
+        self.wait()
+        pose = self.serial.call(command.GetPose())
+        self.linear_move(pose['x'], pose['y'], pose['z'], r)
+
     def pump(self, on):
         self.serial.call(command.SetEndEffectorSuctionCup(1, on))
 
