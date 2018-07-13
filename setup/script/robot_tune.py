@@ -135,6 +135,13 @@ if '__main__' == __name__:
 
     val_arr = []
 
+    print("---Calibrate robot arm---")
+    print("When asked to place the robot on the marker, place it on the CROSS NEXT TO THE MARKER, not the letter.")
+    print()
+    print("Before you begin, please use the arm-release button located at the top of the robot arm and move the arm to \
+3'o clock. \nEnsure that the arm can move freely and that there are no obstacles to the right of the robot")
+
+    print()
     input("PRESS Enter to start dobot arm initialization protocol.")
     tuner.initialize()
 
