@@ -85,7 +85,7 @@ class DefaultConfig(object):
     IMAGE_CALIBRATOR_AREA  = (1625, 1100)
     IMAGE_CALIBRATOR_SCALE = 550
 
-    PICKUP_TYPE = 'gripper'  # Use 'gripper' or 'suction_cup'
+    PICKUP_TYPE = 'suction_cup'  # Use 'gripper' or 'suction_cup'
     PICKUP_SUCTION_CUP_ENDPOINT = 'http://localhost:18001/api/pickup'
     PICKUP_GRIPPER_ENDPOINT = 'http://localhost:18001/api/pickup/gripper'
 

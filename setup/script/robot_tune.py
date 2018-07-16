@@ -24,6 +24,7 @@ sys.path.append('../../robot-arm')
 from dobot.client import Dobot
 from dobot.utils import detect_dobot_port, dobot_is_on_port
 
+
 from calibration.converter import CoordinateConverter
 
 DEFAULT_BAUDRATE = 115200
@@ -190,6 +191,9 @@ if '__main__' == __name__:
 
         value = tuner.get_rotation()
         print(">> Rotation={}".format(value))
+        val_arr.append(value)
+    else:
+        value = {'r': 0}
         val_arr.append(value)
 
     if args.mark_drop:

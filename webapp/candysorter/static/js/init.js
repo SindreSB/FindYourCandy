@@ -42,10 +42,10 @@ $(function () {
 
     // process of voice recognition
     /* DISABLED FOR TESTING */
-    /*
+
         var speech = function () {
             $("body").addClass("mode-speech-start");
-            recognition.lang = lang;
+            recognition.lang = speechLang;
             $(".speech-mic").click(function () {
                 $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
                     background: "#ff5f63",
@@ -73,7 +73,7 @@ $(function () {
 
     /*
     */
-
+    /*
     var speech = function () {
         $("body").addClass("mode-speech-start");
         recognition.lang = lang;
@@ -90,7 +90,7 @@ $(function () {
                 translation();
             },3500);
         });
-    }
+    }*/
 
     var translation = function () {
         $.ajax({
@@ -101,7 +101,7 @@ $(function () {
             data: JSON.stringify({
                 "id": pid,
                 "text": inputSpeech,
-                "source": "no",
+                "source": speechLang,
             }),
             error: function (textStatus) {
                 console.log(textStatus);

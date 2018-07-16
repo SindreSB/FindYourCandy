@@ -54,7 +54,7 @@ def pickup():
 
     cfg = current_app.config
 
-    cv: CoordinateConverter = cfg['DOBOT_COORDINATE_CONVERTER']
+    cv = cfg['DOBOT_COORDINATE_CONVERTER']
 
     dest = cfg['DOBOT_SERVE_XY']
     z_high = cfg['DOBOT_Z_HIGH']
@@ -90,7 +90,7 @@ def pickup_grip():
 
     cfg = current_app.config
 
-    cv: CoordinateConverter = cfg['DOBOT_COORDINATE_CONVERTER']
+    cv = cfg['DOBOT_COORDINATE_CONVERTER']
 
     dest = cfg['DOBOT_SERVE_XY']
     z_high = cfg['DOBOT_Z_HIGH']
