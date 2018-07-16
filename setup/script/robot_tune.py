@@ -25,8 +25,6 @@ from dobot.client import Dobot
 from dobot.utils import detect_dobot_port, dobot_is_on_port
 
 
-from calibration.converter import CoordinateConverter
-
 DEFAULT_BAUDRATE = 115200
 
 
