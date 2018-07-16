@@ -30,4 +30,4 @@ docker run -it --rm \
   --device "${dobot_device}:/dev/ttyUSB0" \
   --name fyc-robot-tune \
   computas/fyc-robot \
-  /bin/bash -c 'cd /opt/FindYourCandy/setup/script && /usr/bin/python3 robot_tune.py --tuner-file /opt/FindYourCandy/data/robot_tuner.dat'
+  /bin/bash -c 'cd /opt/FindYourCandy/setup/script && /usr/bin/python3 robot_tune.py --tuner-file /opt/FindYourCandy/data/robot_tuner.dat  --mark-drop'
