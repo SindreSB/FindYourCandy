@@ -1,0 +1,6 @@
+flask
+Flask-Socket
+google-cloud-speech
+
+# Needed to use audio_sender
+websockets
