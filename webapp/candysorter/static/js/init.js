@@ -118,7 +118,7 @@ $(function () {
                 }, 500);
                 setTimeout(function () {
                     nl()
-                }, 4000);
+                }, 5000);
             }
         });
         // inputTxt --> translateAPI
@@ -215,7 +215,7 @@ $(function () {
                 /*FOOTER LOADING ANIMATION*/
                 setTimeout(function () {
                     $(".nl-footer").show();
-                }, 1000);
+                }, 500);
 
                 // effect settings
                 $(".nl-word").each(function (index) {
@@ -268,7 +268,7 @@ $(function () {
                 setTimeout(function () {
                     force();
                     plot();
-                }, 5000);
+                }, 6000);
             }
         });
     };
