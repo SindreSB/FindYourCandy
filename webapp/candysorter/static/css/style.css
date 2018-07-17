@@ -16,7 +16,7 @@ svg { vertical-align: top; }
 .btn-l { background: none;}
 .general-header { display:table-cell; vertical-align:middle; text-align:center; position: absolute; left:50px; top: 50px; align-content: center; }
 /* color */
-.label-0 circle { fill: rgba(0,0,0,0); }
+.label-0 circle { fill: rgba(0,0,0,0); } /* Invisible circle linking all force circles */
 .label-1 circle { fill: #ff5f63; }
 .label-2 circle { fill: #29cff5; }
 .label-3 circle { fill: #49bca1; }
@@ -47,6 +47,10 @@ polygon.label-7 { stroke: #FF7043; }
 polygon.label-8 { stroke: #EC407A; }
 polygon.label-9 { stroke: #7E57C2; }
 polygon.label-10 { stroke: #FFEE58; }
+circle.label-1 { fill: #ff5f63; }
+circle.label-2 { fill: #29cff5; }
+circle.label-3 { fill: #49bca1; }
+circle.label-4 { fill: #fed546; }
 /* speech */
 .speech { position: absolute; width: 100%; height: 100%; font-size: 36px; font-weight: 100; overflow: hidden; }
 .speech-in { display: flex; justify-content: center; align-items: center; position: absolute; width: 100%; height: 100%; z-index: 1; }
@@ -108,9 +112,9 @@ polygon.label-10 { stroke: #FFEE58; }
 .cam-img { background-size: cover; }
 .cam svg { width: 100%; }
 .cam polygon { fill: rgba(0,0,0,0); /*stroke:  #ff5f63; */  stroke-width: 10px; stroke-dasharray: 20 10; } /*ALWAYS USE RED COLOR AS PICUKUP OUTLINE*/
-.cam line { stroke: #D12F33; stroke-width: 10px; }
+.cam line { stroke: #D12F33; stroke-width: 10px; opacity: 0.6; }
 .cam text { fill: #fff; font-size: 40px; font-family: "Open Sans"; font-weight: 100; text-anchor: middle; alignment-baseline: middle; }
-.cam ellipse { opacity: 0.6; }
+.cam circle { opacity: 0.6; }
 
 /* thanks */
 .thanks { position: absolute; width: 100%; height: 100%; font-size: 48px; font-weight: 100; overflow: hidden; }

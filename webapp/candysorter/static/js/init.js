@@ -21,8 +21,8 @@ $(function () {
     var winW = window.innerWidth;
     var winH = window.innerHeight;
     var examples = ["\"Kan jeg få sjokolade?\"","\"Jeg liker smurf\"","\"Kan jeg få lakris?\"", "\"Kan jeg få noe søtt?\""]
-    var box1 = "";
-    var box2 = "";
+    //Twist
+    //var examples = ["\"Kan jeg noe med nøtter?\"","\"Jeg liker karamell\"","\"Kan jeg få noe salt?\"", "\"Kan jeg få noe søtt?\"", "\"Jeg liker banan\""]
 
     /* EXAMPLES OF WHAT TO SAY */
     // variable to keep track of last text displayed
@@ -38,8 +38,8 @@ $(function () {
         }
         $(".speech-hand-animation").show();
         $("#example-text").text(examples[i++]); // initialize with first quote
-        setInterval(textTimer, 3500);
-    }, 15000);
+        setInterval(textTimer, 3500); // how long each text example is shown
+    }, 3000); //wait time until demo starts
 
     // process of voice recognition
     /* DISABLED FOR TESTING */
@@ -318,20 +318,20 @@ $(function () {
             .append("line");
         var g = svg.selectAll("g")
             .data(dataSet.nodes)
-            .enter()
-            .append("g")
-            .attr("class", function (d) {
+            .enter() //separating all nodes in the array
+            .append("g") //appending g-tag to all nodes
+            .attr("class", function (d) { //adding class .label-X to all nodes, varying color
                 return "label-" + d.lid;
             });
-        var circle = g.append("circle")
-            .attr("r", function (d) {
+        var circle = g.append("circle") //all elements "g" appended circle class
+            .attr("r", function (d) { //setting each radius based on dataset
                 var r = 80 + d.em * 100;
                 return r;
             });
         var label = g.append("text")
             .text(function (d) {
                 //if (d.em > 0.50 && d.em < 1)
-                return d.label;
+                return d.label; //appending a text label to each element g
                 //else return d.label + " < 0.1";
             });
         // setting coordinate (input string（lid=0）fix the mid of display）
@@ -341,7 +341,7 @@ $(function () {
             });
             link.attr("x1", function (d) {
                 return d.source.x;
-            })
+                })
                 .attr("y1", function (d) {
                     return d.source.y;
                 })
@@ -366,8 +366,6 @@ $(function () {
     var plot = function () {
         // generate dataset
         var data = sim.similarities.embedded;
-        box1 = sim.similarities.embedded[0].box;
-        box2 = sim.similarities.embedded[1].box;
         var dataSet = [];
         for (var i in data) {
             var em = 0; // extract height similarity
@@ -385,6 +383,8 @@ $(function () {
                 "lid": lid
             });
         }
+
+        // ADDING THE SMALL IMAGES NEXT TO THE FORCE PLOT
         // add nearest at the last of dataset
         /*data = sim.similarities.nearest;
         em = 0; // extract high similarity label
@@ -456,69 +456,84 @@ $(function () {
             $(".cam-img").width(w).height(h);
         };
 
+
+        /* SVG TEST SPACE*/
+        // Generate datasets
+        var camdata = sim.similarities.embedded;
+        var nearest = sim.similarities.nearest;
+        var dataSet2 = [];
+        for (var i in camdata) {
+            var em = 0;
+            var label = "";
+            var lid = "";
+            for (var j in camdata[i].similarities) {
+                if (camdata[i].similarities[j].em > em) {
+                    label = camdata[i].similarities[j].label;
+                    lid = camdata[i].similarities[j].lid;
+                    em = camdata[i].similarities[j].em;
+                }
+            }
+            dataSet2.push({
+                "em": em,
+                "label": label
+            });
+        }
+
+        console.log(dataSet2);
+
         // setting image
-        $(".cam polygon").addClass("polygon.label-1");
         $(".cam-img").css("background-image", "url(" + imgUrl + ")");
-        var box = sim.similarities.nearest.box;
-        $(".cam polygon").addClass("polygon.label-3");
-        $(".cam #p0").attr("points", box[0][0] + "," + box[0][1] + " " + box[1][0] + "," + box[1][1] + " " + box[2][0] + "," + box[2][1] + " " + box[3][0] + "," + box[3][1] + " ");
-       /*TESTING*/
-        $(".cam #p1").addClass("polygon.label-2");
-        $(".cam #p1").attr("points", box1[0][0] + "," + box1[0][1] + " " + box1[1][0] + "," + box1[1][1] + " " + box1[2][0] + "," + box1[2][1] + " " + box1[3][0] + "," + box1[3][1] + " ");
-        $(".cam #p2").attr("points", box2[0][0] + "," + box2[0][1] + " " + box2[1][0] + "," + box2[1][1] + " " + box2[2][0] + "," + box2[2][1] + " " + box2[3][0] + "," + box2[3][1] + " ");
 
-        $(".cam #c1").attr("cx", box[0][0]).attr("cy", box[0][1]);
-        $(".cam #c2").attr("cx", box1[0][0]).attr("cy", box1[0][1]);
-        $(".cam #c3").attr("cx", box2[0][0]).attr("cy", box2[0][1]);
+        // adding svg elements
+        var svg = d3.select(".cam-img svg");
+        for (var i in camdata) {
+            svg.append("polygon")
+                .attr("points", camdata[i].box[0][0] + "," + camdata[i].box[0][1] + " " + camdata[i].box[1][0] + "," + camdata[i].box[1][1] + " " + camdata[i].box[2][0] + "," + camdata[i].box[2][1] + " " + camdata[i].box[3][0] + "," + camdata[i].box[3][1] + " ")
+                .attr("class", "label-" + camdata[i].similarities[i].lid)
+            svg.append("circle")
+                .attr("r", "130")
+                .attr("cx", camdata[i].box[0][0]).attr("cy", camdata[i].box[0][1])
+                .attr("class", "label-" + camdata[i].similarities[i].lid);
+            svg.append("text")
+                .attr("x", camdata[i].box[0][0]).attr("y", camdata[i].box[0][1] + 25)
+                .text(dataSet2[i].label);
+            svg.append("text")
+                .attr("x", camdata[i].box[0][0]).attr("y", camdata[i].box[0][1] - 25)
+                .text(dataSet2[i].em.toFixed(3) * 100 + "%");
+        }
 
-
-        $(".cam #t1").attr("x", box[0][0]).attr("y", box[0][1]);
-        $(".cam #t11").attr("x", box[0][0]).attr("y", (box[0][1])+15);
-        $(".cam #t12").attr("x", box[0][0]).attr("y", (box[0][1])-15);
-        $(".cam #t11").text(sim.similarities.nearest.similarities[1].label);
-        $(".cam #t12").text(sim.similarities.nearest.similarities[1].em.toFixed(3)*100 + "%");
-
-/*
-        $(".cam #t2").attr("x", box1[0][0]).attr("y", box1[0][1]);
-        $(".cam #t2").text(sim.similarities.embedded[1].similarities[2].label + ": " + sim.similarities.embedded[1].similarities[2].em.toFixed(3)*100 + "%");
-
-
-        $(".cam #t3").attr("x", box2[0][0]).attr("y", box2[0][1]);
-        $(".cam #t3").text(sim.similarities.embedded[0].similarities[2].label + ": " + sim.similarities.embedded[0].similarities[2].em.toFixed(3)*100 + "%");
-
-*/
-        $(".cam #t2").attr("x", box1[0][0]).attr("y", box1[0][1]);
-        $(".cam #t21").attr("x", box1[0][0]).attr("y", (box1[0][1])+15);
-        $(".cam #t22").attr("x", box1[0][0]).attr("y", (box1[0][1])-15);
-        $(".cam #t21").text(sim.similarities.embedded[1].similarities[2].label);
-        $(".cam #t22").text(sim.similarities.embedded[1].similarities[2].em.toFixed(3)*100 + "%");
-
-
-        $(".cam #t3").attr("x", box2[0][0]).attr("y", box2[0][1]);
-        $(".cam #t31").attr("x", box2[0][0]).attr("y", (box2[0][1])+15);
-        $(".cam #t32").attr("x", box2[0][0]).attr("y", (box2[0][1])-15);
-        $(".cam #t31").text(sim.similarities.embedded[0].similarities[2].label);
-        $(".cam #t32").text(sim.similarities.embedded[0].similarities[2].em.toFixed(3)*100 + "%");
-
-
+        /* /SVG TEST SPACE*/
         setTimeout(function () {
             $("body").addClass("mode-cam-mid");
-        }, 3000);
+        }, 500);
+
         setTimeout(function () {
-            $(".cam #b1").attr("points", box1[0][0] + "," + box1[0][1] + " " + box1[1][0] + "," + box1[1][1] + " " + box1[2][0] + "," + box1[2][1] + " " + box1[3][0] + "," + box1[3][1] + " ");
-            $(".cam #b2").attr("points", box2[0][0] + "," + box2[0][1] + " " + box2[1][0] + "," + box2[1][1] + " " + box2[2][0] + "," + box2[2][1] + " " + box2[3][0] + "," + box2[3][1] + " ");
-            }, 6000);
+            $("body").addClass("mode-cam-end");
+        }, 8000);
 
-
-
-
-
+        setTimeout(function () {
+            $("body").addClass("mode-cam-finished");
+            svg.selectAll("polygon").remove();
+            svg.selectAll("text").remove();
+            svg.selectAll("circle").remove();
+            svg.append("polygon")
+                .attr("points",nearest.box[0][0] + "," + nearest.box[0][1] + " " + nearest.box[1][0] + "," + nearest.box[1][1] + " " + nearest.box[2][0] + "," + camdata[i].box[2][1] + " " + nearest.box[3][0] + "," + nearest.box[3][1] + " ")
+                .attr("style", "stroke: #49bca1; stroke-width: 20px;")
+            svg.append("circle")
+                .attr("r", "150")
+                .attr("cx", nearest.box[0][0]).attr("cy", nearest.box[0][1])
+                .attr("style", "fill: #49bca1; opacity: 0.6; ");
+            svg.append("text")
+                .attr("x", nearest.box[0][0]).attr("y", nearest.box[0][1])
+                .attr("style", "fill: #fff; font-size: 35px;")
+                .text("Jeg velger denne!");
+        }, 10000);
 
         /* /TESTING */
 
         // draw with time difference
         setTimeout(function () {
-            $("body").addClass("mode-cam-end");
+            console.log("starting pickup")
             // operation of pickup
             $.ajax({
                 type: "POST",
@@ -550,6 +565,11 @@ $(function () {
         setTimeout(function () {
             $("body").addClass("mode-thanks-btn");
         }, 5000); //WAS 5000
+        /* Automatic return to startpage
+        setTimeout(function () {
+            location.reload();
+        },15000);
+        */
     };
 
     // draw sorry
