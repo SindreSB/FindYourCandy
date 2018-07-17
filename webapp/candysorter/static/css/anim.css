@@ -102,8 +102,6 @@ stroke-dashoffset: 0;
 .mode-thanks-start .thanks div:nth-child(1) { opacity: 1; transform: translate(0, 0); }
 .mode-thanks-end .thanks div:nth-child(1) { opacity: 0; transform: translate(-100px, 0); }
 .mode-thanks-end .thanks div:nth-child(2) { opacity: 1; transform: translate(0, 0); }
-.mode-thanks-btn .thanks div:nth-child(2) { opacity: 0; transform: translate(-100px, 0); }
-.mode-thanks-btn .thanks div:nth-child(3) { opacity: 1; transform: translate(0, 0); }
 /* sorry  */
 .sorry { height: 0; opacity: 0; }
 .mode-sorry-p .speech,

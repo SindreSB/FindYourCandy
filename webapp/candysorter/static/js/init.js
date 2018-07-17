@@ -15,7 +15,7 @@ $(function () {
     var recognition = new webkitSpeechRecognition();
     var speechLang = "no"; //spoken language setting
     var lang = "en"; // language seting
-    var inputSpeech = "Kan jeg få en smurf";
+    var inputSpeech = "Kan jeg få sjokolade";
     var speechTxt = "";
     var sim = "";
     var winW = window.innerWidth;
@@ -474,6 +474,7 @@ $(function () {
                 }
             }
             dataSet2.push({
+                "lid": lid,
                 "em": em,
                 "label": label
             });
@@ -484,12 +485,24 @@ $(function () {
         // setting image
         $(".cam-img").css("background-image", "url(" + imgUrl + ")");
 
+
+        /*
+        * Having different attr on polygon and circles
+        * .attr("class", "label-" + camdata[i].similarities[i].lid)
+        * .attr("class", "label-" + dataSet2[i].lid)
+        * determines if the colors should all be different, or if the candy with
+        * the same label should be the same
+        *
+        */
+
         // adding svg elements
         var svg = d3.select(".cam-img svg");
         for (var i in camdata) {
             svg.append("polygon")
                 .attr("points", camdata[i].box[0][0] + "," + camdata[i].box[0][1] + " " + camdata[i].box[1][0] + "," + camdata[i].box[1][1] + " " + camdata[i].box[2][0] + "," + camdata[i].box[2][1] + " " + camdata[i].box[3][0] + "," + camdata[i].box[3][1] + " ")
                 .attr("class", "label-" + camdata[i].similarities[i].lid)
+            /*    .attr("class", "label-" + dataSet2[i].lid) */
+            /*using dataSet[i].lid results in all with the same labels having the same color*/
             svg.append("circle")
                 .attr("r", "130")
                 .attr("cx", camdata[i].box[0][0]).attr("cy", camdata[i].box[0][1])
@@ -502,7 +515,6 @@ $(function () {
                 .text(dataSet2[i].em.toFixed(3) * 100 + "%");
         }
 
-        /* /SVG TEST SPACE*/
         setTimeout(function () {
             $("body").addClass("mode-cam-mid");
         }, 500);
@@ -529,8 +541,6 @@ $(function () {
                 .text("Jeg velger denne!");
         }, 10000);
 
-        /* /TESTING */
-
         // draw with time difference
         setTimeout(function () {
             console.log("starting pickup")
@@ -550,21 +560,22 @@ $(function () {
                     sim = data;
                 }
             });
-        }, 500);
+        }, 500); //how long after cam-UI is shown pickup process starts.
         setTimeout(function () {
             thanks();
-        }, 20000);//camSec);
+        }, 20000);//camSec); //how long the cam-ui is shown in total
     };
 
     // draw endroll
     var thanks = function () {
         $("body").addClass("mode-thanks-start");
-        setTimeout(function () {
+        /*setTimeout(function () {
             $("body").addClass("mode-thanks-end");
         }, 3000);
+        */
         setTimeout(function () {
-            $("body").addClass("mode-thanks-btn");
-        }, 5000); //WAS 5000
+            $("body").addClass("mode-thanks-end");
+        }, 4000); //WAS 5000
         /* Automatic return to startpage
         setTimeout(function () {
             location.reload();
