@@ -10,6 +10,8 @@ Example usage:
 # [START import_libraries]
 import argparse
 import io
+import sys
+import json
 
 import asyncio
 import websockets # pip install websockets
@@ -26,12 +28,19 @@ async def transcribe_streaming(stream_file):
             stream.append(audio_file.read())
 
     async with websockets.connect('ws://localhost:8765') as websocket:
-        await websocket.send('{"sample_rate":44100}')
+        await websocket.send('{"sample_rate":16000, "interim_results":true}')
         for content in stream:
             await websocket.send(content)
 
         async for message in websocket:
-            print(message)
+            data = json.loads(message)
+            if data['is_final']:
+                print(data['transcript'])
+                break
+            else:
+                sys.stdout.write(data['transcript'] + '\r')
+                sys.stdout.flush()
+                await asyncio.sleep(0.05)
 
 # [END def_transcribe_streaming]
 

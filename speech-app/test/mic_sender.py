@@ -119,7 +119,6 @@ async def send_mic():
     with MicrophoneStream(RATE, CHUNK) as stream:
         async with websockets.connect('ws://localhost:8765') as websocket:
             for content in stream.generator():
-                print(content)
                 await websocket.send(content)
 
 
