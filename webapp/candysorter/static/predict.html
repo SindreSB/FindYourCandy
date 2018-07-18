@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<title>Find Your Candy</title>
-<link href="/static/js/manifest.json" rel="manifest">
-<link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans" />
-<link href="/static/css/reset.css" rel="stylesheet">
-<link href="/static/css/style.css" rel="stylesheet">
-<link href="/static/css/anim.css" rel="stylesheet">
-<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-<script src="https://d3js.org/d3.v3.min.js"></script>
-<script src="/static/js/init.js"></script>
+  <meta charset="UTF-8">
+  <title>Find Your Candy</title>
+  <link href="/static/js/manifest.json" rel="manifest">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans" />
+  <link href="/static/css/reset.css" rel="stylesheet">
+  <link href="/static/css/style.css" rel="stylesheet">
+  <link href="/static/css/anim.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <script src="https://d3js.org/d3.v3.min.js"></script>
+  <script src="/static/js/init.js"></script>
 </head>
 <body>
 <div class="speech">
@@ -23,7 +23,7 @@
   <div class="speech-lang"><a href="#">EN</a></div>
   <div class="speech-footer">
     <p class="speech-hand-animation" hidden><a href="#"></a><img src="/static/images/hand-pointer-regular_g.png" height="250px"></p>
-    <p id="example-text" style="font-size: 50px; bottom: 70px; opacity: .5;"></p>
+    <p id="example-text" style="font-size: 40px; bottom: 70px; opacity: .5;"></p>
     <a href="/learn">BYTT TIL LÆRINGSMODUS</a>
   </div>
 </div>
@@ -31,7 +31,7 @@
   <div class="general-header"><img height="100px" src="/static/images/branding/Computas_symbol_blue.png"></div>
   <div class ="tran-word"></div>
   <div class="tran-footer" hidden>
-    <p class="tran-footer">Cloud Translate API</p><br><br>
+    <p class="tran-footer">Cloud Translate API: Oversetter</p><br><br>
     <p class="working" style="font-size: 86px; bottom: 30px"><span>.</span><span>.</span><span>.</span></p>
   </div>
 </div>
@@ -43,38 +43,46 @@
   </div>
   <div class="nl-mask"></div>
   <div class="nl-footer" hidden>
-    <p class="nl-footer">Cloud Natural language API</p><br><br>
+    <p class="nl-footer">Cloud Natural language API: Analyserer</p><br><br>
     <p class="working" style="font-size: 86px; bottom: 30px"><span>.</span><span>.</span><span>.</span></p>
   </div>
 </div>
 <div class="cam">
   <div class="cam-img">
+      <div class="cam-footer" hidden>
+          <p class="cam-footer">Bildeanalyse</p><br><br>
+          <p class="working" style="font-size: 86px; bottom: 30px"><span>.</span><span>.</span><span>.</span></p>
+      </div>
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 0 0">
-      <polygon points="0,0 0,0 0,0 0,0 "/>
-        /*Cam UI*/
-        <line x1="30" y1="30" x2="250" y2="30"/>
-        <line x1="30" y1="30" x2="30" y2="250"/>
-        <line x1="1595" y1="30" x2="1375" y2="30"/>
-        <line x1="1595" y1="30" x2="1595" y2="250"/>
-        <line x1="30" y1="1070" x2="250" y2="1070"/>
-        <line x1="30" y1="1070" x2="30" y2="850"/>
-        <line x1="1595" y1="1070" x2="1375" y2="1070"/>
-        <line x1="1595" y1="1070" x2="1595" y2="850"/>
+      /*Cam UI - might not keep this*/
+      <line x1="30" y1="30" x2="250" y2="30"/>
+      <line x1="30" y1="30" x2="30" y2="250"/>
+      <line x1="1595" y1="30" x2="1375" y2="30"/>
+      <line x1="1595" y1="30" x2="1595" y2="250"/>
+      <line x1="30" y1="1070" x2="250" y2="1070"/>
+      <line x1="30" y1="1070" x2="30" y2="850"/>
+      <line x1="1595" y1="1070" x2="1375" y2="1070"/>
+      <line x1="1595" y1="1070" x2="1595" y2="850"/>
+      /* /Cam UI*/
     </svg>
   </div>
 </div>
 <div class="plot"></div>
 <div class="force">
+  <div class="force-footer" hidden>
+    <p class="force-footer">Word2vec Similarity</p><br><br>
+    <p class="working" style="font-size: 86px; bottom: 30px"><span>.</span><span>.</span><span>.</span></p>
+
+  </div>
   <div class="general-header"><img height="100px" src="/static/images/branding/Computas_symbol_blue.png"></div>
 </div>
 <div class="thanks">
   <div>
     <p>Likte du godteriet?<br><br>
       <a id="yesBtn" href="#" class="btn" style="position: center;">Ja</a><br>
-      <a href="#" class="btn btn-g" style="position: center;">Nei</a><br>
+      <a id="noBtn" href="#" class="btn btn-g" style="position: center;">Nei</a><br>
     </p>
   </div>
-  <div>Tusen takk!</div>
   <div>
     <img src="/static/images/branding/Computas_logo_liggende_blue.png" height="175px"><br>
     <p>

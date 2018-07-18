@@ -10,18 +10,23 @@ $(function () {
     var simNoWaitNum = 5;
     var plotSec = 5000; // display time of scatter plot(milisec）
     var camSec = 7000; // display tiem of camera image(milisec)
+    var picSec = 500; // wait time to start pickup
+    var forceSec = ""; // display time of force
+    var tranSec = ""; // display time of translated text
+    var nlSec = ""; // display time of natural language processing.
 
     // variables
     var recognition = new webkitSpeechRecognition();
     var speechLang = "no"; //spoken language setting
     var lang = "en"; // language seting
-    var inputSpeech = "Kan jeg få en smurf";
+    var inputSpeech = "Kan jeg få sjokolade";
     var speechTxt = "";
     var sim = "";
     var winW = window.innerWidth;
     var winH = window.innerHeight;
     var examples = ["\"Kan jeg få sjokolade?\"","\"Jeg liker smurf\"","\"Kan jeg få lakris?\"", "\"Kan jeg få noe søtt?\""]
-
+    //Twist
+    //var examples = ["\"Kan jeg noe med nøtter?\"","\"Jeg liker karamell\"","\"Kan jeg få noe salt?\"", "\"Kan jeg få noe søtt?\"", "\"Jeg liker banan\""]
 
     /* EXAMPLES OF WHAT TO SAY */
     // variable to keep track of last text displayed
@@ -37,8 +42,8 @@ $(function () {
         }
         $(".speech-hand-animation").show();
         $("#example-text").text(examples[i++]); // initialize with first quote
-        setInterval(textTimer, 3500);
-    }, 15000);
+        setInterval(textTimer, 3500); // how long each text example is shown
+    }, 3000); //wait time until demo starts
 
     // process of voice recognition
     /* DISABLED FOR TESTING */
@@ -117,7 +122,7 @@ $(function () {
                 }, 500);
                 setTimeout(function () {
                     nl()
-                }, 4000);
+                }, 5000);
             }
         });
         // inputTxt --> translateAPI
@@ -214,7 +219,7 @@ $(function () {
                 /*FOOTER LOADING ANIMATION*/
                 setTimeout(function () {
                     $(".nl-footer").show();
-                }, 1000);
+                }, 500);
 
                 // effect settings
                 $(".nl-word").each(function (index) {
@@ -267,7 +272,7 @@ $(function () {
                 setTimeout(function () {
                     force();
                     plot();
-                }, 5000);
+                }, 6000);
             }
         });
     };
@@ -275,6 +280,7 @@ $(function () {
     // drow force layout
     var force = function () {
         $("body").addClass("mode-force-start");
+        $(".force-footer").show();
         // generate dataset
         var data = sim.similarities.force;
         var dataSet = {
@@ -288,6 +294,7 @@ $(function () {
                 "target": parseInt(i) + 1
             });
         }
+
         // Add a node for input string at the beginning of the data set
         dataSet.nodes.unshift({
             "label": "",
@@ -316,21 +323,20 @@ $(function () {
             .append("line");
         var g = svg.selectAll("g")
             .data(dataSet.nodes)
-            .enter()
-            .append("g")
-            .attr("class", function (d) {
+            .enter() //separating all nodes in the array
+            .append("g") //appending g-tag to all nodes
+            .attr("class", function (d) { //adding class .label-X to all nodes, varying color
                 return "label-" + d.lid;
             });
-        var circle = g.append("circle")
-            .attr("r", function (d) {
+        var circle = g.append("circle") //all elements "g" appended circle class
+            .attr("r", function (d) { //setting each radius based on similarity
                 var r = 80 + d.em * 100;
                 return r;
             });
         var label = g.append("text")
             .text(function (d) {
                 //if (d.em > 0.50 && d.em < 1)
-                console.log(d);
-                return d.label;
+                return d.label; //appending a text label to each element g
                 //else return d.label + " < 0.1";
             });
         // setting coordinate (input string（lid=0）fix the mid of display）
@@ -340,7 +346,7 @@ $(function () {
             });
             link.attr("x1", function (d) {
                 return d.source.x;
-            })
+                })
                 .attr("y1", function (d) {
                     return d.source.y;
                 })
@@ -382,15 +388,16 @@ $(function () {
                 "lid": lid
             });
         }
+
+        // PROCESS OF ADDING THE SMALL CANDY IMAGES NEXT TO THE FORCE PLOT
         // add nearest at the last of dataset
-        data = sim.similarities.nearest;
+        /*data = sim.similarities.nearest;
         em = 0; // extract high similarity label
         lid = 0;
         for (var i in data.similarities) {
             if (data.similarities[i].em > em) {
                 lid = data.similarities[i].lid;
                 em = data.similarities[i].em;
-                console.log("lid: " + lid + ", label: " + data.similarities[i].label + ", em: " + em);
             }
         }
         dataSet.push({
@@ -399,7 +406,9 @@ $(function () {
             "img": data.url,
             "lid": lid
         });
+
         $(".cam polygon").addClass("label-" + lid);
+        console.log("label-" + lid);
         // draw scatter plot
         for (var i in dataSet) {
             $(".plot").append("<dd><i></i></dd>");
@@ -410,16 +419,20 @@ $(function () {
                     transitionDelay: parseInt(i) * 0.05 + "s",
                     animationDelay: parseInt(i) * 0.05 + "s"
                 });
-            $(".plot dd:last-child i")
+            /*
+              $(".plot dd:last-child i")
                 .css({
                     backgroundImage: "url(" + dataSet[i].img + ")"
                 });
+
         }
+        */
+
         $(".plot dd:last-child").addClass("nearest");
         // draw with time difference
         setTimeout(function () {
             $("body").addClass("mode-plot-start");
-        }, 4000); // WAS 3000; //How long just the circles are displayed
+        }, 6000); // WAS 3000; //How long just the circles are displayed
         setTimeout(function () {
             $("body").addClass("mode-plot-end");
             cam();
@@ -428,6 +441,7 @@ $(function () {
 
     // output camera image
     var cam = function () {
+        $("body").addClass("mode-cam-start");
         var imgUrl = sim.similarities.url;
         // retrieve image size
         var img = new Image();
@@ -446,13 +460,91 @@ $(function () {
             }
             $(".cam-img").width(w).height(h);
         };
+
+
+        /* SVG TEST SPACE*/
+        // Generate datasets
+        var camdata = sim.similarities.embedded;
+        var nearest = sim.similarities.nearest;
+        var dataSet2 = [];
+        for (var i in camdata) {
+            var em = 0;
+            var label = "";
+            var lid = "";
+            for (var j in camdata[i].similarities) {
+                if (camdata[i].similarities[j].em > em) {
+                    label = camdata[i].similarities[j].label;
+                    lid = camdata[i].similarities[j].lid;
+                    em = camdata[i].similarities[j].em;
+                }
+            }
+            dataSet2.push({
+                "lid": lid,
+                "em": em,
+                "label": label
+            });
+        }
+
         // setting image
         $(".cam-img").css("background-image", "url(" + imgUrl + ")");
-        var box = sim.similarities.nearest.box;
-        $(".cam polygon").attr("points", box[0][0] + "," + box[0][1] + " " + box[1][0] + "," + box[1][1] + " " + box[2][0] + "," + box[2][1] + " " + box[3][0] + "," + box[3][1] + " ");
+
+
+        /*
+        * Having different attr on polygon and circles
+        * .attr("class", "label-" + camdata[i].similarities[i].lid)
+        * .attr("class", "label-" + dataSet2[i].lid)
+        * determines if the colors should all be different, or if the candy with
+        * the same label should be the same
+        *
+        */
+
+        // adding svg elements
+        var svg = d3.select(".cam-img svg");
+        for (var i in camdata) {
+            svg.append("polygon")
+                .attr("points", camdata[i].box[0][0] + "," + camdata[i].box[0][1] + " " + camdata[i].box[1][0] + "," + camdata[i].box[1][1] + " " + camdata[i].box[2][0] + "," + camdata[i].box[2][1] + " " + camdata[i].box[3][0] + "," + camdata[i].box[3][1] + " ")
+                .attr("class", "label-" + camdata[i].similarities[i].lid);
+            svg.append("circle")
+                .attr("r", "130")
+                .attr("cx", camdata[i].box[0][0]).attr("cy", camdata[i].box[0][1])
+                .attr("class", "label-" + camdata[i].similarities[i].lid);
+            svg.append("text")
+                .attr("x", camdata[i].box[0][0]).attr("y", camdata[i].box[0][1] + 25)
+                .text(dataSet2[i].label);
+            svg.append("text")
+                .attr("x", camdata[i].box[0][0]).attr("y", camdata[i].box[0][1] - 25)
+                .text(dataSet2[i].em.toFixed(3) * 100 + "%");
+        }
+
+        setTimeout(function () {
+            $("body").addClass("mode-cam-mid");
+        }, 750);
+
+        setTimeout(function () {
+            $("body").addClass("mode-cam-end");
+        }, 7000);
+
+        setTimeout(function () {
+            $("body").addClass("mode-cam-finished");
+            svg.selectAll("polygon").remove();
+            svg.selectAll("text").remove();
+            svg.selectAll("circle").remove();
+            svg.append("polygon")
+                .attr("points",nearest.box[0][0] + "," + nearest.box[0][1] + " " + nearest.box[1][0] + "," + nearest.box[1][1] + " " + nearest.box[2][0] + "," + camdata[i].box[2][1] + " " + nearest.box[3][0] + "," + nearest.box[3][1] + " ")
+                .attr("style", "stroke: #49bca1; stroke-width: 20px;")
+            svg.append("circle")
+                .attr("r", "150")
+                .attr("cx", nearest.box[0][0]).attr("cy", nearest.box[0][1])
+                .attr("style", "fill: #49bca1; opacity: 0.6; ");
+            svg.append("text")
+                .attr("x", nearest.box[0][0]).attr("y", nearest.box[0][1])
+                .attr("style", "fill: #fff; font-size: 35px;")
+                .text("Jeg velger denne!");
+        }, 7000);
+
         // draw with time difference
         setTimeout(function () {
-            $("body").addClass("mode-cam-start");
+            console.log("starting pickup")
             // operation of pickup
             $.ajax({
                 type: "POST",
@@ -469,21 +561,34 @@ $(function () {
                     sim = data;
                 }
             });
-        }, 2000);
+        }, 500); //how long after cam-UI starts pickup process starts.
+
         setTimeout(function () {
             thanks();
-        }, camSec);
+        }, 15000);//camSec); //how long the cam-ui is shown in total
     };
 
     // draw endroll
     var thanks = function () {
         $("body").addClass("mode-thanks-start");
-        setTimeout(function () {
+        $("#yesBtn").click(function () {
+            console.log("yes");
+        })
+        $("#noBtn").click(function () {
+            console.log("no");
+        })
+        /*setTimeout(function () {
             $("body").addClass("mode-thanks-end");
         }, 3000);
+        */
         setTimeout(function () {
-            $("body").addClass("mode-thanks-btn");
-        }, 5000); //WAS 5000
+            $("body").addClass("mode-thanks-end");
+        }, 4000); //WAS 5000
+        /* Automatic return to startpage
+        setTimeout(function () {
+            location.reload();
+        },15000);
+        */
     };
 
     // draw sorry

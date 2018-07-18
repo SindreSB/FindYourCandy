@@ -19,7 +19,7 @@ def translate():
         [
         {
             "input": "kan jeg få sjokolade",
-            "translatedText": "can I have chocolate"
+            "translatedText": "Can I have some chocolate"
         }
     ]
     ''')
@@ -330,7 +330,7 @@ def pickup():
         [
         {
             "input": "kan jeg få sjokolade",
-            "translatedText": "can I have chocolate"
+            "translatedText": "Can I have some chocolate"
         }
     ]
     ''')
