@@ -19,13 +19,13 @@ import websockets # pip install websockets
 async def transcribe_streaming(stream_file):
     """Streams raw data of the given audio file."""
     # [START migration_streaming_request]
-    with io.open(stream_file, 'rb') as audio_file:
-        content = audio_file.read()
+    stream = []
 
-    # In practice, stream should be a generator yielding chunks of audio data.
-    stream = [content]
+    for file in ['audio2.raw']:
+        with io.open(file, 'rb') as audio_file:
+            stream.append(audio_file.read())
 
-    async with websockets.connect('ws://localhost:5000') as websocket:
+    async with websockets.connect('ws://localhost:8765') as websocket:
         for content in stream:
             await websocket.send(content)
 
