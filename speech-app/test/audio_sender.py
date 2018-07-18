@@ -26,6 +26,7 @@ async def transcribe_streaming(stream_file):
             stream.append(audio_file.read())
 
     async with websockets.connect('ws://localhost:8765') as websocket:
+        await websocket.send('{"sample_rate":44100}')
         for content in stream:
             await websocket.send(content)
 
