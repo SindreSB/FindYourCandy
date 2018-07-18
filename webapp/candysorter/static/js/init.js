@@ -10,6 +10,10 @@ $(function () {
     var simNoWaitNum = 5;
     var plotSec = 5000; // display time of scatter plot(milisec）
     var camSec = 7000; // display tiem of camera image(milisec)
+    var picSec = 500; // wait time to start pickup
+    var forceSec = ""; // display time of force
+    var tranSec = ""; // display time of translated text
+    var nlSec = ""; // display time of natural language processing.
 
     // variables
     var recognition = new webkitSpeechRecognition();
@@ -290,6 +294,7 @@ $(function () {
                 "target": parseInt(i) + 1
             });
         }
+
         // Add a node for input string at the beginning of the data set
         dataSet.nodes.unshift({
             "label": "",
@@ -324,7 +329,7 @@ $(function () {
                 return "label-" + d.lid;
             });
         var circle = g.append("circle") //all elements "g" appended circle class
-            .attr("r", function (d) { //setting each radius based on dataset
+            .attr("r", function (d) { //setting each radius based on similarity
                 var r = 80 + d.em * 100;
                 return r;
             });
@@ -480,8 +485,6 @@ $(function () {
             });
         }
 
-        console.log(dataSet2);
-
         // setting image
         $(".cam-img").css("background-image", "url(" + imgUrl + ")");
 
@@ -500,9 +503,7 @@ $(function () {
         for (var i in camdata) {
             svg.append("polygon")
                 .attr("points", camdata[i].box[0][0] + "," + camdata[i].box[0][1] + " " + camdata[i].box[1][0] + "," + camdata[i].box[1][1] + " " + camdata[i].box[2][0] + "," + camdata[i].box[2][1] + " " + camdata[i].box[3][0] + "," + camdata[i].box[3][1] + " ")
-                .attr("class", "label-" + camdata[i].similarities[i].lid)
-            /*    .attr("class", "label-" + dataSet2[i].lid) */
-            /*using dataSet[i].lid results in all with the same labels having the same color*/
+                .attr("class", "label-" + camdata[i].similarities[i].lid);
             svg.append("circle")
                 .attr("r", "130")
                 .attr("cx", camdata[i].box[0][0]).attr("cy", camdata[i].box[0][1])
@@ -517,7 +518,7 @@ $(function () {
 
         setTimeout(function () {
             $("body").addClass("mode-cam-mid");
-        }, 500);
+        }, 750);
 
         setTimeout(function () {
             $("body").addClass("mode-cam-end");
@@ -561,6 +562,7 @@ $(function () {
                 }
             });
         }, 500); //how long after cam-UI is shown pickup process starts.
+
         setTimeout(function () {
             thanks();
         }, 20000);//camSec); //how long the cam-ui is shown in total

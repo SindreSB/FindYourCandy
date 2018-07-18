@@ -51,6 +51,12 @@ circle.label-1 { fill: #ff5f63; }
 circle.label-2 { fill: #29cff5; }
 circle.label-3 { fill: #49bca1; }
 circle.label-4 { fill: #fed546; }
+circle.label-5 { fill: #AB47BC; }
+circle.label-6 { fill: #26A69A; }
+circle.label-7 { fill: #FF7043; }
+circle.label-8 { fill: #EC407A; }
+circle.label-9 { fill: #7E57C2; }
+circle.label-10 { fill: #FFEE58; }
 /* speech */
 .speech { position: absolute; width: 100%; height: 100%; font-size: 36px; font-weight: 100; overflow: hidden; }
 .speech-in { display: flex; justify-content: center; align-items: center; position: absolute; width: 100%; height: 100%; z-index: 1; }
