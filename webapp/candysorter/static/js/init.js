@@ -389,7 +389,7 @@ $(function () {
             });
         }
 
-        // ADDING THE SMALL IMAGES NEXT TO THE FORCE PLOT
+        // PROCESS OF ADDING THE SMALL CANDY IMAGES NEXT TO THE FORCE PLOT
         // add nearest at the last of dataset
         /*data = sim.similarities.nearest;
         em = 0; // extract high similarity label
@@ -522,7 +522,7 @@ $(function () {
 
         setTimeout(function () {
             $("body").addClass("mode-cam-end");
-        }, 8000);
+        }, 7000);
 
         setTimeout(function () {
             $("body").addClass("mode-cam-finished");
@@ -540,7 +540,7 @@ $(function () {
                 .attr("x", nearest.box[0][0]).attr("y", nearest.box[0][1])
                 .attr("style", "fill: #fff; font-size: 35px;")
                 .text("Jeg velger denne!");
-        }, 10000);
+        }, 7000);
 
         // draw with time difference
         setTimeout(function () {
@@ -561,16 +561,22 @@ $(function () {
                     sim = data;
                 }
             });
-        }, 500); //how long after cam-UI is shown pickup process starts.
+        }, 500); //how long after cam-UI starts pickup process starts.
 
         setTimeout(function () {
             thanks();
-        }, 20000);//camSec); //how long the cam-ui is shown in total
+        }, 15000);//camSec); //how long the cam-ui is shown in total
     };
 
     // draw endroll
     var thanks = function () {
         $("body").addClass("mode-thanks-start");
+        $("#yesBtn").click(function () {
+            console.log("yes");
+        })
+        $("#noBtn").click(function () {
+            console.log("no");
+        })
         /*setTimeout(function () {
             $("body").addClass("mode-thanks-end");
         }, 3000);

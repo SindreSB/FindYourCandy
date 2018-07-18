@@ -78,13 +78,13 @@ transform: scale(0);
 .mode-cam-mid circle {opacity: 0.6; transform: scale(1); transition-delay: 1s!important; transition-duration: 1s;}
 .mode-cam-mid text { opacity: 1; transform: scale(1); transition-delay: 1s!important; transition-duration: 1s;}
 
-.mode-cam-end circle {opacity: 0; transform: scale(0); transition-delay: 1s!important; transition-duration: 1s;}
-.mode-cam-end text { opacity: 0; transform: scale(0); transition-delay: 1s!important; transition-duration: 1s;}
-.mode-cam-end polygon { opacity: 0; transform: scale(0); transition-delay: 1s!important; transition-duration: 1s;}
+.mode-cam-end circle {opacity: 0; transform: scale(0);  transition-duration: .5s;}
+.mode-cam-end text { opacity: 0; transform: scale(0); transition-duration: .5s;}
+.mode-cam-end polygon { opacity: 0; transform: scale(0); transition-duration: .5s;}
 
-.mode-cam-finished polygon { opacity: 1; transform: scale(1); transition-delay: 1s!important; transition-duration: 1s;}
-.mode-cam-finished text { opacity: 1; transform: scale(1); transition-delay: 1s!important; transition-duration: 1s;}
-.mode-cam-finished circle { opacity: 1; transform: scale(1); transition-delay: 1s!important; transition-duration: 1s;}
+.mode-cam-finished polygon { opacity: 1; transform: scale(1); transition-duration: 1s;}
+.mode-cam-finished text { opacity: 1; transform: scale(1); transition-duration: 1s;}
+.mode-cam-finished circle { opacity: 1; transform: scale(1); transition-duration: 1s;}
 
 @keyframes cam {
 0% {
