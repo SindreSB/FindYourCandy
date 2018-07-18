@@ -68,7 +68,7 @@ $(function () {
             recognition.onresult = function (e) {
                 inputSpeech = e.results[0][0].transcript
                 //$(".speech-out").text(inputSpeech);
-                $("body").addClass("mode-speech-out");
+                $("body").addClass("mode-speech-in");
                 setTimeout(function () {
                     translation();
                 },3500);
