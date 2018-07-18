@@ -87,10 +87,8 @@ class CandyDetector(object):
                    box_dim_thres=config['CANDY_DETECTOR_BOX_DIM_THRES'])
 
     def detect(self, img):
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-        print('detect')
         # Check object
         histr = cv2.calcHist([img_gray], [0], None, [256], [0, 256])
         histr = histr / histr.sum()
@@ -99,6 +97,8 @@ class CandyDetector(object):
 
         # Binarize
         _, binarized = cv2.threshold(img_gray, self.bin_thres, 255, cv2.THRESH_BINARY_INV)
+
+        print(binarized)
 
         # Edge
         kernel_laplacian_3x3 = np.float32([

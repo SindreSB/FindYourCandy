@@ -24,7 +24,7 @@ import random
 
 import numpy as np
 import tensorflow as tf
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import model as model
 from utils import TrainingFeaturesDataReader
 
@@ -269,8 +269,8 @@ class Trainer(object):
           # if epoch < 200 and loss_log[-1] > max(loss_log) * 0.01:
           #     time.sleep(self._sleep_sec)
 
-           if(testingset):
-               self.plot_accuracies(losses, accuracies_train, accuracies_test, label_accuracy, testingset.labels)
+          # if(testingset):
+          #    self.plot_accuracies(losses, accuracies_train, accuracies_test, label_accuracy, testingset.labels)
 
 
            self.model.saver.save(sess, checkpoint_path, global_step=self.model.global_step)
@@ -295,19 +295,19 @@ class Trainer(object):
 
        return False
 
-   def plot_accuracies(self, losses, accuracy_train, accuracy_test, accuracy_per_label, labels):
-       ax = plt.subplot(111)
-       ax.plot(losses, color='r', label="loss")
-       ax.plot(accuracy_test, color='b', label="test accuracy")
-       ax.plot(accuracy_train, color='y', label="train accuracy")
-
-       ax.legend()
-       plt.show()
-       ax = plt.subplot(111)
-       for i in range (len(accuracy_per_label)):
-           ax.plot(accuracy_per_label[i], label=labels[i])
-       ax.legend()
-       plt.show()
+  # def plot_accuracies(self, losses, accuracy_train, accuracy_test, accuracy_per_label, labels):
+  #     ax = plt.subplot(111)
+  #     ax.plot(losses, color='r', label="loss")
+  #     ax.plot(accuracy_test, color='b', label="test accuracy")
+  #     ax.plot(accuracy_train, color='y', label="train accuracy")
+  #
+  #     ax.legend()
+  #     plt.show()
+  #     ax = plt.subplot(111)
+  #     for i in range (len(accuracy_per_label)):
+  #        ax.plot(accuracy_per_label[i], label=labels[i])
+  #     ax.legend()
+  #     plt.show()
 
 
 def main(_):
@@ -322,7 +322,7 @@ def main(_):
    parser.add_argument('--hidden_size', type=int, default=3, help="Number of units in hidden layer.")
    parser.add_argument('--epochs', type=int, default=50, help="Number of epochs of training")
    parser.add_argument('--learning_rate', type=float, default=1e-3)
-   parser.add_argument('--active_test_mode', default=True, help='Set True for testing')
+   parser.add_argument('--active_test_mode', default=False, help='Set True for testing')
    parser.add_argument('--data_dir', type=str, default='output', help="Directory for training data.")
    parser.add_argument('--test_dir', type=str, default='output', help="Directory for test data.")
    parser.add_argument('--log_dir', type=str, default='log', help="Directory for TensorBoard logs.")

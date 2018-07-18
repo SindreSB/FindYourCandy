@@ -19,4 +19,5 @@ CAM_HEIGHT = 1080
 CAM_WIDTH = 1920
 
 
-CANDIES = ['japp', 'nøtti', 'marsipan', 'caramel', 'golden_toffee', 'cocos', 'fransk_nougat', 'banan', 'eclairs', 'lakrids', 'nougat_crisp', 'daim', 'chocolate_toffee']
+TWIST_CANDIES = ['banan', 'caramel', 'chocolate_toffee', 'cocos', 'daim','eclairs', 'fransk_nougat', 'golden_toffee', 'japp', 'lakrids',  'marsipan', 'nougat_crisp', 'notti']
+BOX_CANDIES = ['chocolate','gum','liquorice','smurf']
