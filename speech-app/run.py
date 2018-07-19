@@ -3,121 +3,15 @@
 import asyncio
 import websockets
 
-import concurrent.futures
-
 # GCP imports
-from google.cloud.speech_v1p1beta1 import enums
-from google.cloud.speech_v1p1beta1 import SpeechClient
 from google.cloud.speech_v1p1beta1 import types
 
 import queue
 import janus
 import json
 
-
-def _get_client(lang='en-US', sample_rate=16000, interim_results=False):
-    """
-    Helper to return client and config
-    """
-    client = SpeechClient()
-    config = types.StreamingRecognitionConfig(
-        config=types.RecognitionConfig(
-            encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
-            sample_rate_hertz=sample_rate,
-            language_code=lang,
-        ),
-        interim_results=interim_results,
-    )
-
-    return client, config
-
-
-def _loop_through_responses(responses, result_buffer):
-    # Go through the responses returned from the streaming client.
-    for response in responses:
-
-        # We'll only use the first result, as this usually contains the result as it is building up
-        result = response.results[0]
-
-        # Put the result into the result buffer
-        result_buffer.put({
-            'is_final': result.is_final,
-            'transcript': result.alternatives[0].transcript
-        })
-
-        # Return if we have received the final result
-        if result.is_final:
-            # Wait for all messages put into the results buffer to be processed
-            result_buffer.join()
-            return
-
-
-async def consumer_handler(websocket, audio_buffer):
-    try:
-        async for message in websocket:
-            audio_buffer.put(message)
-    except asyncio.CancelledError:
-        # Task requested to terminate, just return
-        return
-
-    except Exception as e:
-        # TODO: Log exception
-        return
-
-
-async def producer_handler(websocket, response_buffer):
-    try:
-        while True:
-            response = await response_buffer.get()
-            await websocket.send(json.dumps(response))
-            response_buffer.task_done()
-
-            if response['is_final']:
-                return
-
-    except asyncio.CancelledError:
-        # Task requested to terminate, just return
-        return
-
-    except Exception as e:
-        # TODO: Log exception
-        return
-
-
-def audio_generator(buffer):
-    while True:
-        """
-        A generator that fetches the input audio data from the buffer.
-        Copied from google-cloud samples for speech: transcribe_streaming_mic with some alterations
-        """
-        # Use a blocking get() to ensure there's at least one chunk of
-        # data, and stop iteration if the chunk is None, indicating the
-        # end of the audio stream.
-        chunk = buffer.get()
-        if chunk is None:
-            return
-        data = [chunk]
-
-        # Now consume whatever other data's still buffered.
-        while True:
-            try:
-                chunk = buffer.get(block=False)
-                if chunk is None:
-                    return
-                data.append(chunk)
-            except queue.Empty:
-                break
-        yield b''.join(data)
-
-
-def gcp_handler(audio_buffer, response_buffer, client, config):
-    # Create requests generator using the audio generator, adapted from transcribe-streaming sample
-    requests = (types.StreamingRecognizeRequest(audio_content=content) for content in audio_generator(audio_buffer))
-    responses = client.streaming_recognize(config, requests)
-
-    done = _loop_through_responses(responses, response_buffer)
-
-    return done
+from app.handlers import producer_handler, consumer_handler, gcp_handler
+from app.utils import get_client
 
 
 async def handler(websocket, path):
@@ -127,7 +21,7 @@ async def handler(websocket, path):
     config = json.loads(config_data)
 
     # Get config based on clients data
-    api_client, api_config = _get_client(**config)
+    api_client, api_config = get_client(**config)
 
     # Create a thread safe buffer for audio data
     audio_buffer = queue.Queue()
@@ -138,11 +32,13 @@ async def handler(websocket, path):
     # Create a async/sync queue for responses
     response_queue = janus.Queue(loop=loop)
 
+    # Create tasks for receiving, sending and processing the data
+    # Send/receive will be using asyncio, while processing will be on it's own thread
     tasks = [
-        loop.create_task(consumer_handler(websocket, audio_buffer)),                    # Handle incoming messages
-        loop.create_task(producer_handler(websocket, response_queue.async_q)),          # Handle sending responses back
+        loop.create_task(consumer_handler(websocket, audio_buffer)),            # Handle incoming messages
+        loop.create_task(producer_handler(websocket, response_queue.async_q)),  # Handle sending responses back
         loop.run_in_executor(None, gcp_handler, audio_buffer,
-                             response_queue.sync_q, api_client, api_config)             # Process gcp requests
+                             response_queue.sync_q, api_client, api_config)     # Process gcp requests
     ]
 
     # Wait for one to complete. either the consumer completes because of loss of connection,
@@ -156,52 +52,8 @@ async def handler(websocket, path):
     for task in pending:
         task.cancel()
 
-    # Debug print only. Should return result
+    # Close the socket
     await websocket.close()
-
-
-# Not working
-async def async_handler(websocket, path):
-    async def audio_generator():
-        while True:
-            """
-            A generator that fetches the input audio data from the buffer.
-            Copied from google-cloud samples for speech: transcribe_streaming_mic with some alterations
-            """
-            # Use a blocking get() to ensure there's at least one chunk of
-            # data, and stop iteration if the chunk is None, indicating the
-            # end of the audio stream.
-            # print("About to block from buffer")
-            chunk = await websocket.recv()
-            # print("Buffer not empty")
-            # print(chunk)
-            if chunk is None:
-                return
-            data = [chunk]
-
-            # Now consume whatever other data's still buffered.
-            while True:
-                try:
-                    # print("Non-blocking get")
-                    chunk = asyncio.wait_for(websocket.recv(), timeout=0)
-                    # print(chunk)
-                    if chunk is None:
-                        return
-                    # print("Appending more data to buffer")
-                    data.append(chunk)
-                except asyncio.TimeoutError:
-                    break
-            # print("Yielding data")
-            yield b''.join(data)
-
-    # Get the SpeechClient and configuration
-    client, config = _get_client()
-
-    # Create requests generator using the audio generator, adapted from transcribe-streaming sample
-    requests = (types.StreamingRecognizeRequest(audio_content=content) async for content in audio_generator())
-    responses = client.streaming_recognize(config, requests)
-
-    return _loop_through_responses(responses)
 
 
 start_server = websockets.serve(handler, 'localhost', 8765)
