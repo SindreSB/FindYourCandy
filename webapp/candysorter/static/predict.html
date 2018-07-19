@@ -12,20 +12,28 @@
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script src="https://d3js.org/d3.v3.min.js"></script>
   <script src="/static/js/init.js"></script>
+  <script src="/static/js/speech.js"></script>
 </head>
 <body>
 <div class="speech">
   <div class="speech-in">
     <div class="speech-header"><img height="100px" src="/static/images/branding/Computas_logo_liggende_blue.png"></div>
     <div class="speech-mic"><img src="/static/images/branding/mic-blue.png"></div>
+    
   </div>
   <div class="speech-out"></div>
   <div class="speech-lang"><a href="#">EN</a></div>
+  <div class="speech-interim">
+    <p id="speech-interim-text" style="font-size: 40px; bottom: 70px; opacity: .5;">
+      
+    </p>
+  </div> 
   <div class="speech-footer">
     <p class="speech-hand-animation" hidden><a href="#"></a><img src="/static/images/hand-pointer-regular_g.png" height="250px"></p>
     <p id="example-text" style="font-size: 40px; bottom: 70px; opacity: .5;"></p>
     <a href="/learn">BYTT TIL LÆRINGSMODUS</a>
   </div>
+  
 </div>
 <div class="tran">
   <div class="general-header"><img height="100px" src="/static/images/branding/Computas_symbol_blue.png"></div>

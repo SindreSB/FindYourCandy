@@ -47,33 +47,68 @@ $(function () {
 
     // process of voice recognition
     /* DISABLED FOR TESTING */
+    /*
+    var speech = function () {
+        $("body").addClass("mode-speech-start");
 
-        var speech = function () {
-            $("body").addClass("mode-speech-start");
-            recognition.lang = speechLang;
-            $(".speech-mic").click(function () {
-                $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
-                    background: "#ff5f63",
-                    border: "solid 0 #ff5f63"
-                    }
-                );
-                $(".speech-footer").hide();
-                $(".speech-hand-animation").hide();
-                $("body").addClass("mode-speech-in");
-                recognition.start();
-            });
-            recognition.onerror = function () {
-                $("body").removeClass("mode-speech-in");
-            };
-            recognition.onresult = function (e) {
-                inputSpeech = e.results[0][0].transcript
-                //$(".speech-out").text(inputSpeech);
-                $("body").addClass("mode-speech-in");
-                setTimeout(function () {
-                    translation();
-                },3500);
-            };
-        }
+        recognition.lang = speechLang;
+        
+        $(".speech-mic").click(function () {
+            $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
+                background: "#ff5f63",
+                border: "solid 0 #ff5f63"
+                }
+            );
+            $(".speech-footer").hide();
+            $(".speech-hand-animation").hide();
+            $("body").addClass("mode-speech-in");
+            recognition.start();
+        });
+
+        recognition.onerror = function () {
+            $("body").removeClass("mode-speech-in");
+        };
+
+        recognition.onresult = function (e) {
+            inputSpeech = e.results[0][0].transcript
+            //$(".speech-out").text(inputSpeech);
+            $("body").addClass("mode-speech-in");
+            setTimeout(function () {
+                translation();
+            },3500);
+        };
+    }*/
+
+    var speech = function() {
+        $("body").addClass("mode-speech-start");
+
+        $(".speech-mic").click(function () {
+            $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
+                background: "#ff5f63",
+                border: "solid 0 #ff5f63"
+                }
+            );
+            $(".speech-footer").hide();
+            $("body").addClass("mode-speech-in");
+            
+            var recognition_result = ""
+
+            window.start_recognition((data) => {
+                if (data.event === "end_of_speech") {
+                    console.log("DONE!")
+                    inputSpeech = recognition_result
+
+                    setTimeout(function () {
+                        translation();
+                    },500);
+                }
+                else {
+                    recognition_result = data.transcript
+                    document.getElementById('speech-interim-text').innerHTML = data.transcript
+                }
+            })
+        });
+    }
 
 
     /*
@@ -530,7 +565,7 @@ $(function () {
             svg.selectAll("text").remove();
             svg.selectAll("circle").remove();
             svg.append("polygon")
-                .attr("points",nearest.box[0][0] + "," + nearest.box[0][1] + " " + nearest.box[1][0] + "," + nearest.box[1][1] + " " + nearest.box[2][0] + "," + camdata[i].box[2][1] + " " + nearest.box[3][0] + "," + nearest.box[3][1] + " ")
+                .attr("points",nearest.box[0][0] + "," + nearest.box[0][1] + " " + nearest.box[1][0] + "," + nearest.box[1][1] + " " + nearest.box[2][0] + "," + nearest.box[2][1] + " " + nearest.box[3][0] + "," + nearest.box[3][1] + " ")
                 .attr("style", "stroke: #49bca1; stroke-width: 20px;")
             svg.append("circle")
                 .attr("r", "150")

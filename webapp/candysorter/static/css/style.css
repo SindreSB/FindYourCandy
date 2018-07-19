@@ -71,6 +71,7 @@ circle.label-10 { fill: #FFEE58; }
 .speech-footer a { pointer-events: all; color: #999; }
 .speech-hand-animation img {pointer-events: none; position: relative; animation: hand 6S; animation-iteration-count: infinite; animation-fill-mode: forwards; fill: white}
 
+.speech-interim {pointer-events: none; position: absolute; bottom: 30px; font-size: 16px; font-weight: 300; width: 100%; text-align: center; z-index: 2; }
 
 /* translation */
 .tran { display: flex; justify-content: center; align-items: center; position: absolute; width: 100%; height: 100%; overflow: hidden; }

@@ -44,8 +44,8 @@ def _configure_app(app):
 
 
 def _configure_blueprints(app):
-    from views.api import api
-    from views.ui import ui
+    from candysorter.views.api import api
+    from candysorter.views.ui import ui
 
     app.register_blueprint(api)
     app.register_blueprint(ui)
