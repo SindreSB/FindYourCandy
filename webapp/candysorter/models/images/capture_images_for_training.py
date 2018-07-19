@@ -32,6 +32,22 @@ detector = CandyDetector(
     restore_fg_thres=config.CANDY_DETECTOR_RESTORE_FG_THRES,
     box_dim_thres=config.CANDY_DETECTOR_BOX_DIM_THRES
 )
+twist_detector = CandyDetector(
+    histgram_band=config.TWIST_CANDY_DETECTOR_HISTGRAM_BAND,
+    histgram_thres=config.TWIST_CANDY_DETECTOR_HISTGRAM_THRES,
+    bin_thres=config.TWIST_CANDY_DETECTOR_BIN_THRES,
+    edge3_thres=config.TWIST_CANDY_DETECTOR_EDGE3_THRES,
+    edge5_thres=config.TWIST_CANDY_DETECTOR_EDGE5_THRES,
+    margin=config.TWIST_CANDY_DETECTOR_MARGIN,
+    closing_iter=config.TWIST_CANDY_DETECTOR_CLOSING_ITER,
+    opening_iter=config.TWIST_CANDY_DETECTOR_OPENING_ITER,
+    erode_iter=config.TWIST_CANDY_DETECTOR_ERODE_ITER,
+    dilate_iter=config.TWIST_CANDY_DETECTOR_DILATE_ITER,
+    bg_size_filter=config.TWIST_CANDY_DETECTOR_BG_SIZE_FILTER,
+    sure_fg_thres=config.TWIST_CANDY_DETECTOR_SURE_FG_THRES,
+    restore_fg_thres=config.TWIST_CANDY_DETECTOR_RESTORE_FG_THRES,
+    box_dim_thres=config.TWIST_CANDY_DETECTOR_BOX_DIM_THRES
+)
 
 should_exit = False
 
@@ -93,29 +109,28 @@ class Trainingdata():
 
 
 def main():
-
     parser = argparse.ArgumentParser(description='Gather images for training.')
     parser.add_argument('--image_dir', type=str, default="training_dir", help="location for new training images + /label_name")
+    parser.add_argument('--candy_type', type=int, default=0, help='0 for twist candy, 1 for box candy')
+
     td = Trainingdata()
     args = parser.parse_args()
     image_dir = args.image_dir
-    finished = False
+    candy_type = args.candy_type
+    candy_list = config_img.BOX_CANDIES
+    if candy_type == 0:
+        candy_list = config_img.TWIST_CANDIES
 
-    #candy_list = config_img.BOX_CANDIES
-    candy_list = config_img.TWIST_CANDIES
+
+
     print('The following labels are available in directory: ')
     for i in range(len(candy_list)):
         print(i, ':', candy_list[i])
-    print(len(candy_list), ':', 'other')
-    print(len(candy_list) + 1, ':', 'finish')
 
     lid = int(input("input label number: "))
     label = ""
-    if lid == len(candy_list):
-        label = input("label name: ")
-    elif (lid > len(candy_list)):
-        finished = True
-    elif lid < 0:
+
+    if lid < 0 or lid >= len(candy_list):
         raise ValueError("{} is not a valid input".format(lid))
     else :
         label = candy_list[lid]
@@ -147,7 +162,11 @@ def main():
                 #write_message(cropped, label)
                 #td.write_message(cropped, 'click right mouse button to take image')
                 if (counter % 5 == 0):
-                    candies = detector.detect(cropped)
+                    candies = None
+                    if (candy_type == 1):
+                        candies = detector.detect(cropped)
+                    else:
+                        candies = twist_detector.detect(cropped)
                     td.set_variables(candies, os.path.join(os.path.join(image_dir, label)))
                 td.draw_detection(cropped, candies)
                 cv2.imshow('Detection', cropped)

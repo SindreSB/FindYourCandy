@@ -98,8 +98,6 @@ class CandyDetector(object):
         # Binarize
         _, binarized = cv2.threshold(img_gray, self.bin_thres, 255, cv2.THRESH_BINARY_INV)
 
-        print(binarized)
-
         # Edge
         kernel_laplacian_3x3 = np.float32([
             [1, 1, 1],
