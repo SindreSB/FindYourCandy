@@ -68,7 +68,7 @@ $(function () {
             recognition.onresult = function (e) {
                 inputSpeech = e.results[0][0].transcript
                 //$(".speech-out").text(inputSpeech);
-                $("body").addClass("mode-speech-out");
+                $("body").addClass("mode-speech-in");
                 setTimeout(function () {
                     translation();
                 },3500);
@@ -505,7 +505,7 @@ $(function () {
                 .attr("points", camdata[i].box[0][0] + "," + camdata[i].box[0][1] + " " + camdata[i].box[1][0] + "," + camdata[i].box[1][1] + " " + camdata[i].box[2][0] + "," + camdata[i].box[2][1] + " " + camdata[i].box[3][0] + "," + camdata[i].box[3][1] + " ")
                 .attr("class", "label-" + camdata[i].similarities[i].lid);
             svg.append("circle")
-                .attr("r", "130")
+                .attr("r", "100")
                 .attr("cx", camdata[i].box[0][0]).attr("cy", camdata[i].box[0][1])
                 .attr("class", "label-" + camdata[i].similarities[i].lid);
             svg.append("text")
@@ -530,7 +530,7 @@ $(function () {
             svg.selectAll("text").remove();
             svg.selectAll("circle").remove();
             svg.append("polygon")
-                .attr("points",nearest.box[0][0] + "," + nearest.box[0][1] + " " + nearest.box[1][0] + "," + nearest.box[1][1] + " " + nearest.box[2][0] + "," + camdata[i].box[2][1] + " " + nearest.box[3][0] + "," + nearest.box[3][1] + " ")
+                .attr("points",nearest.box[0][0] + "," + nearest.box[0][1] + " " + nearest.box[1][0] + "," + nearest.box[1][1] + " " + nearest.box[2][0] + "," + nearest.box[2][1] + " " + nearest.box[3][0] + "," + nearest.box[3][1] + " ")
                 .attr("style", "stroke: #49bca1; stroke-width: 20px;")
             svg.append("circle")
                 .attr("r", "150")
