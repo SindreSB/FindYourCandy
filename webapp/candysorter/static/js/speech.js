@@ -33,7 +33,7 @@
             }
         }
 
-        socket = new WebSocket('ws://localhost:8765')
+        socket = new WebSocket('ws://' + window.location.hostname + ':18002')
 
         socket.addEventListener('open', function (event) {
             console.log("Connected to server");
