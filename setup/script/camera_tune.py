@@ -30,7 +30,13 @@ from candysorter.config import get_config
 
 calibrator = ImageCalibrator(area=(1625, 1100), scale=550)
 config = get_config(os.getenv('FLASK_ENV', 'dev'))
-detector = CandyDetector().from_config(config)
+
+# Convert config from class object to dictionary for compatability with flask
+config_dict = {}
+for key in dir(config):
+    if key.isupper():
+        config_dict[key] = getattr(config, key)
+detector = CandyDetector().from_config(config_dict)
 
 should_exit = False
 
@@ -70,7 +76,7 @@ font = cv2.FONT_HERSHEY_PLAIN
 
 def main():
 
-    capture = cv2.VideoCapture(1)
+    capture = cv2.VideoCapture(0)
     capture.set(3, 1920)
     capture.set(4, 1080)
 
