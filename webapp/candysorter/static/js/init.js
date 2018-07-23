@@ -82,6 +82,23 @@ $(function () {
     var speech = function() {
         $("body").addClass("mode-speech-start");
 
+        speechCallback = function (data) {
+            if (data.event === "end_of_speech") {
+                console.log("DONE!")
+                this.inputSpeech = recognition_result
+
+                setTimeout(function () {
+                    translation();
+                },500);
+            }
+            else {
+                this.recognition_result = data.transcript
+                document.getElementById('speech-interim-text').innerHTML = data.transcript
+            }
+        }
+
+        var gcpSpeech = new GcpSpeechStreamer(speechCallback.bind(this));
+
         $(".speech-mic").click(function () {
             $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
                 background: "#ff5f63",
@@ -91,22 +108,11 @@ $(function () {
             $(".speech-footer").hide();
             $("body").addClass("mode-speech-in");
             
-            var recognition_result = ""
-
-            window.start_recognition((data) => {
-                if (data.event === "end_of_speech") {
-                    console.log("DONE!")
-                    inputSpeech = recognition_result
-
-                    setTimeout(function () {
-                        translation();
-                    },500);
-                }
-                else {
-                    recognition_result = data.transcript
-                    document.getElementById('speech-interim-text').innerHTML = data.transcript
-                }
-            })
+            if (!gcpSpeech.isRecording()) {
+                gcpSpeech.start_recognition();
+            } else {
+                gcpSpeech.stop_recognition();
+            }
         });
     }
 
