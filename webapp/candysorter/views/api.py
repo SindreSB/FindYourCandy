@@ -286,6 +286,9 @@ def similarities():
     def _box_as_json(box_coords):
         return [[int(x), int(y)] for x, y in box_coords]
 
+    def _centroid_as_json(center):
+        return list(center)
+
     return jsonify(similarities=dict(
         force=_sim_as_json(speech_sim),
         url=snapshot_url,
@@ -294,7 +297,8 @@ def similarities():
                 url=url,
                 similarities=_sim_as_json(sim),
                 coords=_coords_as_json(rsim),
-                box=_box_as_json(candy.box_coords))
+                box=_box_as_json(candy.box_coords),
+                center=_centroid_as_json(candy.box_centroid))
             for candy, sim, rsim, url in zip(candies, candy_sims, candy_rsims, candy_urls)
         ],
         nearest=dict(
