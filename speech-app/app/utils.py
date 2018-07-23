@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import queue
 
 # GCP imports
@@ -5,8 +8,11 @@ from google.cloud.speech_v1p1beta1 import enums
 from google.cloud.speech_v1p1beta1 import SpeechClient
 from google.cloud.speech_v1p1beta1 import types
 
+from app.phrases import PhraseGenerator
 
-def get_client(lang='en-US', sample_rate=16000, interim_results=False, single_utterance=True):
+
+def get_client(lang='en-US', sample_rate=16000, interim_results=False,
+               single_utterance=True, phrase_key="", use_enhanced=False, model="default"):
     """
     Helper to return client and config
     """
@@ -16,11 +22,19 @@ def get_client(lang='en-US', sample_rate=16000, interim_results=False, single_ut
             encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
             sample_rate_hertz=sample_rate,
             language_code=lang,
+            # Enhanced models are only available to projects that
+            # opt in for audio data collection.
+            use_enhanced=use_enhanced,
+            # A model must be specified to use enhanced model.
+            model=model,
+            speech_contexts=[types.SpeechContext(
+                phrases=PhraseGenerator.get_phrases("app/config.json", phrase_key),
+            )]
         ),
         interim_results=interim_results,
         single_utterance=single_utterance
     )
-
+    print(str(config))
     return client, config
 
 

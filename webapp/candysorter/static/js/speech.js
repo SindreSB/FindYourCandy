@@ -41,6 +41,9 @@
                 "sample_rate": 44100,
                 "lang": "nb-NO",
                 "interim_results": true,
+                "phrase_key": "twist",  //"twist"
+                "use_enhanced": true,
+                "model": "command_and_search"
             }));
         });
 
