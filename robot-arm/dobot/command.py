@@ -129,7 +129,9 @@ class GetPose(Command):
 
 class GetAlarmsState(Command):
     def __init__(self):
-        super(GetAlarmsState, self).__init__(20, 0, 0)
+        super(GetAlarmsState, self).__init__(
+            20, 0, 0, '16B'
+        )
 
 
 class ClearAllAlarmsState(Command):

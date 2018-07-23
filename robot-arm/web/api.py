@@ -105,6 +105,9 @@ def pickup_grip():
     dobot = get_dobot(current_app.config['DOBOT_SERIAL_PORT'])
 
     # TODO: Move robot arm onto the sheet to avoid occasional crash into base
+    current_pose = dobot.get_pose();
+    dobot.move(240 if current_pose['x'] > 0 else -240, 180, current_pose['y'], current_pose['z'])
+
     logging.info('Adjusting arm height to {}'.format(z_high))
     dobot.adjust_z(z_high)
     logging.info('Starting pickup.')

@@ -86,6 +86,7 @@ class Dobot(object):
             self.linear_move(x, y, z_low, r, velocity, accel)
             time.sleep(1)
             self.grip(1)
+            self.wait(120)
             time.sleep(sleep_sec)
             self.linear_move(x, y, z_high, r, velocity, accel)
 
