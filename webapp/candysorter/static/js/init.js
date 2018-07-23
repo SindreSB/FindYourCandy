@@ -6,14 +6,14 @@ $(function () {
     var simUrl = "/api/similarities"; // API for Similarity analysis
     var pickUrl = "/api/pickup"; // API for pick up candy
     var tranUrl = "/api/translate"; // API for translation
-    var simSec = 5000; // delay time
     var simNoWaitNum = 5;
-    var plotSec = 5000; // display time of scatter plot(milisec）
+    var tranSec = 5000; // display time of translated text
+    var nlSec = 5000 // display time of natural language processing.
+    var simSec = 5000; // delay time
+    var forceSec = 5000; // display time of force
     var camSec = 7000; // display tiem of camera image(milisec)
-    var picSec = 500; // wait time to start pickup
-    var forceSec = ""; // display time of force
-    var tranSec = ""; // display time of translated text
-    var nlSec = ""; // display time of natural language processing.
+    var selectSec = 8000;
+
 
     // variables
     var recognition = new webkitSpeechRecognition();
@@ -85,19 +85,20 @@ $(function () {
         speechCallback = function (data) {
             if (data.event === "end_of_speech") {
                 console.log("DONE!")
-                this.inputSpeech = recognition_result
+                inputSpeech = recognition_result
 
+                
                 setTimeout(function () {
                     translation();
                 },500);
             }
             else {
-                this.recognition_result = data.transcript
+                recognition_result = data.transcript
                 document.getElementById('speech-interim-text').innerHTML = data.transcript
             }
         }
 
-        var gcpSpeech = new GcpSpeechStreamer(speechCallback.bind(this));
+        var gcpSpeech = new GcpSpeechStreamer(speechCallback);
 
         $(".speech-mic").click(function () {
             $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
@@ -161,9 +162,12 @@ $(function () {
                 setTimeout(function () {
                     $(".tran-footer").show();
                 }, 500);
+
+                nextWithTimeout(nl, tranSec);
+                /*
                 setTimeout(function () {
                     nl()
-                }, 5000);
+                }, 5000);*/
             }
         });
         // inputTxt --> translateAPI
@@ -306,14 +310,13 @@ $(function () {
                 sorry();
             },
             success: function (data) {
-                var sec = data.similarities.embedded.length >= simNoWaitNum ? 0 : simSec;
                 sim = data;
                 console.log("(sim = data) from simURL. Sim = ");
                 console.log(sim);
-                setTimeout(function () {
+
+                nextWithTimeout(function () {
                     force();
-                    plot();
-                }, 6000);
+                }, nlSec);
             }
         });
     };
@@ -406,78 +409,16 @@ $(function () {
             top: (winH - txtH) / 2 + "px",
             left: (winW - txtW) / 2 + "px"
         });
-    };
-
-    // draw scatter plot
-    var plot = function () {
-        // generate dataset
-        var data = sim.similarities.embedded;
-        var dataSet = [];
-        for (var i in data) {
-            var em = 0; // extract height similarity
-            var lid = 0;
-            for (var j in data[i].similarities) {
-                if (data[i].similarities[j].em > em) {
-                    lid = data[i].similarities[j].lid;
-                    em = data[i].similarities[j].em;
-                }
-            }
-            dataSet.push({
-                "x": data[i].coords[0] * winW,
-                "y": data[i].coords[1] * winH,
-                "img": data[i].url,
-                "lid": lid
-            });
-        }
-
-        // PROCESS OF ADDING THE SMALL CANDY IMAGES NEXT TO THE FORCE PLOT
-        // add nearest at the last of dataset
-        /*data = sim.similarities.nearest;
-        em = 0; // extract high similarity label
-        lid = 0;
-        for (var i in data.similarities) {
-            if (data.similarities[i].em > em) {
-                lid = data.similarities[i].lid;
-                em = data.similarities[i].em;
-            }
-        }
-        dataSet.push({
-            "x": data.coords[0] * winW,
-            "y": data.coords[1] * winH,
-            "img": data.url,
-            "lid": lid
-        });
-
-        $(".cam polygon").addClass("label-" + lid);
-        console.log("label-" + lid);
-        // draw scatter plot
-        for (var i in dataSet) {
-            $(".plot").append("<dd><i></i></dd>");
-            $(".plot dd:last-child").addClass("label-" + dataSet[i].lid)
-                .css({
-                    left: dataSet[i].x + "px",
-                    top: dataSet[i].y + "px",
-                    transitionDelay: parseInt(i) * 0.05 + "s",
-                    animationDelay: parseInt(i) * 0.05 + "s"
-                });
-            /*
-              $(".plot dd:last-child i")
-                .css({
-                    backgroundImage: "url(" + dataSet[i].img + ")"
-                });
-
-        }
-        */
 
         $(".plot dd:last-child").addClass("nearest");
         // draw with time difference
         setTimeout(function () {
             $("body").addClass("mode-plot-start");
         }, 6000); // WAS 3000; //How long just the circles are displayed
-        setTimeout(function () {
+        nextWithTimeout(function () {
             $("body").addClass("mode-plot-end");
             cam();
-        }, 8000);//plotSec); //This times how long the camera images should be presented next to the circles
+        }, forceSec);//plotSec); //This times how long the camera images should be presented next to the circles
     };
 
     // output camera image
@@ -506,7 +447,6 @@ $(function () {
         /* SVG TEST SPACE*/
         // Generate datasets
         var camdata = sim.similarities.embedded;
-        var nearest = sim.similarities.nearest;
         var dataSet2 = [];
         for (var i in camdata) {
             var em = 0;
@@ -561,53 +501,58 @@ $(function () {
             $("body").addClass("mode-cam-mid");
         }, 750);
 
-        setTimeout(function () {
+        nextWithTimeout(function () {
             $("body").addClass("mode-cam-end");
-        }, 7000);
-
-        setTimeout(function () {
             $("body").addClass("mode-cam-finished");
-            svg.selectAll("polygon").remove();
-            svg.selectAll("text").remove();
-            svg.selectAll("circle").remove();
-            svg.append("polygon")
-                .attr("points",nearest.box[0][0] + "," + nearest.box[0][1] + " " + nearest.box[1][0] + "," + nearest.box[1][1] + " " + nearest.box[2][0] + "," + nearest.box[2][1] + " " + nearest.box[3][0] + "," + nearest.box[3][1] + " ")
-                .attr("style", "stroke: #49bca1; stroke-width: 20px;")
-            svg.append("circle")
-                .attr("r", "150")
-                .attr("cx", nearest.box[0][0]).attr("cy", nearest.box[0][1])
-                .attr("style", "fill: #49bca1; opacity: 0.6; ");
-            svg.append("text")
-                .attr("x", nearest.box[0][0]).attr("y", nearest.box[0][1])
-                .attr("style", "fill: #fff; font-size: 35px;")
-                .text("Jeg velger denne!");
-        }, 7000);
-
-        // draw with time difference
-        setTimeout(function () {
-            console.log("starting pickup")
-            // operation of pickup
-            $.ajax({
-                type: "POST",
-                contentType: "application/json",
-                dataType: "json",
-                url: pickUrl,
-                data: JSON.stringify({
-                    "id": pid
-                }),
-                error: function (textStatus) {
-                    console.log(textStatus);
-                },
-                success: function (data) {
-                    sim = data;
-                }
-            });
-        }, 500); //how long after cam-UI starts pickup process starts.
-
-        setTimeout(function () {
-            thanks();
-        }, 15000);//camSec); //how long the cam-ui is shown in total
+            select();
+        }, camSec);
     };
+
+    var select = function() {
+        var svg = d3.select(".cam-img svg");
+        var nearest = sim.similarities.nearest;
+
+        svg.selectAll("polygon").remove();
+        svg.selectAll("text").remove();
+        svg.selectAll("circle").remove();
+        svg.append("polygon")
+            .attr("points",nearest.box[0][0] + "," + nearest.box[0][1] + " " + nearest.box[1][0] + "," + nearest.box[1][1] + " " + nearest.box[2][0] + "," + nearest.box[2][1] + " " + nearest.box[3][0] + "," + nearest.box[3][1] + " ")
+            .attr("style", "stroke: #49bca1; stroke-width: 20px;")
+        svg.append("circle")
+            .attr("r", "150")
+            .attr("cx", nearest.box[0][0]).attr("cy", nearest.box[0][1])
+            .attr("style", "fill: #49bca1; opacity: 0.6; ");
+        svg.append("text")
+            .attr("x", nearest.box[0][0]).attr("y", nearest.box[0][1])
+            .attr("style", "fill: #fff; font-size: 35px;")
+            .text("Jeg velger denne!");
+
+        
+        pickup();
+
+        nextWithTimeout(thanks, selectSec);
+    }
+
+    var pickup = function() {
+        console.log("starting pickup")
+        // operation of pickup
+        $.ajax({
+            type: "POST",
+            contentType: "application/json",
+            dataType: "json",
+            url: pickUrl,
+            data: JSON.stringify({
+                "id": pid
+            }),
+            error: function (textStatus) {
+                console.log(textStatus);
+            },
+            success: function (data) {
+                sim = data;
+                console.log(sim);
+            }
+        });
+    }
 
     // draw endroll
     var thanks = function () {
