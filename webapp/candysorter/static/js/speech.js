@@ -33,7 +33,7 @@
             }
         }
 
-        socket = new WebSocket('ws://localhost:8765')
+        socket = new WebSocket('ws://' + window.location.hostname + ':18002')
 
         socket.addEventListener('open', function (event) {
             console.log("Connected to server");
@@ -41,6 +41,9 @@
                 "sample_rate": 44100,
                 "lang": "nb-NO",
                 "interim_results": true,
+                "phrase_key": "twist",  //"twist"
+                "use_enhanced": true,
+                "model": "command_and_search"
             }));
         });
 
