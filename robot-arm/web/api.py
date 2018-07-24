@@ -108,7 +108,7 @@ def pickup_grip():
     logging.info('Move robot arm onto the sheet to avoid occasional crash into base and adjusting arm height to {}'
                  .format(z_high))
 
-    dobot.move(x=160, y=140 if current_pose['y'] > 0 else -140, z=z_high, r=xy_conv[2])
+    dobot.move(x=160, y=140 if current_pose['y'] > 0 else -140, z=z_high, r=xy_conv[2], jump=False)
 
     logging.info('Starting pickup.')
     dobot.pickup_gripper(xy_conv[0], xy_conv[1], xy_conv[2], z_low=z_low, z_high=z_high, velocity=v, accel=a)

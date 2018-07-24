@@ -93,7 +93,7 @@ class Dobot(object):
 
     def pickup_gripper(self, x, y, r, z_low=0, z_high=100, sleep_sec=0.5, velocity=200, accel=100, num_trials=1):
         self.grip(0)
-        self.move(x, y, z_high, r,  velocity, accel)
+        self.move(x, y, z_high, r,  velocity, accel, jump=False)
         for i in range(num_trials):
             self.linear_move(x, y, z_low, r, velocity, accel)
             time.sleep(1)
