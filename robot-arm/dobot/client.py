@@ -58,7 +58,8 @@ class Dobot(object):
         result = self.serial.call(command.GetAlarmsState())
         alarm_string = "".join(["{0:0>8b}".format(x)[::-1] for x in list(result)[4:-1]])  # Get only the alarm values
         alarm_ids = ["0x" + "{0:0>2X}".format(index) for index, value in enumerate(alarm_string) if value == "1"]
-        dobot_alarms = [alarms.alarms.get(alarm_id) for alarm_id in alarm_ids]
+        dobot_alarms = [alarms.alarms.get(alarm_id) if alarms.alarms.get(alarm_id) else alarm_id
+                        for alarm_id in alarm_ids]
         return dobot_alarms
 
     def clear_alarms_state(self):
@@ -93,7 +94,7 @@ class Dobot(object):
 
     def pickup_gripper(self, x, y, r, z_low=0, z_high=100, sleep_sec=0.5, velocity=200, accel=100, num_trials=1):
         self.grip(0)
-        self.move(x, y, z_high, r,  velocity, accel, jump=False)
+        self.move(x, y, z_high, r,  velocity, accel)
         for i in range(num_trials):
             self.linear_move(x, y, z_low, r, velocity, accel)
             time.sleep(1)

@@ -113,7 +113,7 @@ def pickup_grip():
     logging.info('Starting pickup.')
     dobot.pickup_gripper(xy_conv[0], xy_conv[1], xy_conv[2], z_low=z_low, z_high=z_high, velocity=v, accel=a)
     logging.info('Serving to {}.'.format(dest))
-    dobot.move(dest[0], dest[1], dest[2], 0, velocity=v, accel=a, jump=False)
+    dobot.move(dest[0], dest[1], dest[2], 0, velocity=v, accel=a)
     dobot.wait()
     logging.info('Releasing the candy')
     dobot.grip(0)
