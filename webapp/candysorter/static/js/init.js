@@ -82,7 +82,7 @@ $(function () {
     var speech = function() {
         $("body").addClass("mode-speech-start");
 
-        speechCallback = function (data) {
+        function speechCallback(data) {
             if (data.event === "end_of_speech") {
                 console.log("DONE!")
                 inputSpeech = recognition_result

@@ -103,17 +103,17 @@ def pickup_grip():
     logging.info('Logical coordinate ({}, {}, {}) converted to dobot coordinate {}'.format(x, y, r, xy_conv))
 
     dobot = get_dobot(current_app.config['DOBOT_SERIAL_PORT'])
+    current_pose = dobot.get_pose()
 
-    # TODO: Move robot arm onto the sheet to avoid occasional crash into base
-    current_pose = dobot.get_pose();
-    dobot.move(240 if current_pose['x'] > 0 else -240, 180, current_pose['y'], current_pose['z'])
+    logging.info('Move robot arm onto the sheet to avoid occasional crash into base and adjusting arm height to {}'
+                 .format(z_high))
 
-    logging.info('Adjusting arm height to {}'.format(z_high))
-    dobot.adjust_z(z_high)
+    dobot.move(x=160, y=140 if current_pose['y'] > 0 else -140, z=z_high, r=xy_conv[2])
+
     logging.info('Starting pickup.')
     dobot.pickup_gripper(xy_conv[0], xy_conv[1], xy_conv[2], z_low=z_low, z_high=z_high, velocity=v, accel=a)
     logging.info('Serving to {}.'.format(dest))
-    dobot.move(dest[0], dest[1], dest[2], 0, velocity=v, accel=a)
+    dobot.move(dest[0], dest[1], dest[2], 0, velocity=v, accel=a, jump=False)
     dobot.wait()
     logging.info('Releasing the candy')
     dobot.grip(0)
@@ -133,6 +133,7 @@ def get_state():
     logging.info('Getting pose of dobot.')
     pose = dobot.get_pose()
     status["queue_count"] = dobot.count_queued_command()
+    status["alarms"] = dobot.get_alarms_state()
     dobot.close()
 
     logging.info('Dobot pose: (x, y, z, r)=({}, {}, {}, {}) (base, fore, rear, end)=({}, {}, {}, {})'.format(
@@ -143,6 +144,8 @@ def get_state():
         status[key] = pose[key]
 
     return jsonify(status)
+
+
 
 @api.route("/test")
 def test():

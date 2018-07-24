@@ -18,7 +18,9 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 import time
 
+
 from dobot import command
+from dobot import alarms
 from dobot.errors import TimeoutError
 from dobot.serial import SerialCommunicator
 
@@ -52,6 +54,16 @@ class Dobot(object):
         result = self.serial.call(command.GetQueuedCmdLeftSpace())
         return DOBOT_QUEUE_SIZE - result['leftSpace']
 
+    def get_alarms_state(self):
+        result = self.serial.call(command.GetAlarmsState())
+        alarm_string = "".join(["{0:0>8b}".format(x)[::-1] for x in list(result)[4:-1]])  # Get only the alarm values
+        alarm_ids = ["0x" + "{0:0>2X}".format(index) for index, value in enumerate(alarm_string) if value == "1"]
+        dobot_alarms = [alarms.alarms.get(alarm_id) for alarm_id in alarm_ids]
+        return dobot_alarms
+
+    def clear_alarms_state(self):
+        return self.serial.call(command.ClearAllAlarmsState())
+
     def initialize(self):
         self.serial.call(command.ClearAllAlarmsState())
         self.serial.call(command.SetQueuedCmdClear())
@@ -79,7 +91,7 @@ class Dobot(object):
             time.sleep(sleep_sec)
             self.linear_move(x, y, z_high, 0, velocity, accel)
 
-    def pickup_gripper(self, x, y, r, z_low=0, z_high=100, sleep_sec=3, velocity=200, accel=100, num_trials=1):
+    def pickup_gripper(self, x, y, r, z_low=0, z_high=100, sleep_sec=0.5, velocity=200, accel=100, num_trials=1):
         self.grip(0)
         self.move(x, y, z_high, r,  velocity, accel)
         for i in range(num_trials):
