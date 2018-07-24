@@ -486,6 +486,29 @@ def status():
     return jsonify(status=status, loss=losses, embedded=embedded)
 
 
+@api.route('/status/camera', methods=['GET'])
+def tune_camera():
+    logger.info('=== Tune camera ===')
+
+    # Capture image
+    logger.info('Capturing image.')
+    try:
+        img = _capture_image()
+    except RuntimeError as e:
+        return __error_response("CAMERA", "Unable to detect barcodes and/or camera has been moved.", str(e))
+    except FileNotFoundError as e:
+        return __error_response("CAMERA", "Could not find the fake image specified in the config", str(e))
+    except Exception as e:
+        return __error_response("CAMERA", "", str(e))
+
+    # Detect candies
+    logger.info('Detecting candies.')
+    candies = candy_detector.detect(img)
+    logger.info('  %d candies detected.', len(candies))
+
+    return jsonify(status="SUCCESS", candy_count=len(candies))
+
+
 @api.route('/_labels')
 def labels():
     return jsonify(labels=text_analyzer.labels)
@@ -568,8 +591,9 @@ def _job_id(session_id):
 
 
 def __error_response(err_type, msg, error=""):
-    return jsonify({
-        'error_type': err_type,
-        'error': error,
-        'message': msg
-    }), 500
+    return jsonify(
+        status='ERROR',
+        error_type=err_type,
+        error=error,
+        message=msg
+    ), 500
