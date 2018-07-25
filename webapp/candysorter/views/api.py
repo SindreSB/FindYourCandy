@@ -35,6 +35,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 from candysorter.cache import Cache
 from candysorter.ext.google.cloud.ml import State
+from candysorter.ext.google.cloud.auth import test_auth
 from candysorter.models.images.calibrate import ImageCalibrator
 from candysorter.models.images.classify import CandyClassifier
 from candysorter.models.images.detect import CandyDetector, detect_labels
@@ -56,7 +57,6 @@ candy_classifier = None
 candy_trainer = None
 image_capture = None
 image_calibrator = None
-
 
 
 @api.record
@@ -112,7 +112,6 @@ def id_required(f):
         return f(*args, **kwargs)
 
     return wrapper
-
 
 
 @api.route('/translate', methods=['POST'])
@@ -225,7 +224,8 @@ def similarities():
     logger.info('  %d candies detected.', len(candies))
 
     if len(candies) == 0:
-        return __error_response("CANDY", "No candy detected on the table. Place candy on the table, or calibrate camera.")
+        return __error_response("CANDY",
+                                "No candy detected on the table. Place candy on the table, or calibrate camera.")
 
     # Create image directory
     save_dir = _create_save_dir(session_id)
@@ -271,7 +271,6 @@ def similarities():
         pick_x, pick_y = image_calibrator.get_coordinate(nearest_centroid[0], nearest_centroid[1])
         rotation = calculate_rotation(candies[nearest_idx])
         cache.set('pickup_point', (pick_x, pick_y, rotation))
-
 
     # For json
     def _sim_as_json(sim):
@@ -486,9 +485,32 @@ def status():
     return jsonify(status=status, loss=losses, embedded=embedded)
 
 
+@api.route('/status/auth', methods=['GET'])
+def status_auth():
+    """
+    Test status of the webapp. The camera is tested independently, so only auth and communication with the
+    robot arm is
+    """
+    # Check auth
+    try:
+        test_auth()
+    except Exception as e:
+        return __error_response('AUTH', 'Authentication with GCP failed.', str(e))
+
+    return jsonify(status="SUCCESS")
+
+
 @api.route('/status/camera', methods=['GET'])
-def tune_camera():
-    logger.info('=== Tune camera ===')
+def status_camera():
+    """
+    Test the status of the camera by capturing an image, detecting corners and then detecting candies.
+    Not meant for calibrating/tuning the camera, just as a simple test that the camera is working.
+
+    Returns either a json with status set to success and number of candies detected, or
+    a message with status set to error, see __error_response() for format
+    """
+
+    logger.info('=== Check camera ===')
 
     # Capture image
     logger.info('Capturing image.')
@@ -507,6 +529,31 @@ def tune_camera():
     logger.info('  %d candies detected.', len(candies))
 
     return jsonify(status="SUCCESS", candy_count=len(candies))
+
+
+@api.route('/status/robot', methods=['GET'])
+def status_robot():
+    """
+    Check that the webapp is able to communicate with the robot, and return the robot state
+    """
+    try:
+        response = requests.get(config['ROBOT_ARM_STATUS_ENDPOINT'])
+        response_data = response.json()
+
+        if len(response_data['alarms']):
+            return jsonify(
+                status='ERROR',
+                error_type="ROBOT",
+                error="",
+                message="One or more alarms has been triggered on the robot. It might still function, but try  turning it on and off again.",
+                robot_status=response_data
+            ), 500
+
+        else:
+            return jsonify(status="SUCCESS", **response_data)
+
+    except Exception as e:
+        return __error_response("COMMUNICATION", "Cannot communicate with robot", str(e))
 
 
 @api.route('/_labels')
@@ -591,6 +638,15 @@ def _job_id(session_id):
 
 
 def __error_response(err_type, msg, error=""):
+    """
+    Helper to format an error response in a predictable way.
+
+    Will return a response with the following fields:
+    - status: Always set to ERROR
+    - error_type: Used to denote a "class" of errors, ie. CAMERA or AUTH
+    - message: Should be a human readable message that describes the error and possible fixes
+    - error: The error as string, or a more technical error message.
+    """
     return jsonify(
         status='ERROR',
         error_type=err_type,
