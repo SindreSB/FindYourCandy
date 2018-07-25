@@ -15,6 +15,13 @@ from app.utils import get_client
 
 
 async def handler(websocket, path):
+    """
+    Main handler for the websocket connection. Reads the first message as this should be config information,
+    and then hands the connection overt to a receiver and producer handlers for sending messages. The receive
+    handlers will read and put messages into a queue. An independent thread reads the received
+    audio data and relays this into the GCP API. It puts the responses received from GCP into a queue that
+    is read by the send handler and returned to the client over the websocket connection.
+    """
 
     # The first message from the browser should be json formatted config info
     config_data = await websocket.recv()
