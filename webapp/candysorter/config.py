@@ -50,11 +50,6 @@ class DefaultConfig(object):
         },
     }
 
-    CLASSIFIER_DIR_NAME          = 'classifier'
-    CLASSIFIER_DIR_NAME_INITIAL  = 'classifier_initial'
-    CLASSIFIER_MODEL_DIR         = os.path.join(MODEL_DIR, CLASSIFIER_DIR_NAME)
-    CLASSIFIER_MODEL_DIR_INITIAL = os.path.join(MODEL_DIR, CLASSIFIER_DIR_NAME_INITIAL)
-
     INCEPTION_MODEL_FILE         = os.path.join(MODEL_DIR, 'classify_image_graph_def.pb')
 
     POS_WEIGHTS = {
@@ -62,7 +57,18 @@ class DefaultConfig(object):
         language.PartOfSpeech.NOUN: 2.8,
     }
 
-    CANDY_TYPE = 0 # 0=TWIST 1=BOX CANDY
+    # This setting will determine training parameters, as well as pickup type and classifier used.
+    CANDY_TYPE = 0  # 0=TWIST 1=BOX CANDY
+
+    if CANDY_TYPE == 0:
+        CANDY_MODEL_DIR = os.path.join(MODEL_DIR, "twist")
+    elif CANDY_TYPE == 1:
+        CANDY_MODEL_DIR = os.path.join(MODEL_DIR, "box_candy")
+
+    CLASSIFIER_DIR_NAME = 'classifier'
+    CLASSIFIER_DIR_NAME_INITIAL = 'classifier_initial'
+    CLASSIFIER_MODEL_DIR = os.path.join(CANDY_MODEL_DIR, CLASSIFIER_DIR_NAME)
+    CLASSIFIER_MODEL_DIR_INITIAL = os.path.join(CANDY_MODEL_DIR, CLASSIFIER_DIR_NAME_INITIAL)
 
     CANDY_DETECTOR_HISTGRAM_BAND = (0, 255)
     CANDY_DETECTOR_HISTGRAM_THRES = 2.7e-3
@@ -102,7 +108,7 @@ class DefaultConfig(object):
     IMAGE_CALIBRATOR_AREA = (1625, 1100)
     IMAGE_CALIBRATOR_SCALE = 550
 
-    PICKUP_TYPE = 'suction_cup'  # Use 'gripper' or 'suction_cup'
+    PICKUP_TYPE = 'suction_cup' if CANDY_TYPE else "gripper"  # Use 'gripper' or 'suction_cup'
     PICKUP_SUCTION_CUP_ENDPOINT = 'http://localhost:18001/api/pickup'
     PICKUP_GRIPPER_ENDPOINT = 'http://localhost:18001/api/pickup/gripper'
 
