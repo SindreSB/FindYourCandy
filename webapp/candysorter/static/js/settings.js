@@ -12,6 +12,9 @@ $(function () {
             $(".flex-container div:nth-child(1)").css({
                 "background-color": "#49bca1"
             });
+            $(".flex-container #OKconn").text(
+                "OK"
+            )
         }
     };
 
@@ -46,6 +49,9 @@ $(function () {
             $(".flex-container div:nth-child(2)").css({
                 "background-color": "#49bca1"
             });
+            $(".flex-container #OKrob").text(
+                "OK"
+            )
         }
     },2500);
 

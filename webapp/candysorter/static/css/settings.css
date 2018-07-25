@@ -14,31 +14,36 @@ a { font-size: 25px; color: #003459; text-decoration: underline; }
 .label-3 circle { fill: #49bca1; }
 .label-4 circle { fill: #fed546; }
 
-.container { padding: 50px; background-color: white; width: 50%; height: 100%; margin: 0 auto; }
-.header { position: absolute; right: 15px; }
+.container { padding: 50px; background-color: white; width: 50%; margin: 0 auto; }
+.header { position: absolute; right: 15px;  height: fit-content; }
 
 .flex-container {
     display: flex;
     justify-content: space-around;
 }
 .flex-container img {
-    height: 100px;
+    height: 70px;
     justify-content: center;
+}
+.flex-container p {
+    justify-content: center;
+    height: 20px;
+    margin: 0;
+    font-size: 25px;
 }
 
 .flex-container > div {
     height: 150px;
     border-radius: 20px;
     display: block;
-    overflow:hidden;
     background-color: #ff5f63;
     width: 200px;
     text-align: center;
-    line-height: 75px;
     font-size: 30px;
     align-content: center;
     padding: 20px 0;
 }
+
 
 .status-inner img { position: relative; }
 
