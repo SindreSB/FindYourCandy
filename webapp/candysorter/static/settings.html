@@ -12,7 +12,6 @@
     <script src="/static/js/init.js"></script>
     <script src="/static/js/settings.js"></script>
 </head>
-<body>
 <div class="container">
     <div class="header">
         <a href="predict"><img height="45px" src="static/images/branding/arrow-circle-left-solid.png"></a>
@@ -40,25 +39,30 @@
         <div class="settings-header">
             <h1>Innstillinger</h1>
         </div>
-        <div class="settings-inner">
-           <div class="settings-lang">
-               <p>Talespråk
-                   <select name="voice-lang">
-                       <option value="Norsk">Norsk</option>
-                       <option value="Engelsk">Engelsk</option>
-                   </select>
-               </p>
-               <p>Visningsspråk
-                   <select name="ui-lang" disabled>
-                       <option value="Norsk">Norsk</option>
-                       <option value="Engelsk">Engelsk</option>
-                   </select>
-               </p>
-               <p>Rediger teksten på siste side:</p>
-               <form>
-                    <textarea id="thanks-text"></textarea>
-               </form>
-           </div>
+        <div class="grid-container">
+            <div>Talespråk</div>
+            <div class="select">
+                <select name="voice-lang">
+                    <option value="Norsk">Norsk</option>
+                    <option value="Engelsk">Engelsk</option>
+                </select>
+                <div class="select_arrow"></div>
+            </div>
+            <div>Visningsspråk</div>
+            <div class="select">
+               <select name="ui-lang" disabled>
+                   <option value="Norsk">Norsk</option>
+                   <option value="Engelsk">Engelsk</option>
+               </select>
+                <div class="select_arrow"></div>
+            </div>
+       </div>
+        <div class="edit">
+            <p>Rediger teksten på siste side:</p>
+            <form>
+                <textarea id="thanks-text"></textarea><br>
+            </form>
+            <button class="sendbutton">Ok</button>
         </div>
     </div>
     <div class="help">

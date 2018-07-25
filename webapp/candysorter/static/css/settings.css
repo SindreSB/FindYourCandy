@@ -14,7 +14,7 @@ a { font-size: 25px; color: #003459; text-decoration: underline; }
 .label-3 circle { fill: #49bca1; }
 .label-4 circle { fill: #fed546; }
 
-.container { padding: 50px; background-color: white; width: 50%; margin: 0 auto; }
+.container { padding: 50px; background-color: white; width: 50%; min-width: 750px; margin: 0 auto; }
 .header { position: absolute; right: 15px;  height: fit-content; }
 
 .flex-container {
@@ -44,6 +44,17 @@ a { font-size: 25px; color: #003459; text-decoration: underline; }
     padding: 20px 0;
 }
 
+.row-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.row-container > div {
+    display: block;
+    font-size: 30px;
+    padding: 20px 0;
+}
+
 
 .status-inner img { position: relative; }
 
@@ -52,4 +63,95 @@ a { font-size: 25px; color: #003459; text-decoration: underline; }
 
 .settings-lang { font-size: 25px; }
 
-.settings-inner textarea {height: 150px; width: 350px;}
+.settings textarea {height: 150px; width: 650px;}
+
+.edit {
+margin: 0 auto;
+    justify-content: center;
+}
+
+.select {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 15px;
+    width: 100%;
+}
+.select select {
+    font-family: 'Open Sans';
+    font-size: 20px;
+    display: inline-block;
+    width: 300px;
+    cursor: pointer;
+    padding: 10px 15px;
+    outline: 0;
+    border: 0px solid #000000;
+    border-radius: 0px;
+    background: #E6E6E6;
+    color: #7B7B7B;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+ }
+.select select::-ms-expand {
+    display: none;
+}
+.select select:hover,
+.select select:focus {
+    color: #000000;
+    background: #CCCCCC;
+}
+.select select:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+.select_arrow {
+    position: absolute;
+    top: 16px;
+    left: 280px; /*BAD FIX, depends on select width*/
+    pointer-events: none;
+    border-style: solid;
+    border-width: 8px 5px 0px 5px;
+    border-color: #7B7B7B transparent transparent transparent;
+}
+
+.select select:disabled ~ .select_arrow {
+    border-top-color: #CCCCCC;
+}
+
+.sendbutton {
+    display: inline-block;
+    padding: 5px 20px;
+    font-size: 24px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    color: #fff;
+    background-color: #29cff5;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 9px #999;
+}
+
+.sendbutton:hover {background-color: #29cff5}
+
+.sendbutton:active {
+    background-color: #29cff5;
+    box-shadow: 0 5px #666;
+    transform: translateY(4px);
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 250px auto;
+    grid-template-rows: auto auto;
+    grid-gap: 10px;
+}
+.grid-container > div {
+    font-size: 25px;
+    margin: 0;
+}
+
+.grid-container p {
+    margin: 0;
+}
