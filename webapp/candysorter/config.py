@@ -109,8 +109,10 @@ class DefaultConfig(object):
     IMAGE_CALIBRATOR_SCALE = 550
 
     PICKUP_TYPE = 'suction_cup' if CANDY_TYPE else "gripper"  # Use 'gripper' or 'suction_cup'
-    PICKUP_SUCTION_CUP_ENDPOINT = 'http://localhost:18001/api/pickup'
-    PICKUP_GRIPPER_ENDPOINT = 'http://localhost:18001/api/pickup/gripper'
+    ROBOT_ARM_API_URL = 'http://localhost:18001/api'
+    ROBOT_ARM_STATUS_ENDPOINT = ROBOT_ARM_API_URL + '/status'
+    PICKUP_SUCTION_CUP_ENDPOINT = ROBOT_ARM_API_URL + '/pickup'
+    PICKUP_GRIPPER_ENDPOINT = ROBOT_ARM_API_URL + '/pickup/gripper'
 
     TRAIN_LABEL_AREA_HEIGHT = 285
 

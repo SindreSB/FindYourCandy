@@ -54,10 +54,15 @@ class Dobot(object):
         result = self.serial.call(command.GetQueuedCmdLeftSpace())
         return DOBOT_QUEUE_SIZE - result['leftSpace']
 
-    def get_alarms_state(self):
+    def get_alarms_state(self, discard_reset_alarm=True):
+        # Get the alarms from the Dobot
         result = self.serial.call(command.GetAlarmsState())
+        # Process alarm data into a string with bit flags
         alarm_string = "".join(["{0:0>8b}".format(x)[::-1] for x in list(result)[4:-1]])  # Get only the alarm values
-        alarm_ids = ["0x" + "{0:0>2X}".format(index) for index, value in enumerate(alarm_string) if value == "1"]
+        # Traverse the bit flags and extract the alarm IDs
+        alarm_ids = ["0x" + "{0:0>2X}".format(index) for index, value in
+                     enumerate(alarm_string[int(discard_reset_alarm):]) if value == "1"]
+        # Lookup alarm ids to get the information about the alarms
         dobot_alarms = [alarms.alarms.get(alarm_id) if alarms.alarms.get(alarm_id) else alarm_id
                         for alarm_id in alarm_ids]
         return dobot_alarms
