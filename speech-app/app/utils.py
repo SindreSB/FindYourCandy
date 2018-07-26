@@ -12,7 +12,7 @@ from app.phrases import PhraseGenerator
 
 
 def get_client(lang='en-US', sample_rate=16000, interim_results=False,
-               single_utterance=True, phrase_key="", use_enhanced=False, model="default"):
+               single_utterance=True, phrase_key=""):
     """
     Helper to return client and config
     """
@@ -24,9 +24,9 @@ def get_client(lang='en-US', sample_rate=16000, interim_results=False,
             language_code=lang,
             # Enhanced models are only available to projects that
             # opt in for audio data collection.
-            use_enhanced=use_enhanced,
+            use_enhanced=True,
             # A model must be specified to use enhanced model.
-            model=model,
+            model="command_and_search",
             speech_contexts=[types.SpeechContext(
                 phrases=PhraseGenerator.get_phrases("app/config.json", phrase_key),
             )]

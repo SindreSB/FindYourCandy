@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="no">
+
 <head>
     <meta charset="UTF-8">
     <title>Settings</title>
@@ -9,72 +10,110 @@
     <link href="/static/css/settings.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script src="/static/js/config.js"></script>
     <script src="/static/js/speech_stream.js"></script>
     <script src="/static/js/init.js"></script>
     <script src="/static/js/settings.js"></script>
 </head>
+
 <body>
-<div class="container">
-    <div class="header">
-        <a href="predict"><img height="45px" src="static/images/branding/arrow-circle-left-solid.png"></a>
+    <div class="container">
+        <div class="header">
+            <a href="predict">
+                <img height="45px" src="static/images/branding/arrow-circle-left-solid.png">
+            </a>
+        </div>
+        <div class="status">
+            <div class="status-header">
+                <h1>Status</h1>
+            </div>
+            <div class="flex-container">
+                <div>
+                    <img src="static/images/branding/wifi-solid.png" />
+                    <p id="OKconn">...</p>
+                </div>
+                <div>
+                    <img src="static/images/branding/robot-solid.png" />
+                    <p id="OKrob">...</p>
+                </div>
+                <div>
+                    <img src="static/images/branding/camera-solid.png" />
+                    <p id="OKcam">...</p>
+                </div>
+            </div>
+        </div>
+        <div class="settings">
+            <div class="settings-header">
+                <h1>Innstillinger</h1>
+            </div>
+            <div class="grid-container">
+                <div>Talespråk</div>
+                <div class="select">
+                    <select id="speech-lang" name="voice-lang">
+                        <option value="no">Norsk</option>
+                        <option value="en">Engelsk</option>
+                    </select>
+                    <div class="select_arrow"></div>
+                </div>
+                <div>Visningsspråk</div>
+                <div class="select">
+                    <select name="ui-lang" disabled>
+                        <option value="Norsk">Norsk</option>
+                        <option value="Engelsk">Engelsk</option>
+                    </select>
+                    <div class="select_arrow"></div>
+                </div>
+            </div>
+            <div class="edit">
+                <p>Rediger teksten på siste side:</p>
+                <form>
+                    <textarea id="thanks-text"></textarea>
+                    <br>
+                </form>
+                <button class="sendbutton" id="end-text-button">Ok</button>
+            </div>
+            <div class="edit">
+                <p>Endre timeouts (i millisekunder)</p>
+                <div class="timeouts-container">
+                    <div class="timeout-setting">
+                        <p>Translate</p>
+                        <img src="/static/images/placeholder.jpg" alt=""><input type="text" name="" id="tranTimeoutInput">
+                    </div>
+                    <div class="timeout-setting">
+                        <p>NL</p>
+                        <img src="/static/images/placeholder.jpg" alt=""><input type="text" name="" id="nlTimeoutInput">
+                    </div>
+                    <div class="timeout-setting">
+                        <p>Force</p>
+                        <img src="/static/images/placeholder.jpg" alt=""><input type="text" name="" id="forceTimeoutInput">
+                    </div>
+                    <div class="timeout-setting">
+                        <p>Camera</p>
+                        <img src="/static/images/placeholder.jpg" alt=""><input type="text" name="" id="camTimeoutInput">
+                    </div>
+                    <div class="timeout-setting">
+                        <p>Select</p>
+                        <img src="/static/images/placeholder.jpg" alt=""><input type="text" name="" id="selTimeoutInput">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="settings">
+            <div class="settings-header">
+                <h1>Escape zone</h1>
+            </div>
+            <p>Tilbakestill innstillingene til standardverdier:</p>
+            <button class="sendbutton" id="reset-btn">Tilbakestill </button>
+        </div>
+        <div class="help">
+            <div class="help-header">
+                <h1>Hjelp/Troubleshooting</h1>
+            </div>
+            <div class="help-inner">
+                <a href="https://github.com/SindreSB/FindYourCandy/blob/master/README.md" target="_blank">Readme</a>
+            </div>
+        </div>
     </div>
-    <div class="status">
-        <div class="status-header">
-            <h1>Status</h1>
-        </div>
-        <div class="flex-container">
-            <div>
-                <img src="static/images/branding/wifi-solid.png"/>
-                <p id="OKconn">...</p>
-            </div>
-            <div>
-                <img src="static/images/branding/robot-solid.png"/>
-                <p id="OKrob">...</p>
-            </div>
-            <div>
-                <img src="static/images/branding/camera-solid.png"/>
-                <p id="OKcam">...</p>
-            </div>
-        </div>
-    </div>
-    <div class="settings">
-        <div class="settings-header">
-            <h1>Innstillinger</h1>
-        </div>
-        <div class="grid-container">
-            <div>Talespråk</div>
-            <div class="select">
-                <select name="voice-lang">
-                    <option value="Norsk">Norsk</option>
-                    <option value="Engelsk">Engelsk</option>
-                </select>
-                <div class="select_arrow"></div>
-            </div>
-            <div>Visningsspråk</div>
-            <div class="select">
-               <select name="ui-lang" disabled>
-                   <option value="Norsk">Norsk</option>
-                   <option value="Engelsk">Engelsk</option>
-               </select>
-                <div class="select_arrow"></div>
-            </div>
-       </div>
-        <div class="edit">
-            <p>Rediger teksten på siste side:</p>
-            <form>
-                <textarea id="thanks-text"></textarea><br>
-            </form>
-            <button class="sendbutton">Ok</button>
-        </div>
-    </div>
-    <div class="help">
-        <div class="help-header">
-            <h1>Hjelp/Troubleshooting</h1>
-        </div>
-        <div class="help-inner">
-            <a href="https://github.com/SindreSB/FindYourCandy/blob/master/README.md" target="_blank">Readme</a>
-        </div>
-    </div>
-</div>
 </body>
+
 </html>

@@ -12,25 +12,10 @@ $(function () {
     var simUrl = "/api/similarities"; // API for Similarity analysis
     var pickUrl = "/api/pickup"; // API for pick up candy
     var tranUrl = "/api/translate"; // API for translation
-    //var simNoWaitNum = 5;
-
-    // Transition timeouts
-    var tranSec = 5000; // display time of translated text
-    var nlSec = 5000 // display time of natural language processing.
-    //var simSec = 5000; // delay time
-    var forceSec = 5000; // display time of force
-    var camSec = 7000; // display tiem of camera image(milisec)
-    var selectSec = 8000;
-
 
     // variables
-    var recognition = new webkitSpeechRecognition();
-    var speechLang = "no"; //spoken language setting
     var inputSpeech = "Kan jeg få sjokolade"; // Spoken sentence
     var speechTxt = ""; // Translated text/text used for nl and similiarities
-    
-    
-    var nlLang = "en"; // language setting
     var sim = "";
     
     
@@ -62,44 +47,10 @@ $(function () {
 
     }
 
-    
-
-    // process of voice recognition
-    /* DISABLED FOR TESTING */
-    /*
-    var speech = function () {
-        $("body").addClass("mode-speech-start");
-
-        recognition.lang = speechLang;
-        
-        $(".speech-mic").click(function () {
-            $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
-                background: "#ff5f63",
-                border: "solid 0 #ff5f63"
-                }
-            );
-            $(".speech-footer").hide();
-            $(".speech-hand-animation").hide();
-            $("body").addClass("mode-speech-in");
-            recognition.start();
-        });
-
-        recognition.onerror = function () {
-            $("body").removeClass("mode-speech-in");
-        };
-
-        recognition.onresult = function (e) {
-            inputSpeech = e.results[0][0].transcript
-            //$(".speech-out").text(inputSpeech);
-            $("body").addClass("mode-speech-in");
-            setTimeout(function () {
-                translation();
-            },3500);
-        };
-    }*/
-
     var speech = function() {
         $("body").addClass("mode-speech-start");
+
+        recognition_result = "";
 
         function speechCallback(data) {
             if (data.event === "end_of_speech") {
@@ -117,7 +68,7 @@ $(function () {
             }
         }
 
-        var gcpSpeech = new GcpSpeechStreamer(speechCallback);
+        var gcpSpeech = new GcpSpeechStreamer(speechCallback, config.getSpeechLang().stream, true, "twist");
 
         $(".speech-mic").click(function () {
             $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
@@ -167,7 +118,7 @@ $(function () {
             data: JSON.stringify({
                 "id": pid,
                 "text": inputSpeech,
-                "source": speechLang,
+                "source": config.getSpeechLang().translate,
             }),
             error: function (textStatus) {
                 console.log(textStatus);
@@ -182,7 +133,7 @@ $(function () {
                     $(".tran-footer").show();
                 }, 500);
 
-                nextWithTimeout(nl, tranSec);
+                nextWithTimeout(nl, config.getTransitionTimeouts().tranSec);
                 /*
                 setTimeout(function () {
                     nl()
@@ -193,18 +144,6 @@ $(function () {
         // success --> speechTxt = data.string
     }
 
-    // switch language
-    $(".speech-lang a").click(function () {
-        if ($(this).text() == "EN") {
-            $(this).text("JP");
-            nlLang = "ja";
-        } else {
-            $(this).text("EN");
-            nlLang = "en";
-        }
-        recognition.lang = nlLang;
-        return false;
-    });
 
     // NL processing
     var nl = function () {
@@ -219,7 +158,7 @@ $(function () {
             data: JSON.stringify({
                 "id": pid,
                 "text": speechTxt,
-                "lang": nlLang
+                "lang": config.getNlLang()
             }),
             error: function (jqXHR, textStatus) {
                 if (textStatus == 'abort') { return; }
@@ -318,7 +257,7 @@ $(function () {
             data: JSON.stringify({
                 "id": pid,
                 "text": speechTxt,
-                "lang": nlLang
+                "lang": config.getNlLang()
             }),
             error: function (jqXHR, textStatus) {
                 if (textStatus == 'abort') { return; }
@@ -335,7 +274,7 @@ $(function () {
 
                 nextWithTimeout(function () {
                     force();
-                }, nlSec);
+                }, config.getTransitionTimeouts().nlSec);
             }
         });
     };
@@ -437,7 +376,7 @@ $(function () {
         nextWithTimeout(function () {
             $("body").addClass("mode-plot-end");
             cam();
-        }, forceSec);//plotSec); //This times how long the camera images should be presented next to the circles
+        }, config.getTransitionTimeouts().forceSec);//plotSec); //This times how long the camera images should be presented next to the circles
     };
 
     // output camera image
@@ -524,7 +463,7 @@ $(function () {
             $("body").addClass("mode-cam-end");
             $("body").addClass("mode-cam-finished");
             select();
-        }, camSec);
+        }, config.getTransitionTimeouts().camSec);
     };
 
     var select = function() {
@@ -549,7 +488,7 @@ $(function () {
         
         pickup();
 
-        nextWithTimeout(thanks, selectSec);
+        nextWithTimeout(thanks, config.getTransitionTimeouts().selectSec);
     }
 
     var pickup = function() {

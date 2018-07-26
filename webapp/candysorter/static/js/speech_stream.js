@@ -1,5 +1,9 @@
 class GcpSpeechStreamer {
-    constructor(resCallback) {
+    constructor(resCallback, lang, get_interim=true, phrase_key="") {
+        this.lang = lang;
+        this.get_interim = get_interim;
+        this.phrase_key = phrase_key; //"twist", "box_candy" or ""
+
         this.result_callback = resCallback;
         this.audioContext = new AudioContext();
         this.scriptProcessor = this.audioContext.createScriptProcessor(2048, 1, 1);
@@ -7,7 +11,6 @@ class GcpSpeechStreamer {
         this.userMediaStream = null;
         this.recording = false;
         this.socket = null;
-
     }
 
     start_recognition() {
@@ -73,13 +76,10 @@ class GcpSpeechStreamer {
     onConnectionOpened(event) {
         // First message to the server should be config data
         this.socket.send(JSON.stringify({
-            "sample_rate": 44100,
-            "lang": "nb-NO",
-            "interim_results": true,
-            "phrase_key": "twist",  //"twist" or "box_candy"
-            // The following two settings require the features to be turned on in GCP Console
-            "use_enhanced": true,
-            "model": "command_and_search"
+            "sample_rate": this.audioContext.sampleRate,
+            "lang": this.lang,
+            "interim_results": this.get_interim,
+            "phrase_key": this.phrase_key  //"twist" or "box_candy"
         }));
     }
 

@@ -4,11 +4,73 @@ $(function () {
     // API settings
     var pid = Math.floor(Math.random() * 10000000000000000); // POST ID
     
-    var cameraStatusUrl = "/api/status/camera"; // API for Morphological analysis
-    var cameraStatus = false;
+    var config = new FycConfig();
 
-    var robotStatusUrl = "/api/status/robot"; // Robot status API URL
-    var robotStatus = false;
+
+    function onLoad() {
+        checkCam();
+        checkRobot();
+        checkConnection();
+
+        initSpeechSelect();
+        initEndText();
+        initResetButton();
+        initTiming();
+    };
+
+    function initSpeechSelect() {
+        $('#speech-lang').val(config.getSpeechLang().translate);
+
+
+        $('#speech-lang').on('change', function() {
+            new_value = $('#speech-lang').val();
+            if (new_value == "no") {
+                config.setSpeechLang({
+                    stream: 'nb-NO',
+                    translate: 'no',
+                });
+            }
+            else if (new_value == "en") {
+                config.setSpeechLang({
+                    stream: 'en-US',
+                    translate: 'en',
+                });
+            }
+        });
+    };
+
+    function initEndText() {
+        $('#thanks-text').val(config.getEndText());
+        $('#end-text-button').on('click', setEndText);
+    };
+
+    function initTiming() {
+        var values = ["tranSec", "nlSec", "forceSec", "camSec", "selectSec"];
+        $(".timeout-setting input").each(function(i) {
+            $(this).val(config.getTransitionTimeouts()[values[i]]);
+            $(this).on('keyup', null, values[i], function(event) {
+                let key = event.data;
+                let value = parseInt($(event.target).val());
+                if(value>=1000) {
+                    config.setTransitionTimeouts(key, value);
+                }
+            })
+        })
+    };
+
+    function setEndText() {
+        config.setEndText($('#thanks-text').val());
+    };
+
+    function setTiming() {
+
+    }
+
+    function initResetButton(){
+        $('#reset-btn').on('click', function() {
+            reset();
+        });
+    }
 
     function checkConnection() {
         updateConnectionStatus(navigator.onLine);
@@ -19,15 +81,12 @@ $(function () {
             type: "GET",
             contentType: "application/json",
             dataType: "json",
-            url: robotStatusUrl,
+            url: config.getApiEndpoints().robStatusUrl,
             error: function (textStatus) {
-                console.log(textStatus);
                 updateRobotStatus(false);
             },
             success: function (data) {
-                console.log(data);
                 updateRobotStatus(true);
-                robotStatus = true;
             }
         });
     };
@@ -37,23 +96,15 @@ $(function () {
             type: "GET",
             contentType: "application/json",
             dataType: "json",
-            url: cameraStatusUrl,
+            url: config.getApiEndpoints().camStatusUrl,
             error: function (textStatus) {
-                console.log(textStatus);
                 updateCameraStatus(false);
             },
             success: function (data) {
                 updateCameraStatus(true);
-                console.log(data);
-                cameraStatus = true;
             }
         });
-    }
-
-    checkCam();
-    checkRobot();
-    checkConnection();
-
+    };
 
     function updateConnectionStatus(statusOk){
         color = statusOk ? "#49bca1" : "#ff5f63";
@@ -63,7 +114,7 @@ $(function () {
             "background-color": color
         });
         $(".flex-container #OKconn").text(text);
-    }
+    };
 
     function updateRobotStatus(statusOk){
         color = statusOk ? "#49bca1" : "#ff5f63";
@@ -73,7 +124,7 @@ $(function () {
             "background-color": color
         });
         $(".flex-container #OKrob").text(text);
-    }
+    };
 
     function updateCameraStatus(statusOk){
         color = statusOk ? "#49bca1" : "#ff5f63";
@@ -83,6 +134,14 @@ $(function () {
             "background-color": color
         });
         $(".flex-container #OKcam").text(text);
+    };
+
+    function reset() {
+        config.reset();  
+        initSpeechSelect();
+        initEndText();
+        initTiming();
     }
 
+    onLoad()
 });

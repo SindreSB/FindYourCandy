@@ -63,7 +63,7 @@ a { font-size: 25px; color: #003459; text-decoration: underline; }
 
 .settings-lang { font-size: 25px; }
 
-.settings textarea {height: 150px; width: 650px;}
+.settings textarea {height: 100px; width: 100%; font-family: "Open Sans"; font-size: 15px; }
 
 .edit {
 margin: 0 auto;
@@ -130,7 +130,6 @@ margin: 0 auto;
     background-color: #29cff5;
     border: none;
     border-radius: 10px;
-    box-shadow: 0 9px #999;
 }
 
 .sendbutton:hover {background-color: #29cff5}
@@ -154,4 +153,35 @@ margin: 0 auto;
 
 .grid-container p {
     margin: 0;
+}
+
+.timeouts-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+.timeout-setting {
+    justify-content: space-around;
+    text-align: center;
+    align-content: center;
+    align-items: center;
+    max-width: 30%;
+}
+
+.timeout-setting img {
+    height: 150px;
+    border-radius: 10px;
+    display: block;
+    margin: auto;
+}
+
+.timeout-setting input {
+    margin-top: 10px;
+    max-width: 80%; 
+    font-family: "Open Sans";
+}
+
+.timeouts-container p {
+    margin: 10px;
 }
