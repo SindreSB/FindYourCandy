@@ -57,10 +57,17 @@ $(function () {
                 console.log("DONE!")
                 inputSpeech = recognition_result
 
+                if(config.getSpeechLang().translate === 'en') {
+                    speechTxt = inputSpeech;
+                    setTimeout(function () {
+                        nl();
+                    },500);
+                } else {
+                    setTimeout(function () {
+                        translation();
+                    },500);
+                }
                 
-                setTimeout(function () {
-                    translation();
-                },500);
             }
             else {
                 recognition_result = data.transcript
