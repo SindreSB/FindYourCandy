@@ -212,11 +212,11 @@ def similarities():
     try:
         img = _capture_image()
     except RuntimeError as e:
-        return __error_response("CAMERA", "Unable to detect barcodes and/or camera has been moved.", str(e))
+        return _error_response("CAMERA", "Unable to detect barcodes and/or camera has been moved.", str(e))
     except FileNotFoundError as e:
-        return __error_response("CAMERA", "Could not find the fake image specified in the config", str(e))
+        return _error_response("CAMERA", "Could not find the fake image specified in the config", str(e))
     except Exception as e:
-        return __error_response("CAMERA", str(e))
+        return _error_response("CAMERA", str(e))
 
     # Detect candies
     logger.info('Detecting candies.')
@@ -224,7 +224,7 @@ def similarities():
     logger.info('  %d candies detected.', len(candies))
 
     if len(candies) == 0:
-        return __error_response("CANDY",
+        return _error_response("CANDY",
                                 "No candy detected on the table. Place candy on the table, or calibrate camera.")
 
     # Create image directory
@@ -495,7 +495,7 @@ def status_auth():
     try:
         test_auth()
     except Exception as e:
-        return __error_response('AUTH', 'Authentication with GCP failed.', str(e))
+        return _error_response('AUTH', 'Authentication with GCP failed.', str(e))
 
     return jsonify(status="SUCCESS")
 
@@ -507,7 +507,7 @@ def status_camera():
     Not meant for calibrating/tuning the camera, just as a simple test that the camera is working.
 
     Returns either a json with status set to success and number of candies detected, or
-    a message with status set to error, see __error_response() for format
+    a message with status set to error, see _error_response() for format
     """
 
     logger.info('=== Check camera ===')
@@ -517,11 +517,11 @@ def status_camera():
     try:
         img = _capture_image()
     except RuntimeError as e:
-        return __error_response("CAMERA", "Unable to detect barcodes and/or camera has been moved.", str(e))
+        return _error_response("CAMERA", "Unable to detect barcodes and/or camera has been moved.", str(e))
     except FileNotFoundError as e:
-        return __error_response("CAMERA", "Could not find the fake image specified in the config", str(e))
+        return _error_response("CAMERA", "Could not find the fake image specified in the config", str(e))
     except Exception as e:
-        return __error_response("CAMERA", "", str(e))
+        return _error_response("CAMERA", "", str(e))
 
     # Detect candies
     logger.info('Detecting candies.')
@@ -553,7 +553,7 @@ def status_robot():
             return jsonify(status="SUCCESS", **response_data)
 
     except Exception as e:
-        return __error_response("COMMUNICATION", "Cannot communicate with robot", str(e))
+        return _error_response("COMMUNICATION", "Cannot communicate with robot", str(e))
 
 
 @api.route('/_labels')
@@ -637,7 +637,7 @@ def _job_id(session_id):
     return 'candy_sorter_{}'.format(session_id)
 
 
-def __error_response(err_type, msg, error=""):
+def _error_response(err_type, msg, error=""):
     """
     Helper to format an error response in a predictable way.
 
