@@ -11,11 +11,12 @@
   <link href="/static/css/anim.css" rel="stylesheet">
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script src="https://d3js.org/d3.v3.min.js"></script>
-  <script src="/static/js/init.js"></script>
+  <script src="/static/js/config.js"></script>
   <script src="/static/js/speech_stream.js"></script>
   <script src="/static/js/pause.js"></script>
+  <script src="/static/js/init.js"></script>
 </head>
-<body>
+<body class="mode-speech-start mode-speech-in mode-tran-loaded mode-tran-finish mode-nl-loaded mode-force-start mode-plot-end mode-cam-start mode-cam-mid mode-plot-start mode-cam-end mode-cam-finished mode-thanks-start mode-thanks-end">
 <div class="speech">
   <div class="speech-in">
     <div class="speech-header"><img height="100px" src="/static/images/branding/Computas_logo_liggende_blue.png"></div>
@@ -96,16 +97,14 @@
   </div>
   <div>
     <img src="/static/images/branding/Computas_logo_liggende_blue.png" height="175px"><br>
+    
+    
     <p id="endtext">
-      <br>
-      <br>
-      Takk for at du kom innom!<br>
-      Hold gjerne kontakten på<br>
-      Computas.no
-      <br>
-      <br>
-      <a href="predict" class="btn" style="position: center;">PRØV IGJEN</a><br>
+      <span class="endtext" id="textend">
+
+      </span>
       <!-- <a href="learn" class="btn btn-g" style="position: center;">PRØV LÆRINGSMODUS</a><br>-->
+      <a href="predict" class="btn" style="position: center;">PRØV IGJEN</a><br>
     </p>
   </div>
 </div>

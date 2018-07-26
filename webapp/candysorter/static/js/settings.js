@@ -3,56 +3,86 @@ $(function () {
 
     // API settings
     var pid = Math.floor(Math.random() * 10000000000000000); // POST ID
-    var morUrl = "/api/morphs"; // API for Morphological analysis
-    var statUrl = "/api/pickup"; // API for pick up candy
+    
+    var cameraStatusUrl = "/api/status/camera"; // API for Morphological analysis
+    var cameraStatus = false;
+
+    var robotStatusUrl = "/api/status/robot"; // Robot status API URL
     var robotStatus = false;
 
-    var checkConnection = function() {
-        if(navigator.onLine) {
-            $(".flex-container div:nth-child(1)").css({
-                "background-color": "#49bca1"
-            });
-            $(".flex-container #OKconn").text(
-                "OK"
-            )
-        }
+    function checkConnection() {
+        updateConnectionStatus(navigator.onLine);
     };
 
-    var checkRobot = function() {
+    function checkRobot() {
         $.ajax({
-            type: "POST",
+            type: "GET",
             contentType: "application/json",
             dataType: "json",
-            url: statUrl,
-            data: JSON.stringify({
-                "id": pid
-            }),
+            url: robotStatusUrl,
             error: function (textStatus) {
                 console.log(textStatus);
+                updateRobotStatus(false);
             },
             success: function (data) {
                 console.log(data);
+                updateRobotStatus(true);
                 robotStatus = true;
             }
         });
     };
 
-    var checkCam = function() {
-        return;
+    function checkCam() {
+        $.ajax({
+            type: "GET",
+            contentType: "application/json",
+            dataType: "json",
+            url: cameraStatusUrl,
+            error: function (textStatus) {
+                console.log(textStatus);
+                updateCameraStatus(false);
+            },
+            success: function (data) {
+                updateCameraStatus(true);
+                console.log(data);
+                cameraStatus = true;
+            }
+        });
     }
 
+    checkCam();
     checkRobot();
     checkConnection();
 
-    setTimeout(function () {
-        if(robotStatus) {
-            $(".flex-container div:nth-child(2)").css({
-                "background-color": "#49bca1"
-            });
-            $(".flex-container #OKrob").text(
-                "OK"
-            )
-        }
-    },2500);
+
+    function updateConnectionStatus(statusOk){
+        color = statusOk ? "#49bca1" : "#ff5f63";
+        text = statusOk ? "OK" : "Error";
+
+        $(".flex-container div:nth-child(1)").css({
+            "background-color": color
+        });
+        $(".flex-container #OKconn").text(text);
+    }
+
+    function updateRobotStatus(statusOk){
+        color = statusOk ? "#49bca1" : "#ff5f63";
+        text = statusOk ? "OK" : "Error";
+
+        $(".flex-container div:nth-child(2)").css({
+            "background-color": color
+        });
+        $(".flex-container #OKrob").text(text);
+    }
+
+    function updateCameraStatus(statusOk){
+        color = statusOk ? "#49bca1" : "#ff5f63";
+        text = statusOk ? "OK" : "Error";
+
+        $(".flex-container div:nth-child(3)").css({
+            "background-color": color
+        });
+        $(".flex-container #OKcam").text(text);
+    }
 
 });

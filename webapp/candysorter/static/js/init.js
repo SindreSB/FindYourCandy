@@ -1,15 +1,23 @@
 $(function () {
-
+    // UI variables
+    var winH = window.innerHeight;
+    var winW = window.innerWidth;
+    
+    // Get config object
+    var config = new FycConfig();
+    
     // API settings
     var pid = Math.floor(Math.random() * 10000000000000000); // POST ID
     var morUrl = "/api/morphs"; // API for Morphological analysis
     var simUrl = "/api/similarities"; // API for Similarity analysis
     var pickUrl = "/api/pickup"; // API for pick up candy
     var tranUrl = "/api/translate"; // API for translation
-    var simNoWaitNum = 5;
+    //var simNoWaitNum = 5;
+
+    // Transition timeouts
     var tranSec = 5000; // display time of translated text
     var nlSec = 5000 // display time of natural language processing.
-    var simSec = 5000; // delay time
+    //var simSec = 5000; // delay time
     var forceSec = 5000; // display time of force
     var camSec = 7000; // display tiem of camera image(milisec)
     var selectSec = 8000;
@@ -18,32 +26,43 @@ $(function () {
     // variables
     var recognition = new webkitSpeechRecognition();
     var speechLang = "no"; //spoken language setting
-    var lang = "en"; // language seting
-    var inputSpeech = "Kan jeg få sjokolade";
-    var speechTxt = "";
+    var inputSpeech = "Kan jeg få sjokolade"; // Spoken sentence
+    var speechTxt = ""; // Translated text/text used for nl and similiarities
+    
+    
+    var nlLang = "en"; // language setting
     var sim = "";
-    var winW = window.innerWidth;
-    var winH = window.innerHeight;
+    
+    
+    // Box candy suggestions
     var examples = ["\"Kan jeg få sjokolade?\"","\"Jeg liker smurf\"","\"Kan jeg få lakris?\"", "\"Kan jeg få noe søtt?\""]
-    //Twist
+    //Twist suggestions
     //var examples = ["\"Kan jeg noe med nøtter?\"","\"Jeg liker karamell\"","\"Kan jeg få noe salt?\"", "\"Kan jeg få noe søtt?\"", "\"Jeg liker banan\""]
 
-    /* EXAMPLES OF WHAT TO SAY */
-    // variable to keep track of last text displayed
-    setTimeout(function () {
-        var i = 0;
-        var textTimer = function() {
-            if (i >= examples.length) { i = 0; }
-            $("#example-text").fadeOut(1000, function(){
-                $(this).text(examples[i]);
-            });
-            $("#example-text").fadeIn();
-            i++;
-        }
-        $(".speech-hand-animation").show();
-        $("#example-text").text(examples[i++]); // initialize with first quote
-        setInterval(textTimer, 3500); // how long each text example is shown
-    }, 3000); //wait time until demo starts
+    function init() {
+        /* EXAMPLES OF WHAT TO SAY */
+        // variable to keep track of last text displayed
+        setTimeout(function () {
+            var i = 0;
+            var textTimer = function() {
+                if (i >= examples.length) { i = 0; }
+                $("#example-text").fadeOut(1000, function(){
+                    $(this).text(examples[i]);
+                });
+                $("#example-text").fadeIn();
+                i++;
+            }
+            $(".speech-hand-animation").show();
+            $("#example-text").text(examples[i++]); // initialize with first quote
+            setInterval(textTimer, 3500); // how long each text example is shown
+        }, 3000); //wait time until demo starts
+
+        // Set end text
+        $('#textend').html(config.getEndText());
+
+    }
+
+    
 
     // process of voice recognition
     /* DISABLED FOR TESTING */
@@ -178,12 +197,12 @@ $(function () {
     $(".speech-lang a").click(function () {
         if ($(this).text() == "EN") {
             $(this).text("JP");
-            lang = "ja";
+            nlLang = "ja";
         } else {
             $(this).text("EN");
-            lang = "en";
+            nlLang = "en";
         }
-        recognition.lang = lang;
+        recognition.lang = nlLang;
         return false;
     });
 
@@ -200,7 +219,7 @@ $(function () {
             data: JSON.stringify({
                 "id": pid,
                 "text": speechTxt,
-                "lang": lang
+                "lang": nlLang
             }),
             error: function (jqXHR, textStatus) {
                 if (textStatus == 'abort') { return; }
@@ -299,7 +318,7 @@ $(function () {
             data: JSON.stringify({
                 "id": pid,
                 "text": speechTxt,
-                "lang": lang
+                "lang": nlLang
             }),
             error: function (jqXHR, textStatus) {
                 if (textStatus == 'abort') { return; }
@@ -581,6 +600,9 @@ $(function () {
     var sorry = function () {
         $("body").addClass("mode-sorry-p");
     };
+
+
+    init();
 
     speech();
 });
