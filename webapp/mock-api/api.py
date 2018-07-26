@@ -349,3 +349,7 @@ def predict():
 @app.route('/learn')
 def learn():
     return send_file('../candysorter/static/learn.html')
+
+@app.route('/settings')
+def settings():
+    return send_file('../candysorter/static/settings.html')
