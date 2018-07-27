@@ -162,6 +162,16 @@ def write_labels(labels, labels_data_path):
     with tf.gfile.FastGFile(labels_data_path, 'w') as f:
         f.write(json.dumps(labels))
 
+def locked_iter(it):
+    it = iter(it)
+    lock = threading.Lock()
+    while True:
+        try:
+            with lock:
+                value = next(it)
+        except StopIteration:
+            return
+        yield value
 
 def main():
     parser = argparse.ArgumentParser(description='Run Dobot WebAPI.')
@@ -171,6 +181,7 @@ def main():
     parser.add_argument('--image_dir_test', default='../image/test', type=str)
     parser.add_argument('--model_file', type=str, default='classify_image_graph_def.pb')
     parser.add_argument('--for_prediction', action='store_true')
+    parser.add_argument('--threads', default=1, type=int)
 
     args = parser.parse_args()
     output_dir = args.output_dir
@@ -194,48 +205,45 @@ def main():
         logger.info("writing label file: {}".format(labels_file))
         write_labels(path_gen_train.get_labels(), labels_file)
 
+    # Create thread safe iterators for train and test images if needed
+    if args.threads > 1:
+        path_gen_train = locked_iter(path_gen_train)
+        path_gen_test = locked_iter(path_gen_test)
 
-
-    def locked_iter(it):
-        it = iter(it)
-        lock = threading.Lock()
-        while True:
-            try:
-                with lock:
-                    value = next(it)
-            except StopIteration:
-                return
-            yield value
-
-    locked_path_gen_train = locked_iter(path_gen_train)
-
-    def ExtractionTask(generator, index):
+    def ExtractionTask(generator, index, file_prefix):
         extractor = FeatureExtractor(model_file)
-        writer_train = FeaturesDataWriter(locked_path_gen_train, extractor)
+        writer_train = FeaturesDataWriter(generator, extractor)
 
-        output_file = os.path.join(output_dir, 'features-' + str(index) + '.json')
+        output_file = os.path.join(output_dir, file_prefix + str(index) + '.json')
         logger.info("writing train features file: {}".format(output_file))
 
         # Try to parallellization
         writer_train.write_features(output_file)
 
-    # Create 8 threads that run the extraction
-    threads = [threading.Thread(target=ExtractionTask, args=(locked_path_gen_train, i, )) for i in range(30)]
+    # Create threads that run the extraction
+    train_threads = [threading.Thread(target=ExtractionTask, args=(path_gen_train, i, 'features-',))
+                     for i in range(args.threads)]
 
     # Start the threads
-    for t in threads:
+    for t in train_threads:
         t.start()
 
     # Wait for all threads to complete
-    for t in threads:
+    for t in train_threads:
         t.join()
 
-    if (args.active_test_mode):
-        extractor = FeatureExtractor(model_file)
-        features_file_test = os.path.join(output_dir, 'testfeatures.json')
-        writer_test = FeaturesDataWriter(path_gen_test, extractor)
-        logger.info("writing test features file: {}".format(features_file_test))
-        writer_test.write_features(features_file_test)
+    if args.active_test_mode:
+        test_threads = [threading.Thread(target=ExtractionTask, args=(path_gen_test, i, 'testfeatures-'))
+                        for i in range(args.threads)]
+
+        # Start the threads
+        for t in test_threads:
+            t.start()
+
+        # Wait for all threads to complete
+        for t in test_threads:
+            t.join()
+
 
 if __name__ == "__main__":
     main()
