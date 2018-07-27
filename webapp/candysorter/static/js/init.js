@@ -523,19 +523,7 @@ $(function () {
     // draw endroll
     var thanks = function () {
         $("body").addClass("mode-thanks-start");
-        $("#yesBtn").click(function () {
-            console.log("yes");
-        })
-        $("#noBtn").click(function () {
-            console.log("no");
-        })
-        /*setTimeout(function () {
-            $("body").addClass("mode-thanks-end");
-        }, 3000);
-        */
-        setTimeout(function () {
-            $("body").addClass("mode-thanks-end");
-        }, 4000); //WAS 5000
+
         /* Automatic return to startpage
         setTimeout(function () {
             location.reload();
