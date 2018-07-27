@@ -198,35 +198,32 @@ stroke-dashoffset: 0;
 
 @keyframes hand {
     0% {
-        bottom: 15%;
-        right: 42%;
+        bottom: 10%;
+        right: 35%;
         opacity:0;
         transform: translatex(350px) translatey(50px);
         -webkit-animation-timing-function: ease-in;
         animation-delay: 5s;
     }
     45% {
-        /*top: 0px;
-        left:-50px; */
-        transform: translatex(10px) translatey(-150px);
+        transform: translatex(-100px) translatey(-120px);
         opacity:.6;
         -webkit-animation-timing-function: ease-out;
     }
     55%{
-        transform: perspective(500px) translatex(10px) translatey(-150px) translateZ(-50px);
+        transform: perspective(500px) translatex(-100px) translatey(-120px) translateZ(-50px);
         opacity: .8;
     }
     65% {
-        transform: translatex(10px) translatey(-150px);
-        -webkit-animation-timing-function: both;
+        transform: translatex(-100px) translatey(-120px);
         opacity: .8;
     }
     75%{
         opacity: .5;
     }
     100% {
-        bottom:15%;
-        right: 42%;
+        bottom:10%;
+        right: 35%;
         opacity: 0;
         transform: translatex(350px) translatey(50px);
     }
