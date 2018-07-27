@@ -21,6 +21,7 @@ import logging
 import json
 import sys
 import tensorflow as tf
+import threading
 
 INPUT_DATA_TENSOR_NAME = 'DecodeJpeg:0'
 FEATURE_TENSOR_NAME = 'pool_3/_reshape:0'
@@ -136,7 +137,8 @@ class FeaturesDataWriter(object):
             progressCounter = 0
 
             for path, label_id in self.path_generator:
-                sys.stdout.write("\rprocessing image: {} with 2 rotations".format(str(path+" "+ str(progressCounter))))
+                sys.stdout.write("Thread {} - Processing image: {} with 2 rotations\n"
+                                 .format(str(threading.get_ident()), str(path+" "+ str(progressCounter))))
                 sys.stdout.flush()
                 line = self.extract_data_for_path(path, label_id)
                 f.write(json.dumps(line) + '\n')
@@ -192,14 +194,44 @@ def main():
         logger.info("writing label file: {}".format(labels_file))
         write_labels(path_gen_train.get_labels(), labels_file)
 
-    extractor = FeatureExtractor(model_file)
-    writer_train = FeaturesDataWriter(path_gen_train, extractor)
 
 
-    logger.info("writing train features file: {}".format(features_file_train))
-    writer_train.write_features(features_file_train)
+    def locked_iter(it):
+        it = iter(it)
+        lock = threading.Lock()
+        while True:
+            try:
+                with lock:
+                    value = next(it)
+            except StopIteration:
+                return
+            yield value
+
+    locked_path_gen_train = locked_iter(path_gen_train)
+
+    def ExtractionTask(generator, index):
+        extractor = FeatureExtractor(model_file)
+        writer_train = FeaturesDataWriter(locked_path_gen_train, extractor)
+
+        output_file = os.path.join(output_dir, 'features-' + str(index) + '.json')
+        logger.info("writing train features file: {}".format(output_file))
+
+        # Try to parallellization
+        writer_train.write_features(output_file)
+
+    # Create 8 threads that run the extraction
+    threads = [threading.Thread(target=ExtractionTask, args=(locked_path_gen_train, i, )) for i in range(30)]
+
+    # Start the threads
+    for t in threads:
+        t.start()
+
+    # Wait for all threads to complete
+    for t in threads:
+        t.join()
 
     if (args.active_test_mode):
+        extractor = FeatureExtractor(model_file)
         features_file_test = os.path.join(output_dir, 'testfeatures.json')
         writer_test = FeaturesDataWriter(path_gen_test, extractor)
         logger.info("writing test features file: {}".format(features_file_test))
