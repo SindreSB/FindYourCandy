@@ -20,9 +20,7 @@ import os
 import logging
 import json
 import sys
-
 import tensorflow as tf
-#import cv2
 
 INPUT_DATA_TENSOR_NAME = 'DecodeJpeg:0'
 FEATURE_TENSOR_NAME = 'pool_3/_reshape:0'
@@ -66,19 +64,22 @@ class FeatureExtractor(object):
             )
         return feature_data.reshape(-1, feature_data.shape[0])
 
-    def get_feature_vectors_from_files(self, image_paths):
+    def get_feature_vectors_from_files(self, image_paths, rotation=False, turn=0):
         # Decode image
         with self.graph.as_default():
-            image_path = tf.placeholder(tf.string, None, 'image_path')
-            image = tf.image.decode_jpeg(tf.read_file(image_path))
+            image = tf.image.decode_jpeg(tf.read_file(image_paths[0]))
 
         # Extract features
         features = []
         with tf.Session(graph=self.graph) as sess:
+            if (rotation):
+                rotate = tf.image.rot90(image, k=turn)
+                image = sess.run(rotate)
+                image = tf.convert_to_tensor(image)
+
             for path in image_paths:
                 image_data = sess.run(
-                    image,
-                    {image_path: path}
+                    image
                 )
                 feature_data = sess.run(
                     self.feature_op,
@@ -86,7 +87,6 @@ class FeatureExtractor(object):
                 )
                 features.append(feature_data)
         return features
-
 
 class ImagePathGeneratorForTraining(object):
     def __init__(self, image_dir, extension='jpg'):
@@ -136,14 +136,17 @@ class FeaturesDataWriter(object):
             progressCounter = 0
 
             for path, label_id in self.path_generator:
-                sys.stdout.write("\rprocessing image: {}".format(str(path+" "+ str(progressCounter))))
+                sys.stdout.write("\rprocessing image: {} with 2 rotations".format(str(path+" "+ str(progressCounter))))
                 sys.stdout.flush()
                 line = self.extract_data_for_path(path, label_id)
                 f.write(json.dumps(line) + '\n')
                 progressCounter += 1
+                #for i in range(2):
+                line = self.extract_data_for_path(path, label_id, True, 1)
+                f.write(json.dumps(line) + '\n')
 
-    def extract_data_for_path(self, image_path, label_id):
-        vector = self.extractor.get_feature_vectors_from_files([image_path])
+    def extract_data_for_path(self, image_path, label_id, rotation=False, turn=0):
+        vector = self.extractor.get_feature_vectors_from_files([image_path], rotation, turn)
         line = {
             'image_uri': image_path,
             'feature_vector': vector[0].tolist()

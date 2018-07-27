@@ -15,6 +15,13 @@ from candysorter.config import get_config
 calibrator = ImageCalibrator(area=(1625, 1100), scale=550)
 config = get_config(os.getenv('FLASK_ENV', 'dev'))
 
+# Convert config from class object to dictionary for compatability with flask
+config_dict = {}
+for key in dir(config):
+    if key.isupper():
+        config_dict[key] = getattr(config, key)
+
+
 should_exit = False
 
 class Trainingdata():
@@ -78,7 +85,7 @@ def main():
     parser = argparse.ArgumentParser(description='Gather images for training.')
     parser.add_argument('--image_dir', type=str, default="training_dir", help="location for new training images + /label_name")
 
-    detector = CandyDetector.from_config(config)
+    detector = CandyDetector.from_config(config_dict)
     td = Trainingdata()
     args = parser.parse_args()
     image_dir = args.image_dir
@@ -102,7 +109,7 @@ def main():
     if not tf.gfile.Exists(path_to_label_dir):
         tf.gfile.MakeDirs(path_to_label_dir)
 
-    capture = cv2.VideoCapture(1)
+    capture = cv2.VideoCapture(0)
     capture.set(3, 1920)
     capture.set(4, 1080)
 
