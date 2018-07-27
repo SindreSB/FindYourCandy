@@ -84,6 +84,7 @@ $(function () {
                 }
             );
             $(".speech-footer").hide();
+            $(".speech-hand-animation").hide();
             $("body").addClass("mode-speech-in");
             
             if (!gcpSpeech.isRecording()) {

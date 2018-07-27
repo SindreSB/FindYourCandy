@@ -198,7 +198,8 @@ stroke-dashoffset: 0;
 
 @keyframes hand {
     0% {
-        /* top:200px; */
+        bottom: 15%;
+        right: 42%;
         opacity:0;
         transform: translatex(350px) translatey(50px);
         -webkit-animation-timing-function: ease-in;
@@ -224,6 +225,8 @@ stroke-dashoffset: 0;
         opacity: .5;
     }
     100% {
+        bottom:15%;
+        right: 42%;
         opacity: 0;
         transform: translatex(350px) translatey(50px);
     }
