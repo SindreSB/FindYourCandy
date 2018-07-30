@@ -12,6 +12,7 @@ nextWithTimeout = (nextFunc, timeout) => {
         console.log("Key pressed")
         if (event.which === 32) {
             if (paused) {
+                $(".pauseIcon img").replaceWith("<img src='/static/images/pause.png'/>")
                 console.log("Resuming after pause");
                 window.document.onkeyup = null;
                 nextFunc();
@@ -19,6 +20,7 @@ nextWithTimeout = (nextFunc, timeout) => {
                 console.log("Clearing timeout and pausing")
                 clearTimeout(timeout);
                 paused = true;
+                $(".pauseIcon img").replaceWith("<img src='/static/images/fwd.png'/>")
             }
         }
     };
