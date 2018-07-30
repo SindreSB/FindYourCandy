@@ -164,16 +164,22 @@ def write_labels(labels, labels_data_path):
         f.write(json.dumps(labels))
 
 
+
+
 def progress_iterator(it, total):
+    start_time = time.time()
     count = 0
     it = iter(it)
     while True:
         try:
             value = next(it)
             count += 1
-            if count % 10 == 0:
-                sys.stdout.write("\rThread {} - Processing image: {}/{}"
-                                 .format(str(threading.get_ident()), str(count), str(total)))
+            if count % 20 == 0:
+                time_per_image = (time.time() - start_time) / count
+                time_left = (time_per_image * (total - count)) / 60
+                sys.stdout.write("\rThread {} - Processing image: {}/{} (Not counting rotations) "
+                                 "- Estimated time left: {:.2f} minutes"
+                                 .format(str(threading.get_ident()), count, total, time_left))
                 sys.stdout.flush()
         except StopIteration:
             return
