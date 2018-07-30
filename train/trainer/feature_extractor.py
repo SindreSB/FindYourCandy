@@ -23,6 +23,9 @@ import sys
 import tensorflow as tf
 import threading
 import time
+import math
+from itertools import islice
+
 
 INPUT_DATA_TENSOR_NAME = 'DecodeJpeg:0'
 FEATURE_TENSOR_NAME = 'pool_3/_reshape:0'
@@ -128,25 +131,28 @@ class FeaturesDataWriter(object):
     FeatureDataWriter extracts feature data from images and write to json lines
     """
 
-    def __init__(self, path_generator, feature_extractor, lock):
+    def __init__(self, path_generator, feature_extractor, lock, batch_size):
         self.path_generator = path_generator
         self.extractor = feature_extractor
         self.lock = lock
+        self.batch_size = batch_size
 
     def write_features(self, features_data_path, rotations):
         with tf.gfile.FastGFile(features_data_path, 'w') as f:
             while True:
                 with self.lock:
                     try:
-                        path, label_id = next(self.path_generator)
+                        image_batch = list(islice(self.path_generator, self.batch_size)) #next(self.path_generator)
                     except StopIteration:
                         break
 
-                for i in range(rotations + 1):
-                    line = self.extract_data_for_path(path, label_id, i)
-                    f.write(json.dumps(line) + '\n')
+                if len(image_batch) == 0:
+                    break
 
-
+                for path, label_id in image_batch:
+                    for i in range(rotations + 1):
+                        line = self.extract_data_for_path(path, label_id, i)
+                        f.write(json.dumps(line) + '\n')
 
     def extract_data_for_path(self, image_path, label_id, turn=0):
         vector = self.extractor.get_feature_vectors_from_files([image_path], turn)
@@ -164,8 +170,6 @@ def write_labels(labels, labels_data_path):
         f.write(json.dumps(labels))
 
 
-
-
 def progress_iterator(it, total):
     start_time = time.time()
     count = 0
@@ -177,9 +181,10 @@ def progress_iterator(it, total):
             if count % 20 == 0:
                 time_per_image = (time.time() - start_time) / count
                 time_left = (time_per_image * (total - count)) / 60
-                sys.stdout.write("\rThread {} - Processing image: {}/{} (Not counting rotations) "
+                percent_complete = (count / total) * 100
+                sys.stdout.write("\rThread {} - Processing image: {:.1f}% - {}/{} (Not counting rotations) "
                                  "- Estimated time left: {:.2f} minutes"
-                                 .format(str(threading.get_ident()), count, total, time_left))
+                                 .format(str(threading.get_ident()), percent_complete, count, total, math.ceil(time_left)))
                 sys.stdout.flush()
         except StopIteration:
             return
@@ -239,12 +244,10 @@ def main():
 
 def ExtractionTask(args, generator, index, file_prefix, lock):
     extractor = FeatureExtractor(args.model_file)
-    writer_train = FeaturesDataWriter(generator, extractor, lock)
+    writer_train = FeaturesDataWriter(generator, extractor, lock, args.batch_size)
 
     output_file = os.path.join(args.output_dir, file_prefix + str(index) + '.json')
-    logger.info("Writing features file: {}".format(output_file))
 
-    # Try to parallellization
     writer_train.write_features(output_file, args.rotations)
 
 
@@ -280,6 +283,8 @@ def _parse_arguments():
     parser.add_argument('--threads', default=1, type=int)
     parser.add_argument('--rotations', default=0, type=int,
                         help="Number of 90deg rotations of the training image to use.")
+    parser.add_argument('--batch_size', default=5, type=int,
+                        help="Number of images each thread fetches at a time")
 
     return parser.parse_args()
 
