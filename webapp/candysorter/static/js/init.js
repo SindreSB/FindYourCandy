@@ -2,10 +2,10 @@ $(function () {
     // UI variables
     var winH = window.innerHeight;
     var winW = window.innerWidth;
-    
+
     // Get config object
     var config = new FycConfig();
-    
+
     // API settings
     var pid = Math.floor(Math.random() * 10000000000000000); // POST ID
     var morUrl = "/api/morphs"; // API for Morphological analysis
@@ -17,8 +17,8 @@ $(function () {
     var inputSpeech = "Kan jeg få sjokolade"; // Spoken sentence
     var speechTxt = ""; // Translated text/text used for nl and similiarities
     var sim = "";
-    
-    
+
+
     // Box candy suggestions
     var examples = ["\"Kan jeg få sjokolade?\"","\"Jeg liker smurf\"","\"Kan jeg få lakris?\"", "\"Kan jeg få noe søtt?\""]
     //Twist suggestions
@@ -67,7 +67,7 @@ $(function () {
                         translation();
                     },500);
                 }
-                
+
             }
             else {
                 recognition_result = data.transcript
@@ -79,14 +79,14 @@ $(function () {
 
         $(".speech-mic").click(function () {
             $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
-                background: "#ff5f63",
-                border: "solid 0 #ff5f63"
+                    background: "#ff5f63",
+                    border: "solid 0 #ff5f63"
                 }
             );
             $(".speech-footer").hide();
             $(".speech-hand-animation").hide();
             $("body").addClass("mode-speech-in");
-            
+
             if (!gcpSpeech.isRecording()) {
                 gcpSpeech.start_recognition();
             } else {
@@ -191,7 +191,12 @@ $(function () {
                     }
                     var desc = "<dl>";
                     desc += "<dd class='nl-label'>" + data[i].depend.label + "</dd>";
-                    desc += "<dd class='nl-word'>" + data[i].word + "</dd>";
+                    if (data[i].pos.tag === "NOUN") {
+                        desc += "<dd class='nl-word' style='font-size: 80px; font-weight: bold'>" + data[i].word + "</dd>"
+                    }
+                    else {
+                        desc += "<dd class='nl-word'>" + data[i].word + "</dd>";
+                    }
                     desc += "<dd class='nl-tag'>" + data[i].pos.tag + "</dd>";
                     desc += "<dd class='nl-pos'>" + morph + "</dd>";
                     desc += "</dl>"
@@ -324,7 +329,7 @@ $(function () {
             .nodes(dataSet.nodes)
             .links(dataSet.links)
             .size([winW, winH])
-            .linkDistance(450)
+            .linkDistance(winH / 2.5)
             .charge(-1000)
             .start();
         var link = svg.selectAll("line")
@@ -356,7 +361,7 @@ $(function () {
             });
             link.attr("x1", function (d) {
                 return d.source.x;
-                })
+            })
                 .attr("y1", function (d) {
                     return d.source.y;
                 })
@@ -485,15 +490,15 @@ $(function () {
             .attr("points",nearest.box[0][0] + "," + nearest.box[0][1] + " " + nearest.box[1][0] + "," + nearest.box[1][1] + " " + nearest.box[2][0] + "," + nearest.box[2][1] + " " + nearest.box[3][0] + "," + nearest.box[3][1] + " ")
             .attr("style", "stroke: #49bca1; stroke-width: 20px;")
         svg.append("circle")
-            .attr("r", "150")
+            .attr("r", "120")
             .attr("cx", nearest.box[0][0]).attr("cy", nearest.box[0][1])
-            .attr("style", "fill: #49bca1; opacity: 0.6; ");
+            .attr("style", "fill: #49bca1; opacity: 1; ");
         svg.append("text")
             .attr("x", nearest.box[0][0]).attr("y", nearest.box[0][1])
-            .attr("style", "fill: #fff; font-size: 35px;")
+            .attr("style", "fill: #003459; font-size: 25px;")
             .text("Jeg velger denne!");
 
-        
+
         pickup();
 
         nextWithTimeout(thanks, config.getTransitionTimeouts().selectSec);
