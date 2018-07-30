@@ -22,6 +22,7 @@ import json
 import sys
 import tensorflow as tf
 import threading
+import time
 
 INPUT_DATA_TENSOR_NAME = 'DecodeJpeg:0'
 FEATURE_TENSOR_NAME = 'pool_3/_reshape:0'
@@ -127,25 +128,25 @@ class FeaturesDataWriter(object):
     FeatureDataWriter extracts feature data from images and write to json lines
     """
 
-    def __init__(self, path_generator, feature_extractor):
+    def __init__(self, path_generator, feature_extractor, lock):
         self.path_generator = path_generator
         self.extractor = feature_extractor
+        self.lock = lock
 
     def write_features(self, features_data_path, rotations):
         with tf.gfile.FastGFile(features_data_path, 'w') as f:
+            while True:
+                with self.lock:
+                    try:
+                        path, label_id = next(self.path_generator)
+                    except StopIteration:
+                        break
 
-            progressCounter = 0
-
-            for path, label_id in self.path_generator:
-                sys.stdout.write("Thread {} - Processing image: {} with {} rotations\n"
-                                 .format(str(threading.get_ident()), str(path+" " + str(progressCounter)), rotations))
-                sys.stdout.flush()
-
-                #
                 for i in range(rotations + 1):
                     line = self.extract_data_for_path(path, label_id, i)
                     f.write(json.dumps(line) + '\n')
-                    progressCounter += 1
+
+
 
     def extract_data_for_path(self, image_path, label_id, turn=0):
         vector = self.extractor.get_feature_vectors_from_files([image_path], turn)
@@ -162,19 +163,87 @@ def write_labels(labels, labels_data_path):
     with tf.gfile.FastGFile(labels_data_path, 'w') as f:
         f.write(json.dumps(labels))
 
-def locked_iter(it):
+
+def progress_iterator(it, total):
+    count = 0
     it = iter(it)
-    lock = threading.Lock()
     while True:
         try:
-            with lock:
-                value = next(it)
+            value = next(it)
+            count += 1
+            if count % 10 == 0:
+                sys.stdout.write("\rThread {} - Processing image: {}/{}"
+                                 .format(str(threading.get_ident()), str(count), str(total)))
+                sys.stdout.flush()
         except StopIteration:
             return
         yield value
 
-def merge_files(output_file, output_dir, prefix):
-    # Merge feature files
+
+def main():
+    args = _parse_arguments()
+
+    labels_file = os.path.join(args.output_dir, 'labels.json')
+    features_file_train = os.path.join(args.output_dir, 'features.json')
+    features_file_test = os.path.join(args.output_dir, 'testfeatures.json')
+
+    if args.for_prediction:
+        path_gen_train = ImagePathGeneratorForPrediction(args.image_dir_train)
+        if args.active_test_mode:
+            path_gen_test = ImagePathGeneratorForPrediction(args.image_dir_test)
+    else:
+        path_gen_train = ImagePathGeneratorForTraining(args.image_dir_train)
+        if args.active_test_mode:
+            path_gen_test = ImagePathGeneratorForTraining(args.image_dir_test)
+
+        logger.info("Writing label file: {}".format(labels_file))
+        write_labels(path_gen_train.get_labels(), labels_file)
+
+    # Total number of files
+    num_of_train_files = len(list(path_gen_train))
+    num_of_test_files = len(list(path_gen_test))
+
+    # Use a wrapper for the iterator to count number of images processed/track progress
+    path_gen_train = progress_iterator(path_gen_train, num_of_train_files)
+    path_gen_test = progress_iterator(path_gen_test, num_of_test_files)
+
+    # We need to serialize access to the path generator
+    path_generator_lock = threading.Lock()
+
+    # Create threads that run the extraction
+    train_threads = [threading.Thread(target=ExtractionTask,
+                                      args=(args, path_gen_train, i, 'temp-train-', path_generator_lock,))
+                     for i in range(args.threads)]
+
+    _start_and_join_threads(train_threads)
+
+    _merge_files(features_file_train, args.output_dir, "temp-train")
+
+    if args.active_test_mode:
+        test_threads = [threading.Thread(target=ExtractionTask,
+                                         args=(args, path_gen_test, i, 'temp-test-', path_generator_lock))
+                        for i in range(args.threads)]
+
+        _start_and_join_threads(test_threads)
+
+        _merge_files(features_file_test, args.output_dir, "temp-test")
+
+        logger.info("Process completed successfully")
+
+
+def ExtractionTask(args, generator, index, file_prefix, lock):
+    extractor = FeatureExtractor(args.model_file)
+    writer_train = FeaturesDataWriter(generator, extractor, lock)
+
+    output_file = os.path.join(args.output_dir, file_prefix + str(index) + '.json')
+    logger.info("Writing features file: {}".format(output_file))
+
+    # Try to parallellization
+    writer_train.write_features(output_file, args.rotations)
+
+
+def _merge_files(output_file, output_dir, prefix):
+    logger.info("Merging files prefixed with {} into file {}".format(prefix, output_file))
     with tf.gfile.FastGFile(output_file, 'w') as f:
         for _, _, filenames in os.walk(output_dir):
             for filename in filenames:
@@ -184,84 +253,29 @@ def merge_files(output_file, output_dir, prefix):
                         f.write(g.read())
                     os.remove(path)
 
-def main():
-    parser = argparse.ArgumentParser(description='Run Dobot WebAPI.')
-    parser.add_argument('--output_dir', default ='output',nargs=1, type=str)
+
+def _start_and_join_threads(threads):
+    logger.info("Starting {} threads and waiting for completion".format(len(threads)))
+    for t in threads:
+        t.start()
+
+    for t in threads:
+        t.join()
+
+
+def _parse_arguments():
+    parser = argparse.ArgumentParser(description='Run feature extraction')
+    parser.add_argument('--output_dir', default='output', nargs=1, type=str)
     parser.add_argument('--image_dir_train', default='../image/train', type=str)
     parser.add_argument('--active_test_mode', default=False, help='Set True for testing')
     parser.add_argument('--image_dir_test', default='../image/test', type=str)
     parser.add_argument('--model_file', type=str, default='classify_image_graph_def.pb')
     parser.add_argument('--for_prediction', action='store_true')
     parser.add_argument('--threads', default=1, type=int)
-    parser.add_argument('--rotations', default=0, type=int, help="Number of 90deg rotations of the training image to use.")
+    parser.add_argument('--rotations', default=0, type=int,
+                        help="Number of 90deg rotations of the training image to use.")
 
-    args = parser.parse_args()
-    output_dir = args.output_dir
-
-    labels_file = os.path.join(output_dir, 'labels.json')
-    features_file_train = os.path.join(output_dir, 'features.json')
-    features_file_test = os.path.join(output_dir, 'testfeatures.json')
-
-
-    model_file = args.model_file
-
-    if args.for_prediction:
-        path_gen_train = ImagePathGeneratorForPrediction(args.image_dir_train)
-        if (args.active_test_mode):
-            path_gen_test = ImagePathGeneratorForPrediction(args.image_dir_test)
-    else:
-        path_gen_train = ImagePathGeneratorForTraining(args.image_dir_train)
-        if args.active_test_mode :
-            path_gen_test = ImagePathGeneratorForTraining(args.image_dir_test)
-
-        logger.info("writing label file: {}".format(labels_file))
-        write_labels(path_gen_train.get_labels(), labels_file)
-
-    # Create thread safe iterators for train and test images if needed
-    if args.threads > 1:
-        path_gen_train = locked_iter(path_gen_train)
-        path_gen_test = locked_iter(path_gen_test)
-
-    def ExtractionTask(generator, index, file_prefix):
-        extractor = FeatureExtractor(model_file)
-        writer_train = FeaturesDataWriter(generator, extractor)
-
-        output_file = os.path.join(output_dir, file_prefix + str(index) + '.json')
-        logger.info("writing train features file: {}".format(output_file))
-
-        # Try to parallellization
-        writer_train.write_features(output_file, args.rotations)
-
-    # Create threads that run the extraction
-    train_threads = [threading.Thread(target=ExtractionTask, args=(path_gen_train, i, 'temp-train-',))
-                     for i in range(args.threads)]
-
-    # Start the threads
-    for t in train_threads:
-        t.start()
-
-    # Wait for all threads to complete
-    for t in train_threads:
-        t.join()
-
-
-    if args.active_test_mode:
-        test_threads = [threading.Thread(target=ExtractionTask, args=(path_gen_test, i, 'temp-test-'))
-                        for i in range(args.threads)]
-
-        # Start the threads
-        for t in test_threads:
-            t.start()
-
-        # Wait for all threads to complete
-        for t in test_threads:
-            t.join()
-
-        merge_files(features_file_test, output_dir, "temp-test")
-
-    merge_files(features_file_train, output_dir, "temp-train")
-
-    print("COMPLETE")
+    return parser.parse_args()
 
 
 if __name__ == "__main__":
