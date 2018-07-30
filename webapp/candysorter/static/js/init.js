@@ -31,11 +31,9 @@ $(function () {
             var i = 0;
             var textTimer = function() {
                 if (i >= examples.length) { i = 0; }
-                $("#example-text").fadeOut(1000, function(){
-                    $(this).text(examples[i]);
+                $("#example-text").fadeOut(function() {
+                    $(this).text(examples[i++]).fadeIn();
                 });
-                $("#example-text").fadeIn();
-                i++;
             }
             $(".speech-hand-animation").show();
             $("#example-text").text(examples[i++]); // initialize with first quote

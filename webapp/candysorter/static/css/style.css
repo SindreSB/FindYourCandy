@@ -119,7 +119,7 @@ circle.label-15  { fill: #A931D8; }
 .force svg { position: absolute; }
 .force line { stroke: rgba(255,255,255,0.3); stroke-width: 1; }
 .force text { fill: #003459; font-size: 40px; font-weight: 100; text-anchor: middle; alignment-baseline: middle; }
-.force circle { opacity: 0.8; }
+.force circle { opacity: 1; }
 .force-txt { position: absolute; color: #fff; font-size: 75px; font-weight: 100; max-width: 80%; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; z-index: 2;}
 .force-footer { position: absolute; bottom: 50px; font-size: 25px; font-weight: 300; width: 100%; text-align: center; z-index: 2; }
 
