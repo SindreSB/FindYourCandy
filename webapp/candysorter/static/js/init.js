@@ -458,14 +458,14 @@ $(function () {
                 .attr("points", camdata[i].box[0][0] + "," + camdata[i].box[0][1] + " " + camdata[i].box[1][0] + "," + camdata[i].box[1][1] + " " + camdata[i].box[2][0] + "," + camdata[i].box[2][1] + " " + camdata[i].box[3][0] + "," + camdata[i].box[3][1] + " ")
                 .attr("class", "label-" + dataSet2[i].lid);
             svg.append("circle")
-                .attr("r", "130")
+                .attr("r", "100")
                 .attr("cx", camdata[i].box[0][0]).attr("cy", camdata[i].box[0][1])
                 .attr("class", "label-" + dataSet2[i].lid + " delay");
             svg.append("text")
-                .attr("x", camdata[i].box[0][0]).attr("y", camdata[i].box[0][1] + 25)
+                .attr("x", camdata[i].box[0][0]).attr("y", camdata[i].box[0][1] + 15)
                 .text(dataSet2[i].label);
             svg.append("text")
-                .attr("x", camdata[i].box[0][0]).attr("y", camdata[i].box[0][1] - 25)
+                .attr("x", camdata[i].box[0][0]).attr("y", camdata[i].box[0][1] - 15)
                 .text(dataSet2[i].em.toFixed(3) * 100 + "%");
         }
 
