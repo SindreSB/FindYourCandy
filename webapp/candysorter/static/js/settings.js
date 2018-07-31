@@ -21,7 +21,6 @@ $(function () {
     function initSpeechSelect() {
         $('#speech-lang').val(config.getSpeechLang().translate);
 
-
         $('#speech-lang').on('change', function() {
             new_value = $('#speech-lang').val();
             if (new_value == "no") {
@@ -46,7 +45,7 @@ $(function () {
 
     function initTiming() {
         var values = ["tranSec", "nlSec", "forceSec", "camSec", "selectSec"];
-        $(".duration-setting input").each(function(i) {
+        $(".timeout-setting input").each(function(i) {
             $(this).val(config.getTransitionTimeouts()[values[i]]);
             $(this).on('keyup', null, values[i], function(event) {
                 let key = event.data;
