@@ -6,6 +6,8 @@ $(function () {
     // Get config object
     var config = new FycConfig();
 
+    let timeoutManager = new TimeoutManager();
+
     // API settings
     var pid = Math.floor(Math.random() * 10000000000000000); // POST ID
     var morUrl = "/api/morphs"; // API for Morphological analysis
@@ -45,6 +47,8 @@ $(function () {
 
     }
 
+
+
     var speech = function() {
         $("body").addClass("mode-speech-start");
 
@@ -76,6 +80,8 @@ $(function () {
         var gcpSpeech = new GcpSpeechStreamer(speechCallback, config.getSpeechLang().stream, true, "twist");
 
         $(".speech-mic").click(function () {
+            $(".pauseIcon img").replaceWith("<img src='/static/images/pauseicon.png'/>")
+            translation();
             $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
                     background: "#ff5f63",
                     border: "solid 0 #ff5f63"
@@ -139,7 +145,8 @@ $(function () {
                     $(".tran-footer").show();
                 }, 500);
 
-                nextWithTimeout(nl, config.getTransitionTimeouts().tranSec);
+
+                timeoutManager.startTimer(nl, config.getTransitionTimeouts().tranSec)
                 /*
                 setTimeout(function () {
                     nl()
@@ -283,9 +290,7 @@ $(function () {
                 console.log("(sim = data) from simURL. Sim = ");
                 console.log(sim);
 
-                nextWithTimeout(function () {
-                    force();
-                }, config.getTransitionTimeouts().nlSec);
+                timeoutManager.startTimer(force, config.getTransitionTimeouts().nlSec);
             }
         });
     };
@@ -384,14 +389,13 @@ $(function () {
         setTimeout(function () {
             $("body").addClass("mode-plot-start");
         }, 6000); // WAS 3000; //How long just the circles are displayed
-        nextWithTimeout(function () {
-            $("body").addClass("mode-plot-end");
-            cam();
-        }, config.getTransitionTimeouts().forceSec);//plotSec); //This times how long the camera images should be presented next to the circles
+
+        timeoutManager.startTimer(cam, config.getTransitionTimeouts().forceSec);
     };
 
     // output camera image
     var cam = function () {
+        $("body").addClass("mode-plot-end");
         $("body").addClass("mode-cam-start");
         var imgUrl = sim.similarities.url;
         // retrieve image size
@@ -457,7 +461,7 @@ $(function () {
             svg.append("circle")
                 .attr("r", "130")
                 .attr("cx", camdata[i].box[0][0]).attr("cy", camdata[i].box[0][1])
-                .attr("class", "label-" + camdata[i].similarities[i].lid);
+                .attr("class", "label-" + camdata[i].similarities[i].lid + " delay");
             svg.append("text")
                 .attr("x", camdata[i].box[0][0]).attr("y", camdata[i].box[0][1] + 25)
                 .text(dataSet2[i].label);
@@ -470,14 +474,14 @@ $(function () {
             $("body").addClass("mode-cam-mid");
         }, 750);
 
-        nextWithTimeout(function () {
-            $("body").addClass("mode-cam-end");
-            $("body").addClass("mode-cam-finished");
-            select();
-        }, config.getTransitionTimeouts().camSec);
+        console.log("Starting cam timer");
+        timeoutManager.startTimer(select, config.getTransitionTimeouts().camSec);
     };
 
     var select = function() {
+        $("body").addClass("mode-cam-end");
+        $("body").addClass("mode-cam-finished");
+
         var svg = d3.select(".cam-img svg");
         var nearest = sim.similarities.nearest;
 
@@ -499,7 +503,7 @@ $(function () {
 
         pickup();
 
-        nextWithTimeout(thanks, config.getTransitionTimeouts().selectSec);
+        timeoutManager.startTimer(thanks, config.getTransitionTimeouts().selectSec);
     }
 
     var pickup = function() {

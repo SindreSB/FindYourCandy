@@ -46,7 +46,7 @@ $(function () {
 
     function initTiming() {
         var values = ["tranSec", "nlSec", "forceSec", "camSec", "selectSec"];
-        $(".timeout-setting input").each(function(i) {
+        $(".duration-setting input").each(function(i) {
             $(this).val(config.getTransitionTimeouts()[values[i]]);
             $(this).on('keyup', null, values[i], function(event) {
                 let key = event.data;
