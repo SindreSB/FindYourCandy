@@ -86,7 +86,8 @@ class FeatureExtractor(object):
                 image = tf.image.convert_image_dtype(image, tf.float32)
                 gamma_ops = tf.image.adjust_gamma(image, gamma)
                 image = sess.run(gamma_ops)
-                #image = tf.image.convert_image_dtype(image, tf.uint8)
+
+                image = tf.image.convert_image_dtype(image, tf.uint8)
                 image = tf.convert_to_tensor(image)
 
             for path in image_paths:
@@ -240,7 +241,7 @@ def main():
 
     if args.active_test_mode:
         test_threads = [threading.Thread(target=ExtractionTask,
-                                         args=(args, path_gen_test, i, 'temp-test-', path_generator_lock))
+                                         args=(args, path_gen_test, i, 'temp-test-', path_generator_lock,))
                         for i in range(args.threads)]
 
         _start_and_join_threads(test_threads)
