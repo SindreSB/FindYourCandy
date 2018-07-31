@@ -59,7 +59,7 @@ class GcpSpeechStreamer {
         this.scriptProcessor.connect(this.audioContext.destination);
         this.scriptProcessor.onaudioprocess = this.processAudioData.bind(this);
 
-        this.setupWebsocketConnection('ws://' + window.location.hostname + ':8765');
+        this.setupWebsocketConnection('ws://' + window.location.hostname + ':18002');
         
     };
 
