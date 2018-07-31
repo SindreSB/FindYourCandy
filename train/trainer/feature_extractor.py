@@ -69,7 +69,7 @@ class FeatureExtractor(object):
             )
         return feature_data.reshape(-1, feature_data.shape[0])
 
-    def get_feature_vectors_from_files(self, image_paths, turn=0):
+    def get_feature_vectors_from_files(self, image_paths, turn=0, gamma=1):
         # Decode image
         with self.graph.as_default():
             image = tf.image.decode_jpeg(tf.read_file(image_paths[0]))
@@ -81,6 +81,11 @@ class FeatureExtractor(object):
                 rotate = tf.image.rot90(image, k=turn)
                 image = sess.run(rotate)
                 image = tf.convert_to_tensor(image)
+
+            if gamma != 1:
+                gamma_ops = tf.image.adjust_gamma(image, gamma)
+                gamma_image = sess.run(gamma_ops)
+                image = tf.convert_to_tensor(gamma_image)
 
             for path in image_paths:
                 image_data = sess.run(
@@ -151,11 +156,12 @@ class FeaturesDataWriter(object):
 
                 for path, label_id in image_batch:
                     for i in range(rotations + 1):
-                        line = self.extract_data_for_path(path, label_id, i)
-                        f.write(json.dumps(line) + '\n')
+                        for gamma in [0.5, 1, 1.5]:
+                            line = self.extract_data_for_path(path, label_id, i, gamma)
+                            f.write(json.dumps(line) + '\n')
 
-    def extract_data_for_path(self, image_path, label_id, turn=0):
-        vector = self.extractor.get_feature_vectors_from_files([image_path], turn)
+    def extract_data_for_path(self, image_path, label_id, turn=0, gamma=1.0):
+        vector = self.extractor.get_feature_vectors_from_files([image_path], turn, gamma)
         line = {
             'image_uri': image_path,
             'feature_vector': vector[0].tolist()
