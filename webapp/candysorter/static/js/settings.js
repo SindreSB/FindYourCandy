@@ -13,6 +13,7 @@ $(function () {
         checkConnection();
 
         initSpeechSelect();
+        initUILangSelect();
         initEndText();
         initResetButton();
         initTiming();
@@ -34,6 +35,20 @@ $(function () {
                     stream: 'en-US',
                     translate: 'en',
                 });
+            }
+        });
+    };
+
+    function initUILangSelect() {
+        $('#ui-lang').val(config.getUIlang());
+
+        $('#ui-lang').on('change', function () {
+            new_value = $('#ui-lang').val();
+            if (new_value == "no") {
+                config.setUIlang("no");
+            }
+            else if (new_value == "en") {
+                config.setUIlang("en");
             }
         });
     };
@@ -140,6 +155,7 @@ $(function () {
         initSpeechSelect();
         initEndText();
         initTiming();
+        initUILangSelect();
     }
 
     onLoad()

@@ -3,6 +3,7 @@ class FycConfig {
     constructor() {
         // Local storage keys
         this.speechLangKey = "speech_lang";
+        this.uiLangKey = "ui_lang";
         this.nlLangKey = "nl_lang";
         this.endTextKey = "end_text";
         this.timeoutsKey = "timeouts";
@@ -13,6 +14,7 @@ class FycConfig {
             stream: 'nb-NO',
             translate: 'no',
         }
+        this.uiLangDefault= 'no';
         this.nlLangDefault = 'en';
         this.endTextDefault = "Takk for at du kom innom!<br>Hold gjerne kontakten på computas.no";
         this.timeoutDefaults = {
@@ -41,6 +43,16 @@ class FycConfig {
 
     setSpeechLang(lang) {
         localStorage.setItem(this.speechLangKey, JSON.stringify(lang));
+    }
+
+    // UI Language
+    getUIlang() {
+        return this.getOrDefault(this.uiLangKey, this.uiLangDefault);
+    }
+
+    setUIlang(lang) {
+        console.log(lang);
+        localStorage.setItem(this.uiLangKey, lang);
     }
 
 
