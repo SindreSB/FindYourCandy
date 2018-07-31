@@ -22,9 +22,11 @@ $(function () {
 
 
     // Box candy suggestions
-    var examples = ["\"Kan jeg få sjokolade?\"","\"Jeg liker smurf\"","\"Kan jeg få lakris?\"", "\"Kan jeg få noe søtt?\""]
+    //var examples = ["\"Kan jeg få sjokolade?\"","\"Jeg liker smurf\"","\"Kan jeg få lakris?\"", "\"Kan jeg få noe søtt?\""]
     //Twist suggestions
-    //var examples = ["\"Kan jeg noe med nøtter?\"","\"Jeg liker karamell\"","\"Kan jeg få noe salt?\"", "\"Kan jeg få noe søtt?\"", "\"Jeg liker banan\""]
+    //var examples = ["\"Kan jeg noe med nøtter?\"","\"Jeg liker karamell\"","\"Kan jeg få noe salt?\"", "\"Kan jeg få noe søtt?\"", "\"Jeg liker kokos\""]
+    // general suggestions
+    var examples = ["\"Beskriv hva du har lyst på\"","\"Hvilken smak liker du best?\""]
 
     function init() {
         /* EXAMPLES OF WHAT TO SAY */
