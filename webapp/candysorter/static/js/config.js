@@ -32,7 +32,7 @@ class FycConfig {
             tranUrl: "/api/translate",
             camStatusUrl: "/api/status/camera",
             robStatusUrl: "/api/status/robot",
-        } 
+        }
     }
     
 
@@ -51,7 +51,6 @@ class FycConfig {
     }
 
     setUIlang(lang) {
-        console.log(lang);
         localStorage.setItem(this.uiLangKey, lang);
     }
 
