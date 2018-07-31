@@ -1,0 +1,21 @@
+{
+  "tranfoottext": "Cloud Translate API: Oversetter",
+  "nlfoottext": "Cloud Natural language API: Analyserer",
+  "camfoottext": "Bildeanalyse",
+  "tryagain" : "Prøv igjen",
+  "sorrytext" : "Beklager, noe gikk galt",
+  "statustext" : "Status",
+  "settingstext" : "Innstillinger",
+  "langselNO" : "Norsk",
+  "langselEN" : "Engelsk",
+  "speechlangtext" : "Talespråk",
+  "uilangtext" : "Visningsspråk",
+  "edittext" : "Rediger teksten på siste side:",
+  "timeouttext" : "Endre timeouts (i millisekunder, miminum 1000",
+  "resetheadertext" : "Escape zone",
+  "resettext" : "Tilbakestill innstillingene til standardverdier:",
+  "resetbtntext" : "Tilbakestill",
+  "helpheadertext" : "Hjelp/Troubleshooting",
+  "modetext" : "Skiftmodus",
+  "modemltext" : "Maskinlæring"
+}

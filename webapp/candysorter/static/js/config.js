@@ -15,6 +15,7 @@ class FycConfig {
             translate: 'no',
         }
         this.uiLangDefault= 'no';
+        this.language;
         this.nlLangDefault = 'en';
         this.endTextDefault = "Takk for at du kom innom!<br>Hold gjerne kontakten på computas.no";
         this.timeoutDefaults = {
@@ -33,7 +34,22 @@ class FycConfig {
             camStatusUrl: "/api/status/camera",
             robStatusUrl: "/api/status/robot",
         }
+
+        this.getLanguage();
+
     }
+
+    getLanguage() {
+        $.ajax({
+            url:  '/static/js/lang/' +  this.getUIlang() + '.json',
+            dataType: 'json', async: false, dataType: 'json',
+            success: function (lang) {
+                console.log(lang);
+                this.language = lang
+            }
+        });
+    }
+
     
 
     // Speech Language
