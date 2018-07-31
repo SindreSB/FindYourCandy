@@ -420,7 +420,7 @@ $(function () {
         /* SVG TEST SPACE*/
         // Generate datasets
         var camdata = sim.similarities.embedded;
-        var dataSet2 = [];
+        var dataSet2 = []; // keeping track of all candies highest em and lid.
         for (var i in camdata) {
             var em = 0;
             var label = "";
@@ -457,11 +457,11 @@ $(function () {
         for (var i in camdata) {
             svg.append("polygon")
                 .attr("points", camdata[i].box[0][0] + "," + camdata[i].box[0][1] + " " + camdata[i].box[1][0] + "," + camdata[i].box[1][1] + " " + camdata[i].box[2][0] + "," + camdata[i].box[2][1] + " " + camdata[i].box[3][0] + "," + camdata[i].box[3][1] + " ")
-                .attr("class", "label-" + camdata[i].similarities[i].lid);
+                .attr("class", "label-" + dataSet2[i].lid);
             svg.append("circle")
                 .attr("r", "130")
                 .attr("cx", camdata[i].box[0][0]).attr("cy", camdata[i].box[0][1])
-                .attr("class", "label-" + camdata[i].similarities[i].lid + " delay");
+                .attr("class", "label-" + dataSet2[i].lid + " delay");
             svg.append("text")
                 .attr("x", camdata[i].box[0][0]).attr("y", camdata[i].box[0][1] + 25)
                 .text(dataSet2[i].label);
