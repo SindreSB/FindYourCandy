@@ -83,9 +83,11 @@ class FeatureExtractor(object):
                 image = tf.convert_to_tensor(image)
 
             if gamma != 1:
+                image = tf.image.convert_image_dtype(image, tf.float32)
                 gamma_ops = tf.image.adjust_gamma(image, gamma)
-                gamma_image = sess.run(gamma_ops)
-                image = tf.convert_to_tensor(gamma_image)
+                image = sess.run(gamma_ops)
+                #image = tf.image.convert_image_dtype(image, tf.uint8)
+                image = tf.convert_to_tensor(image)
 
             for path in image_paths:
                 image_data = sess.run(
@@ -296,4 +298,5 @@ def _parse_arguments():
 
 
 if __name__ == "__main__":
+    tf.logging.set_verbosity(tf.logging.ERROR)
     main()
