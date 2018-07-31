@@ -81,7 +81,6 @@ $(function () {
 
         $(".speech-mic").click(function () {
             $(".pauseIcon img").replaceWith("<img src='/static/images/pauseicon.png'/>")
-            translation();
             $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
                     background: "#ff5f63",
                     border: "solid 0 #ff5f63"
