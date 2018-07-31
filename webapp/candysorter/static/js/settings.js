@@ -21,7 +21,6 @@ $(function () {
     function initSpeechSelect() {
         $('#speech-lang').val(config.getSpeechLang().translate);
 
-
         $('#speech-lang').on('change', function() {
             new_value = $('#speech-lang').val();
             if (new_value == "no") {

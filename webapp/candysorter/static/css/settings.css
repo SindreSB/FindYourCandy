@@ -105,7 +105,7 @@ a { font-size: 25px; color: #003459; text-decoration: underline; }
 
 /*Editing text*/
 .edit { margin: 0 auto; justify-content: center; }
-.edit textarea {height: 100px; width: 100%; font-family: "Open Sans"; font-size: 15px; }
+.edit textarea {height: 100px; width: 100%; font-family: "Open Sans"; font-size: 21px; }
 
 .sendbutton {
     display: inline-block;

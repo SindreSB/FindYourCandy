@@ -2,10 +2,12 @@ $(function () {
     // UI variables
     var winH = window.innerHeight;
     var winW = window.innerWidth;
-    
+
     // Get config object
     var config = new FycConfig();
-    
+
+    let timeoutManager = new TimeoutManager();
+
     // API settings
     var pid = Math.floor(Math.random() * 10000000000000000); // POST ID
     var morUrl = "/api/morphs"; // API for Morphological analysis
@@ -17,8 +19,8 @@ $(function () {
     var inputSpeech = "Kan jeg få sjokolade"; // Spoken sentence
     var speechTxt = ""; // Translated text/text used for nl and similiarities
     var sim = "";
-    
-    
+
+
     // Box candy suggestions
     var examples = ["\"Kan jeg få sjokolade?\"","\"Jeg liker smurf\"","\"Kan jeg få lakris?\"", "\"Kan jeg få noe søtt?\""]
     //Twist suggestions
@@ -31,11 +33,9 @@ $(function () {
             var i = 0;
             var textTimer = function() {
                 if (i >= examples.length) { i = 0; }
-                $("#example-text").fadeOut(1000, function(){
-                    $(this).text(examples[i]);
+                $("#example-text").fadeOut(function() {
+                    $(this).text(examples[i++]).fadeIn();
                 });
-                $("#example-text").fadeIn();
-                i++;
             }
             $(".speech-hand-animation").show();
             $("#example-text").text(examples[i++]); // initialize with first quote
@@ -46,6 +46,8 @@ $(function () {
         $('#textend').html(config.getEndText());
 
     }
+
+
 
     var speech = function() {
         $("body").addClass("mode-speech-start");
@@ -67,7 +69,7 @@ $(function () {
                         translation();
                     },500);
                 }
-                
+
             }
             else {
                 recognition_result = data.transcript
@@ -78,15 +80,16 @@ $(function () {
         var gcpSpeech = new GcpSpeechStreamer(speechCallback, config.getSpeechLang().stream, true, "twist");
 
         $(".speech-mic").click(function () {
+            $(".pauseIcon img").replaceWith("<img src='/static/images/pauseicon.png'/>")
             $(".speech-mic").css({ // Changes the color of the mic-icon when clicked
-                background: "#ff5f63",
-                border: "solid 0 #ff5f63"
+                    background: "#ff5f63",
+                    border: "solid 0 #ff5f63"
                 }
             );
             $(".speech-footer").hide();
             $(".speech-hand-animation").hide();
             $("body").addClass("mode-speech-in");
-            
+
             if (!gcpSpeech.isRecording()) {
                 gcpSpeech.start_recognition();
             } else {
@@ -141,7 +144,8 @@ $(function () {
                     $(".tran-footer").show();
                 }, 500);
 
-                nextWithTimeout(nl, config.getTransitionTimeouts().tranSec);
+
+                timeoutManager.startTimer(nl, config.getTransitionTimeouts().tranSec)
                 /*
                 setTimeout(function () {
                     nl()
@@ -191,7 +195,12 @@ $(function () {
                     }
                     var desc = "<dl>";
                     desc += "<dd class='nl-label'>" + data[i].depend.label + "</dd>";
-                    desc += "<dd class='nl-word'>" + data[i].word + "</dd>";
+                    if (data[i].pos.tag === "NOUN") {
+                        desc += "<dd class='nl-word' style='font-size: 80px; font-weight: bold'>" + data[i].word + "</dd>"
+                    }
+                    else {
+                        desc += "<dd class='nl-word'>" + data[i].word + "</dd>";
+                    }
                     desc += "<dd class='nl-tag'>" + data[i].pos.tag + "</dd>";
                     desc += "<dd class='nl-pos'>" + morph + "</dd>";
                     desc += "</dl>"
@@ -280,9 +289,7 @@ $(function () {
                 console.log("(sim = data) from simURL. Sim = ");
                 console.log(sim);
 
-                nextWithTimeout(function () {
-                    force();
-                }, config.getTransitionTimeouts().nlSec);
+                timeoutManager.startTimer(force, config.getTransitionTimeouts().nlSec);
             }
         });
     };
@@ -324,7 +331,7 @@ $(function () {
             .nodes(dataSet.nodes)
             .links(dataSet.links)
             .size([winW, winH])
-            .linkDistance(450)
+            .linkDistance(winH / 2.5)
             .charge(-1000)
             .start();
         var link = svg.selectAll("line")
@@ -356,7 +363,7 @@ $(function () {
             });
             link.attr("x1", function (d) {
                 return d.source.x;
-                })
+            })
                 .attr("y1", function (d) {
                     return d.source.y;
                 })
@@ -381,14 +388,13 @@ $(function () {
         setTimeout(function () {
             $("body").addClass("mode-plot-start");
         }, 6000); // WAS 3000; //How long just the circles are displayed
-        nextWithTimeout(function () {
-            $("body").addClass("mode-plot-end");
-            cam();
-        }, config.getTransitionTimeouts().forceSec);//plotSec); //This times how long the camera images should be presented next to the circles
+
+        timeoutManager.startTimer(cam, config.getTransitionTimeouts().forceSec);
     };
 
     // output camera image
     var cam = function () {
+        $("body").addClass("mode-plot-end");
         $("body").addClass("mode-cam-start");
         var imgUrl = sim.similarities.url;
         // retrieve image size
@@ -413,7 +419,7 @@ $(function () {
         /* SVG TEST SPACE*/
         // Generate datasets
         var camdata = sim.similarities.embedded;
-        var dataSet2 = [];
+        var dataSet2 = []; // keeping track of all candies highest em and lid.
         for (var i in camdata) {
             var em = 0;
             var label = "";
@@ -450,11 +456,11 @@ $(function () {
         for (var i in camdata) {
             svg.append("polygon")
                 .attr("points", camdata[i].box[0][0] + "," + camdata[i].box[0][1] + " " + camdata[i].box[1][0] + "," + camdata[i].box[1][1] + " " + camdata[i].box[2][0] + "," + camdata[i].box[2][1] + " " + camdata[i].box[3][0] + "," + camdata[i].box[3][1] + " ")
-                .attr("class", "label-" + camdata[i].similarities[i].lid);
+                .attr("class", "label-" + dataSet2[i].lid);
             svg.append("circle")
                 .attr("r", "130")
                 .attr("cx", camdata[i].box[0][0]).attr("cy", camdata[i].box[0][1])
-                .attr("class", "label-" + camdata[i].similarities[i].lid);
+                .attr("class", "label-" + dataSet2[i].lid + " delay");
             svg.append("text")
                 .attr("x", camdata[i].box[0][0]).attr("y", camdata[i].box[0][1] + 25)
                 .text(dataSet2[i].label);
@@ -467,14 +473,14 @@ $(function () {
             $("body").addClass("mode-cam-mid");
         }, 750);
 
-        nextWithTimeout(function () {
-            $("body").addClass("mode-cam-end");
-            $("body").addClass("mode-cam-finished");
-            select();
-        }, config.getTransitionTimeouts().camSec);
+        console.log("Starting cam timer");
+        timeoutManager.startTimer(select, config.getTransitionTimeouts().camSec);
     };
 
     var select = function() {
+        $("body").addClass("mode-cam-end");
+        $("body").addClass("mode-cam-finished");
+
         var svg = d3.select(".cam-img svg");
         var nearest = sim.similarities.nearest;
 
@@ -485,18 +491,18 @@ $(function () {
             .attr("points",nearest.box[0][0] + "," + nearest.box[0][1] + " " + nearest.box[1][0] + "," + nearest.box[1][1] + " " + nearest.box[2][0] + "," + nearest.box[2][1] + " " + nearest.box[3][0] + "," + nearest.box[3][1] + " ")
             .attr("style", "stroke: #49bca1; stroke-width: 20px;")
         svg.append("circle")
-            .attr("r", "150")
+            .attr("r", "120")
             .attr("cx", nearest.box[0][0]).attr("cy", nearest.box[0][1])
-            .attr("style", "fill: #49bca1; opacity: 0.6; ");
+            .attr("style", "fill: #49bca1; opacity: 1; ");
         svg.append("text")
             .attr("x", nearest.box[0][0]).attr("y", nearest.box[0][1])
-            .attr("style", "fill: #fff; font-size: 35px;")
+            .attr("style", "fill: #003459; font-size: 25px;")
             .text("Jeg velger denne!");
 
-        
+
         pickup();
 
-        nextWithTimeout(thanks, config.getTransitionTimeouts().selectSec);
+        timeoutManager.startTimer(thanks, config.getTransitionTimeouts().selectSec);
     }
 
     var pickup = function() {
