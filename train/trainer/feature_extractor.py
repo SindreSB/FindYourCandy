@@ -143,70 +143,9 @@ class ImagePathGeneratorForPrediction(object):
         raise StopIteration()
 
 
-class FeaturesDataWriter(object):
-    """
-    FeatureDataWriter extracts feature data from images and write to json lines
-    """
-
-    def __init__(self, path_generator, feature_extractor, lock, batch_size):
-        self.path_generator = path_generator
-        self.extractor = feature_extractor
-        self.lock = lock
-        self.batch_size = batch_size
-
-    def write_features(self, features_data_path, rotations):
-        with tf.gfile.FastGFile(features_data_path, 'w') as f:
-            while True:
-                with self.lock:
-                    try:
-                        image_batch = list(islice(self.path_generator, self.batch_size))
-                    except StopIteration:
-                        break
-
-                if len(image_batch) == 0:
-                    break
-
-                for path, label_id in image_batch:
-                    for i in range(rotations + 1):
-                        for gamma in [0.5, 1, 1.5]:
-                            line = self.extract_data_for_path(path, label_id, i, gamma)
-                            f.write(json.dumps(line) + '\n')
-
-    def extract_data_for_path(self, image_path, label_id, turn=0, gamma=1.0):
-        vector = self.extractor.get_feature_vectors_from_files([image_path], turn, gamma)
-        line = {
-            'image_uri': image_path,
-            'feature_vector': vector[0].tolist()
-        }
-        if label_id is not None:
-            line['label_id'] = label_id
-        return line
-
-
 def write_labels(labels, labels_data_path):
     with tf.gfile.FastGFile(labels_data_path, 'w') as f:
         f.write(json.dumps(labels))
-
-
-def progress_iterator(it, total):
-    start_time = time.time()
-    count = 0
-    it = iter(it)
-    while True:
-        try:
-            value = next(it)
-            count += 1
-            if count % 20 == 0:
-                time_per_image = (time.time() - start_time) / count
-                time_left = (time_per_image * (total - count)) / 60
-                percent_complete = (count / total) * 100
-                sys.stdout.write("\rThread {} - Processing image: {:.1f}% - {}/{} (Not counting rotations) "
-                                 "- Estimated time left: {:.2f} minutes"
-                                 .format(str(threading.get_ident()), percent_complete, count, total, math.ceil(time_left)))
-                sys.stdout.flush()
-        except StopIteration:
-            return
-        yield value
 
 
 def main():
@@ -216,72 +155,61 @@ def main():
     features_file_train = os.path.join(args.output_dir, 'features.json')
     features_file_test = os.path.join(args.output_dir, 'testfeatures.json')
 
+    _ensure_dir_exists(args.output_dir)
+
+    path_gen_train, path_gen_test = _get_path_generators(args)
+
+    logger.info("Writing label file: {}".format(labels_file))
+    write_labels(path_gen_train.get_labels(), labels_file)
+
+    _run_multiprocess_extraction(args, path_gen_train, "train-output-", features_file_train)
+
+    if args.active_test_mode:
+        _run_multiprocess_extraction(args, path_gen_test, "test-output-", features_file_test)
+
+    logger.info("Process completed successfully")
+
+
+def _ensure_dir_exists(directory):
+    if not tf.gfile.Exists(directory):
+        tf.gfile.MakeDirs(directory)
+
+
+def _get_path_generators(args):
+    path_gen_train, path_gen_test = None, None
+
     if args.for_prediction:
         path_gen_train = ImagePathGeneratorForPrediction(args.image_dir_train)
         if args.active_test_mode:
             path_gen_test = ImagePathGeneratorForPrediction(args.image_dir_test)
+
     else:
         path_gen_train = ImagePathGeneratorForTraining(args.image_dir_train)
         if args.active_test_mode:
             path_gen_test = ImagePathGeneratorForTraining(args.image_dir_test)
 
-        logger.info("Writing label file: {}".format(labels_file))
-        write_labels(path_gen_train.get_labels(), labels_file)
-
-    # Total number of files
-    num_of_train_files = len(list(path_gen_train))
-    num_of_test_files = len(list(path_gen_test))
+    return path_gen_train, path_gen_test
 
 
-    # TODO: Test splitting
+def _run_multiprocess_extraction(args, path_generator, temp_files_prefix, output_feature_file):
+    num_of_files = len(list(path_generator))
+
     progress_queue = multiprocessing.Queue()
-
-    progress_printer = threading.Thread(target=ProgressProcess, args=(progress_queue, num_of_train_files))
+    progress_printer = threading.Thread(target=ProgressPrinter, args=(progress_queue, num_of_files))
     progress_printer.start()
 
-    chunks = generate_image_chunks(path_gen_train, args.threads)
+    image_chunks = generate_image_chunks(path_generator, args.processes)
 
-    train_processes = [multiprocessing.Process(target=ExtractionProcess,
-                                               args=(args, chunks[i], "train-output-", i, progress_queue))
-                       for i in range(args.threads)]
+    test_processes = [multiprocessing.Process(target=ExtractionProcess,
+                                              args=(args, image_chunks[i], temp_files_prefix, i, progress_queue))
+                      for i in range(args.processes)]
 
-    _start_and_join_threads(train_processes)
+    _start_and_join_processes(test_processes)
 
     progress_queue.put(("CLOSE", 0))
     progress_printer.join()
-    _merge_files(features_file_train, args.output_dir, "train-output-")
 
-
-    if args.active_test_mode:
-        progress_queue = multiprocessing.Queue()
-        progress_printer = threading.Thread(target=ProgressProcess, args=(progress_queue, num_of_test_files))
-        progress_printer.start()
-
-        chunks = generate_image_chunks(path_gen_test, args.threads)
-
-        test_processes = [multiprocessing.Process(target=ExtractionProcess,
-                                                   args=(args, chunks[i], "test-output-", i, progress_queue))
-                           for i in range(args.threads)]
-
-        _start_and_join_threads(test_processes)
-
-        progress_queue.put(("CLOSE", 0))
-        progress_printer.join()
-
-        _merge_files(features_file_test, args.output_dir, "test-output-")
-
-    logger.info("Process completed successfully")
-
-
-
-
-def ExtractionTask(args, generator, index, file_prefix, lock):
-    extractor = FeatureExtractor(args.model_file)
-    writer_train = FeaturesDataWriter(generator, extractor, lock, args.batch_size)
-
-    output_file = os.path.join(args.output_dir, file_prefix + str(index) + '.json')
-
-    writer_train.write_features(output_file, args.rotations)
+    _merge_files(output_feature_file, args.output_dir, temp_files_prefix)
 
 
 def _merge_files(output_file, output_dir, prefix):
@@ -296,30 +224,13 @@ def _merge_files(output_file, output_dir, prefix):
                     os.remove(path)
 
 
-def _start_and_join_threads(threads):
-    logger.info("Starting {} threads and waiting for completion".format(len(threads)))
-    for t in threads:
+def _start_and_join_processes(processes):
+    logger.info("Starting {} processes and waiting for completion".format(len(processes)))
+    for t in processes:
         t.start()
 
-    for t in threads:
+    for t in processes:
         t.join()
-
-
-def _parse_arguments():
-    parser = argparse.ArgumentParser(description='Run feature extraction')
-    parser.add_argument('--output_dir', default='output', nargs=1, type=str)
-    parser.add_argument('--image_dir_train', default='../image/train', type=str)
-    parser.add_argument('--active_test_mode', default=False, help='Set True for testing')
-    parser.add_argument('--image_dir_test', default='../image/test', type=str)
-    parser.add_argument('--model_file', type=str, default='classify_image_graph_def.pb')
-    parser.add_argument('--for_prediction', action='store_true')
-    parser.add_argument('--threads', default=1, type=int)
-    parser.add_argument('--rotations', default=0, type=int,
-                        help="Number of 90deg rotations of the training image to use.")
-    parser.add_argument('--batch_size', default=5, type=int,
-                        help="Number of images each thread fetches at a time")
-
-    return parser.parse_args()
 
 
 # -------------------------------------------------
@@ -355,7 +266,7 @@ class FeaturesDataWriterProcess(object):
         with tf.gfile.FastGFile(features_data_path, 'w') as f:
             for index, (path, label_id) in enumerate(self.image_list):
                 for i in range(rotations + 1):
-                    for gamma_min, gamma_max in [(1, 1), (0.5, 1.3)]:
+                    for gamma_min, gamma_max in [(0.9, 1), (0.5, 0.9), (1, 1.3)]:
                         line = self.extract_data_for_path(path, label_id, i, gamma_min, gamma_max)
                         f.write(json.dumps(line) + '\n')
 
@@ -384,7 +295,7 @@ def ExtractionProcess(args, image_list, output_prefix, index, progress_queue):
     writer_train.write_features(output_file, args.rotations)
 
 
-def ProgressProcess(progress_queue, total):
+def ProgressPrinter(progress_queue, total):
     start_time = time.time()
     completed = 0
 
@@ -404,6 +315,56 @@ def ProgressProcess(progress_queue, total):
         sys.stdout.flush()
 
 
+def _parse_arguments():
+    parser = argparse.ArgumentParser(description='Run feature extraction')
+    parser.add_argument(
+        '--output_dir',
+        default='output',
+        nargs=1,
+        type=str
+    )
+    parser.add_argument(
+        '--image_dir_train',
+        default='../image/train',
+        type=str
+    )
+    parser.add_argument(
+        '--active_test_mode',
+        default=False,
+        action='store_true',
+        help='Use this flag to enable generating test features'
+    )
+    parser.add_argument(
+        '--image_dir_test',
+        default='../image/test',
+        type=str
+    )
+    parser.add_argument(
+        '--model_file',
+        type=str,
+        default='classify_image_graph_def.pb'
+    )
+    parser.add_argument(
+        '--for_prediction',
+        action='store_true'
+    )
+    parser.add_argument(
+        '--processes',
+        default=1,
+        type=int,
+        help="The number of processes to use for the extraction. More processes might help speeding up the "
+             "extraction process. Rule of thumb might be to use approx one process per 4 logical cores"
+    )
+    parser.add_argument(
+        '--rotations',
+        default=0,
+        type=int,
+        help="Number of 90deg rotations of the training image to use. 0 will only use the image as is, "
+             "while 1 will use the image as is as well as rotating the image 1 time, doubling the number"
+             "of extracted features")
+
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    tf.logging.set_verbosity(tf.logging.ERROR)
     main()
