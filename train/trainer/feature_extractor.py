@@ -266,7 +266,7 @@ def main():
         progress_queue.put(("CLOSE", 0))
         progress_printer.join()
 
-        _merge_files(features_file_train, args.output_dir, "test-output-")
+        _merge_files(features_file_test, args.output_dir, "test-output-")
 
     logger.info("Process completed successfully")
 
