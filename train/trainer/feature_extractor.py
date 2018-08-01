@@ -22,8 +22,11 @@ import json
 import sys
 import tensorflow as tf
 import threading
+import multiprocessing
 import time
+import random
 import math
+import numpy as np
 from itertools import islice
 
 
@@ -69,7 +72,10 @@ class FeatureExtractor(object):
             )
         return feature_data.reshape(-1, feature_data.shape[0])
 
-    def get_feature_vectors_from_files(self, image_paths, turn=0, gamma=1):
+    def get_feature_vectors_from_files(self, image_paths, turn=0, gamma_min=1, gamma_max=1):
+        # Mute logging of warnings to avoid spam with deprecated use of .op_scope
+        tf.logging.set_verbosity(tf.logging.ERROR)
+
         # Decode image
         with self.graph.as_default():
             image = tf.image.decode_jpeg(tf.read_file(image_paths[0]))
@@ -82,13 +88,15 @@ class FeatureExtractor(object):
                 image = sess.run(rotate)
                 image = tf.convert_to_tensor(image)
 
-            if gamma != 1:
-                image = tf.image.convert_image_dtype(image, tf.float32)
-                gamma_ops = tf.image.adjust_gamma(image, gamma)
-                image = sess.run(gamma_ops)
 
-                image = tf.image.convert_image_dtype(image, tf.uint8)
+            if gamma_min != 1 or gamma_max != 1:
+                image = tf.image.convert_image_dtype(image, tf.float32)
+                gamma = tf.image.adjust_gamma(image, gamma=random.uniform(gamma_min, gamma_min))
+                image = sess.run(gamma)
+
                 image = tf.convert_to_tensor(image)
+
+
 
             for path in image_paths:
                 image_data = sess.run(
@@ -150,7 +158,7 @@ class FeaturesDataWriter(object):
             while True:
                 with self.lock:
                     try:
-                        image_batch = list(islice(self.path_generator, self.batch_size)) #next(self.path_generator)
+                        image_batch = list(islice(self.path_generator, self.batch_size))
                     except StopIteration:
                         break
 
@@ -223,32 +231,46 @@ def main():
     num_of_train_files = len(list(path_gen_train))
     num_of_test_files = len(list(path_gen_test))
 
-    # Use a wrapper for the iterator to count number of images processed/track progress
-    path_gen_train = progress_iterator(path_gen_train, num_of_train_files)
-    path_gen_test = progress_iterator(path_gen_test, num_of_test_files)
 
-    # We need to serialize access to the path generator
-    path_generator_lock = threading.Lock()
+    # TODO: Test splitting
+    progress_queue = multiprocessing.Queue()
+    chunks = generate_image_chunks(path_gen_train, args.threads)
 
-    # Create threads that run the extraction
-    train_threads = [threading.Thread(target=ExtractionTask,
-                                      args=(args, path_gen_train, i, 'temp-train-', path_generator_lock,))
-                     for i in range(args.threads)]
+    train_processes = [multiprocessing.Process(target=ExtractionProcess,
+                                               args=(args, chunks[i], "train-output-", i, progress_queue))
+                       for i in range(args.threads)]
 
-    _start_and_join_threads(train_threads)
+    progress_printer = threading.Thread(target=ProgressProcess, args=(progress_queue, num_of_train_files))
+    progress_printer.start()
 
-    _merge_files(features_file_train, args.output_dir, "temp-train")
+    _start_and_join_threads(train_processes)
+
+    progress_queue.put(("CLOSE", 0))
+    progress_printer.join()
+    _merge_files(features_file_train, args.output_dir, "train-output-")
+
 
     if args.active_test_mode:
-        test_threads = [threading.Thread(target=ExtractionTask,
-                                         args=(args, path_gen_test, i, 'temp-test-', path_generator_lock,))
-                        for i in range(args.threads)]
+        progress_queue = multiprocessing.Queue()
+        chunks = generate_image_chunks(path_gen_test, args.threads)
 
-        _start_and_join_threads(test_threads)
+        test_processes = [multiprocessing.Process(target=ExtractionProcess,
+                                                   args=(args, chunks[i], "test-output-", i, progress_queue))
+                           for i in range(args.threads)]
 
-        _merge_files(features_file_test, args.output_dir, "temp-test")
+        progress_printer = threading.Thread(target=ProgressProcess, args=(progress_queue, num_of_test_files))
+        progress_printer.start()
 
-        logger.info("Process completed successfully")
+        _start_and_join_threads(test_processes)
+
+        progress_queue.put(("CLOSE", 0))
+        progress_printer.join()
+
+        _merge_files(features_file_train, args.output_dir, "test-output-")
+
+    logger.info("Process completed successfully")
+
+
 
 
 def ExtractionTask(args, generator, index, file_prefix, lock):
@@ -296,6 +318,88 @@ def _parse_arguments():
                         help="Number of images each thread fetches at a time")
 
     return parser.parse_args()
+
+
+# -------------------------------------------------
+#
+#
+#               PROCESS
+#
+#
+# -------------------------------------------------
+def generate_image_chunks(generator, split_into):
+    all_files = list(generator)
+    number_of_files = len(all_files)
+    chunk_size = math.ceil(number_of_files / float(split_into))
+
+    chunks = []
+    for start_index in range(0, number_of_files, chunk_size):
+            chunks.append(all_files[start_index: start_index + chunk_size])
+
+    return chunks
+
+
+class FeaturesDataWriterProcess(object):
+    """
+    FeatureDataWriter extracts feature data from images and write to json lines
+    """
+
+    def __init__(self, image_list, feature_extractor, progress_queue):
+        self.image_list = image_list
+        self.extractor = feature_extractor
+        self.progress_queue = progress_queue
+
+    def write_features(self, features_data_path, rotations):
+        with tf.gfile.FastGFile(features_data_path, 'w') as f:
+            for index, (path, label_id) in enumerate(self.image_list):
+                for i in range(rotations + 1):
+                    for gamma_min, gamma_max in [(1, 1), (0.5, 1.3)]:
+                        line = self.extract_data_for_path(path, label_id, i, gamma_min, gamma_max)
+                        f.write(json.dumps(line) + '\n')
+
+                if (index + 1) % 20 == 0:
+                    self.progress_queue.put(("PROGRESS", 20))
+
+    def extract_data_for_path(self, image_path, label_id, turn, gamma_min, gamma_max):
+        vector = self.extractor.get_feature_vectors_from_files([image_path], turn, gamma_min, gamma_max)
+        line = {
+            'image_uri': image_path,
+            'feature_vector': vector[0].tolist()
+        }
+        if label_id is not None:
+            line['label_id'] = label_id
+        return line
+
+
+def ExtractionProcess(args, image_list, output_prefix, index, progress_queue):
+    print("Extraction process " + str(index) + " started")
+
+    extractor = FeatureExtractor(args.model_file)
+    writer_train = FeaturesDataWriterProcess(image_list, extractor, progress_queue)
+
+    output_file = os.path.join(args.output_dir, output_prefix + str(index) + '.json')
+
+    writer_train.write_features(output_file, args.rotations)
+
+
+def ProgressProcess(progress_queue, total):
+    start_time = time.time()
+    completed = 0
+
+    while True:
+        message_type, data = progress_queue.get()
+        if message_type == "CLOSE":
+            return
+        elif message_type == "PROGRESS":
+            completed += data
+
+        time_per_image = (time.time() - start_time) / completed
+        time_left = (time_per_image * (total - completed)) / 60
+        percent_complete = (completed / total) * 100
+        sys.stdout.write("\rProcessing image {}/{} (Not counting rotations) - {:.1f}% "
+                         "- Estimated time left: {:.0f} minutes"
+                         .format(completed, total, percent_complete, math.ceil(time_left)))
+        sys.stdout.flush()
 
 
 if __name__ == "__main__":
