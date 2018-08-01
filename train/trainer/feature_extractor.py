@@ -39,6 +39,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Mute logging of warnings to avoid spam with deprecated use of .op_scope
+tf.logging.set_verbosity(tf.logging.ERROR)
+
 
 class FeatureExtractor(object):
     """
@@ -73,8 +76,6 @@ class FeatureExtractor(object):
         return feature_data.reshape(-1, feature_data.shape[0])
 
     def get_feature_vectors_from_files(self, image_paths, turn=0, gamma_min=1, gamma_max=1):
-        # Mute logging of warnings to avoid spam with deprecated use of .op_scope
-        tf.logging.set_verbosity(tf.logging.ERROR)
 
         # Decode image
         with self.graph.as_default():
@@ -234,14 +235,15 @@ def main():
 
     # TODO: Test splitting
     progress_queue = multiprocessing.Queue()
+
+    progress_printer = threading.Thread(target=ProgressProcess, args=(progress_queue, num_of_train_files))
+    progress_printer.start()
+
     chunks = generate_image_chunks(path_gen_train, args.threads)
 
     train_processes = [multiprocessing.Process(target=ExtractionProcess,
                                                args=(args, chunks[i], "train-output-", i, progress_queue))
                        for i in range(args.threads)]
-
-    progress_printer = threading.Thread(target=ProgressProcess, args=(progress_queue, num_of_train_files))
-    progress_printer.start()
 
     _start_and_join_threads(train_processes)
 
@@ -252,14 +254,14 @@ def main():
 
     if args.active_test_mode:
         progress_queue = multiprocessing.Queue()
+        progress_printer = threading.Thread(target=ProgressProcess, args=(progress_queue, num_of_test_files))
+        progress_printer.start()
+
         chunks = generate_image_chunks(path_gen_test, args.threads)
 
         test_processes = [multiprocessing.Process(target=ExtractionProcess,
                                                    args=(args, chunks[i], "test-output-", i, progress_queue))
                            for i in range(args.threads)]
-
-        progress_printer = threading.Thread(target=ProgressProcess, args=(progress_queue, num_of_test_files))
-        progress_printer.start()
 
         _start_and_join_threads(test_processes)
 
