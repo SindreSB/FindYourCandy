@@ -26,9 +26,13 @@ $(function () {
     //Twist suggestions
     //var examples = ["\"Kan jeg noe med nøtter?\"","\"Jeg liker karamell\"","\"Kan jeg få noe salt?\"", "\"Kan jeg få noe søtt?\"", "\"Jeg liker kokos\""]
     // general suggestions
-    var examples = ["\"Beskriv hva du har lyst på\"","\"Hvilken smak liker du best?\""]
+    var examplesNO = ["Beskriv hva du har lyst på","Hvilken smak liker du best?"];
+    var examplesEN = ["Describe the candy you want","What flavour do you like the best?"];
 
     function init() {
+        if (config.getUIlang() === "no") examples = examplesNO;
+        if (config.getUIlang() === "en") examples = examplesEN;
+
         /* EXAMPLES OF WHAT TO SAY */
         // variable to keep track of last text displayed
         setTimeout(function () {
