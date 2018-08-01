@@ -35,22 +35,30 @@ class FycConfig {
             robStatusUrl: "/api/status/robot",
         }
 
-        this.getLanguage();
+        this.setLanguage();
 
     }
 
-    getLanguage() {
+    setLanguage() {
         $.ajax({
-            url:  '/static/js/lang/' +  this.getUIlang() + '.json',
+            url:  '/static/lang/' +  this.getUIlang() + '.json',
             dataType: 'json', async: false, dataType: 'json',
             success: function (lang) {
                 console.log(lang);
-                this.language = lang
-            }
-        });
-    }
+                this.language = lang;
 
-    
+                $(".localize").each(function(i) {
+                    let localized_text = lang[$(this).data('lang')];
+                    console.log("Changing text on ", this, " to ", localized_text);
+                    $(this).text(localized_text)
+                })
+            },
+            error: function(error) {
+                console.log(error);
+                }
+            }
+        );
+    }
 
     // Speech Language
     getSpeechLang() {
@@ -68,6 +76,7 @@ class FycConfig {
 
     setUIlang(lang) {
         localStorage.setItem(this.uiLangKey, lang);
+        this.setLanguage();
     }
 
 

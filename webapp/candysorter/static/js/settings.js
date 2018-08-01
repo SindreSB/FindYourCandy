@@ -24,13 +24,13 @@ $(function () {
 
         $('#speech-lang').on('change', function() {
             new_value = $('#speech-lang').val();
-            if (new_value == "no") {
+            if (new_value === "no") {
                 config.setSpeechLang({
                     stream: 'nb-NO',
                     translate: 'no',
                 });
             }
-            else if (new_value == "en") {
+            else if (new_value === "en") {
                 config.setSpeechLang({
                     stream: 'en-US',
                     translate: 'en',
@@ -44,10 +44,12 @@ $(function () {
 
         $('#ui-lang').on('change', function () {
             new_value = $('#ui-lang').val();
-            if (new_value == "no") {
+            console.log("New value: ", new_value)
+            if (new_value === "no") {
+                console.log("Setting language to no");
                 config.setUIlang("no");
             }
-            else if (new_value == "en") {
+            else if (new_value === "en") {
                 config.setUIlang("en");
             }
         });

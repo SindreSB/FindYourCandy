@@ -49,8 +49,6 @@ $(function () {
 
     }
 
-
-
     var speech = function() {
         $("body").addClass("mode-speech-start");
 
@@ -496,11 +494,18 @@ $(function () {
             .attr("r", "120")
             .attr("cx", nearest.box[0][0]).attr("cy", nearest.box[0][1])
             .attr("style", "fill: #49bca1; opacity: 1; ");
-        svg.append("text")
-            .attr("x", nearest.box[0][0]).attr("y", nearest.box[0][1])
-            .attr("style", "fill: #003459; font-size: 25px;")
-            .text("Jeg velger denne!");
-
+        if(config.getUIlang() === "no") {
+            svg.append("text")
+                .attr("x", nearest.box[0][0]).attr("y", nearest.box[0][1])
+                .attr("style", "fill: #003459; font-size: 25px;")
+                .text("Jeg velger denne!");
+        }
+        if(config.getUIlang() === "en") {
+            svg.append("text")
+                .attr("x", nearest.box[0][0]).attr("y", nearest.box[0][1])
+                .attr("style", "fill: #003459; font-size: 25px;")
+                .text("I choose this!");
+        }
 
         pickup();
 
