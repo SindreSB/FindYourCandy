@@ -36,6 +36,7 @@ config_dict = {}
 for key in dir(config):
     if key.isupper():
         config_dict[key] = getattr(config, key)
+
 detector = CandyDetector().from_config(config_dict)
 
 should_exit = False
