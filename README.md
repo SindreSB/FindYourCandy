@@ -16,6 +16,9 @@ In the training mode, the system uses Inception model with transfer learning on 
 - Controller PC (Linux) and camera: recognizes the candies with Cloud ML, controls the robot arm
 - Robot arm: picks the candy, takes it to the certain location, and drops.
 
+### Candy type
+The robot can handle two types of candy. Small candy that can be picked up, for which it will correcly adjust the gripper to account for rotation etc. It also supports boxed/smooth candy which it picks up using a suction cup.
+
 ## Learning mode
 - Android tablet: shows UI for training process updates
 - Controller PC: runs Inception-v3 + transfer learning on Cloud ML to train a model from scratch, with the camera image
