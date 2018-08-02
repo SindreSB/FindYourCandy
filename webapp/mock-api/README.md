@@ -1,5 +1,5 @@
 ### Warning
-This moch-api might to out of date. Currently this does not return the centroid of the candies, which the real API does. This data is not used by the frontend at the time of writing, but this app is used at your own risk to simplify frontend development.
+This mock-api might to out of date. Currently this does not return the centroid of the candies, which the real API does. This data is not used by the frontend at the time of writing, but this app is used at your own risk to simplify frontend development.
 
 ### About
 This Flask application will return static, but valid, data to enable faster setup and development of the UI. All data and images are hard-coded. The static files are collected from the static folder in candysorter.
