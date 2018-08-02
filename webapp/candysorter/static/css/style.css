@@ -76,11 +76,11 @@ polygon.label-7 { stroke: #FF7043; }
 polygon.label-8 { stroke: #EC407A; }
 polygon.label-9 { stroke: #7E57C2; }
 polygon.label-10 { stroke: #FFEE58; }
-polygon.label-11 { fill: #49D33B; }
-polygon.label-12 { fill: #FF7C00; }
-polygon.label-13  { fill: #33ECE7; }
-polygon.label-14  { fill: #FF577E; }
-polygon.label-15  { fill: #A931D8; }
+polygon.label-11 { stroke: #49D33B; }
+polygon.label-12 { stroke: #FF7C00; }
+polygon.label-13  { stroke: #33ECE7; }
+polygon.label-14  { stroke: #FF577E; }
+polygon.label-15  { stroke: #A931D8; }
 circle.label-1 { fill: #ff5f63; }
 circle.label-2 { fill: #29cff5; }
 circle.label-3 { fill: #49bca1; }
