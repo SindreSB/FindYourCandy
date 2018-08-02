@@ -3,6 +3,7 @@ class FycConfig {
     constructor() {
         // Local storage keys
         this.speechLangKey = "speech_lang";
+        this.uiLangKey = "ui_lang";
         this.nlLangKey = "nl_lang";
         this.endTextKey = "end_text";
         this.timeoutsKey = "timeouts";
@@ -13,6 +14,8 @@ class FycConfig {
             stream: 'nb-NO',
             translate: 'no',
         }
+        this.uiLangDefault= 'no';
+        this.language;
         this.nlLangDefault = 'en';
         this.endTextDefault = "Takk for at du kom innom!<br>Hold gjerne kontakten på computas.no";
         this.timeoutDefaults = {
@@ -30,9 +33,32 @@ class FycConfig {
             tranUrl: "/api/translate",
             camStatusUrl: "/api/status/camera",
             robStatusUrl: "/api/status/robot",
-        } 
+        }
+
+        this.setLanguage();
+
     }
-    
+
+    setLanguage() {
+        $.ajax({
+            url:  '/static/lang/' +  this.getUIlang() + '.json',
+            dataType: 'json', async: false, dataType: 'json',
+            success: function (lang) {
+                console.log(lang);
+                this.language = lang;
+
+                $(".localize").each(function(i) {
+                    let localized_text = lang[$(this).data('lang')];
+                    console.log("Changing text on ", this, " to ", localized_text);
+                    $(this).text(localized_text)
+                })
+            },
+            error: function(error) {
+                console.log(error);
+                }
+            }
+        );
+    }
 
     // Speech Language
     getSpeechLang() {
@@ -41,6 +67,16 @@ class FycConfig {
 
     setSpeechLang(lang) {
         localStorage.setItem(this.speechLangKey, JSON.stringify(lang));
+    }
+
+    // UI Language
+    getUIlang() {
+        return this.getOrDefault(this.uiLangKey, this.uiLangDefault);
+    }
+
+    setUIlang(lang) {
+        localStorage.setItem(this.uiLangKey, lang);
+        this.setLanguage();
     }
 
 

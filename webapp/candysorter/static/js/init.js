@@ -22,11 +22,17 @@ $(function () {
 
 
     // Box candy suggestions
-    var examples = ["\"Kan jeg få sjokolade?\"","\"Jeg liker smurf\"","\"Kan jeg få lakris?\"", "\"Kan jeg få noe søtt?\""]
+    //var examples = ["\"Kan jeg få sjokolade?\"","\"Jeg liker smurf\"","\"Kan jeg få lakris?\"", "\"Kan jeg få noe søtt?\""]
     //Twist suggestions
-    //var examples = ["\"Kan jeg noe med nøtter?\"","\"Jeg liker karamell\"","\"Kan jeg få noe salt?\"", "\"Kan jeg få noe søtt?\"", "\"Jeg liker banan\""]
+    //var examples = ["\"Kan jeg noe med nøtter?\"","\"Jeg liker karamell\"","\"Kan jeg få noe salt?\"", "\"Kan jeg få noe søtt?\"", "\"Jeg liker kokos\""]
+    // general suggestions
+    var examplesNO = ["Beskriv hva du har lyst på","Hvilken smak liker du best?"];
+    var examplesEN = ["Describe the candy you want","What flavour do you like the best?"];
 
     function init() {
+        if (config.getUIlang() === "no") examples = examplesNO;
+        if (config.getUIlang() === "en") examples = examplesEN;
+
         /* EXAMPLES OF WHAT TO SAY */
         // variable to keep track of last text displayed
         setTimeout(function () {
@@ -46,8 +52,6 @@ $(function () {
         $('#textend').html(config.getEndText());
 
     }
-
-
 
     var speech = function() {
         $("body").addClass("mode-speech-start");
@@ -458,14 +462,14 @@ $(function () {
                 .attr("points", camdata[i].box[0][0] + "," + camdata[i].box[0][1] + " " + camdata[i].box[1][0] + "," + camdata[i].box[1][1] + " " + camdata[i].box[2][0] + "," + camdata[i].box[2][1] + " " + camdata[i].box[3][0] + "," + camdata[i].box[3][1] + " ")
                 .attr("class", "label-" + dataSet2[i].lid);
             svg.append("circle")
-                .attr("r", "130")
+                .attr("r", "100")
                 .attr("cx", camdata[i].box[0][0]).attr("cy", camdata[i].box[0][1])
                 .attr("class", "label-" + dataSet2[i].lid + " delay");
             svg.append("text")
-                .attr("x", camdata[i].box[0][0]).attr("y", camdata[i].box[0][1] + 25)
+                .attr("x", camdata[i].box[0][0]).attr("y", camdata[i].box[0][1] + 15)
                 .text(dataSet2[i].label);
             svg.append("text")
-                .attr("x", camdata[i].box[0][0]).attr("y", camdata[i].box[0][1] - 25)
+                .attr("x", camdata[i].box[0][0]).attr("y", camdata[i].box[0][1] - 15)
                 .text(dataSet2[i].em.toFixed(3) * 100 + "%");
         }
 
@@ -494,11 +498,18 @@ $(function () {
             .attr("r", "120")
             .attr("cx", nearest.box[0][0]).attr("cy", nearest.box[0][1])
             .attr("style", "fill: #49bca1; opacity: 1; ");
-        svg.append("text")
-            .attr("x", nearest.box[0][0]).attr("y", nearest.box[0][1])
-            .attr("style", "fill: #003459; font-size: 25px;")
-            .text("Jeg velger denne!");
-
+        if(config.getUIlang() === "no") {
+            svg.append("text")
+                .attr("x", nearest.box[0][0]).attr("y", nearest.box[0][1])
+                .attr("style", "fill: #003459; font-size: 25px;")
+                .text("Jeg velger denne!");
+        }
+        if(config.getUIlang() === "en") {
+            svg.append("text")
+                .attr("x", nearest.box[0][0]).attr("y", nearest.box[0][1])
+                .attr("style", "fill: #003459; font-size: 25px;")
+                .text("I choose this!");
+        }
 
         pickup();
 
