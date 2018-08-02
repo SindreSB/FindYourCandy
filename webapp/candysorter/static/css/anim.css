@@ -75,7 +75,7 @@ transform: scale(0);
 .mode-cam-start .plot dd.nearest { opacity: 0; transform: scale(0); }
 .mode-cam-start polygon { animation: cam 200s linear forwards; }
 
-.mode-cam-mid .delay {opacity: 0.6; transform: scale(1); transition-delay: 1s!important; transition-duration: 1s;}
+.mode-cam-mid .delay {opacity: 1; transform: scale(1); transition-delay: 1s!important; transition-duration: 1s;}
 .mode-cam-mid text { opacity: 1; transform: scale(1); transition-delay: 1s!important; transition-duration: 1s;}
 
 .mode-cam-end circle {opacity: 0; transform: scale(0);  transition-duration: .5s;}

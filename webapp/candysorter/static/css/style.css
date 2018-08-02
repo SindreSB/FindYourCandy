@@ -158,8 +158,8 @@ circle.label-15  { fill: #A931D8; }
 .cam svg { width: 100%; }
 .cam polygon { fill: rgba(0,0,0,0); /*stroke:  #ff5f63; */  stroke-width: 10px; stroke-dasharray: 20 10; } /*ALWAYS USE RED COLOR AS PICUKUP OUTLINE*/
 .cam line { stroke: #D12F33; stroke-width: 10px; opacity: 0.6; }
-.cam text { fill: #003459; font-size: 25px; font-family: "Open Sans"; font-weight: 100; text-anchor: middle; alignment-baseline: middle; }
-.cam circle { opacity: 0.7; }
+.cam text { fill: #003459; font-size: 20px; font-family: "Open Sans"; font-weight: 100; text-anchor: middle; alignment-baseline: middle; }
+.cam circle { opacity: 1; }
 .cam-footer { position: absolute; bottom: 50px; font-size: 25px; font-weight: 300; width: 100%; text-align: center; z-index: 2; }
 
 /* thanks */

@@ -462,7 +462,7 @@ $(function () {
                 .attr("points", camdata[i].box[0][0] + "," + camdata[i].box[0][1] + " " + camdata[i].box[1][0] + "," + camdata[i].box[1][1] + " " + camdata[i].box[2][0] + "," + camdata[i].box[2][1] + " " + camdata[i].box[3][0] + "," + camdata[i].box[3][1] + " ")
                 .attr("class", "label-" + dataSet2[i].lid);
             svg.append("circle")
-                .attr("r", "100")
+                .attr("r", "80")
                 .attr("cx", camdata[i].box[0][0]).attr("cy", camdata[i].box[0][1])
                 .attr("class", "label-" + dataSet2[i].lid + " delay");
             svg.append("text")
