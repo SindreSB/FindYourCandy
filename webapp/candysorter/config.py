@@ -109,7 +109,7 @@ class DefaultConfig(object):
     IMAGE_CALIBRATOR_SCALE = 550
 
     PICKUP_TYPE = 'suction_cup' if CANDY_TYPE else "gripper"  # Use 'gripper' or 'suction_cup'
-    ROBOT_ARM_API_URL = 'http://localhost:18001/api'
+    ROBOT_ARM_API_URL = 'http://robot/api'
     ROBOT_ARM_STATUS_ENDPOINT = ROBOT_ARM_API_URL + '/status'
     PICKUP_SUCTION_CUP_ENDPOINT = ROBOT_ARM_API_URL + '/pickup'
     PICKUP_GRIPPER_ENDPOINT = ROBOT_ARM_API_URL + '/pickup/gripper'
