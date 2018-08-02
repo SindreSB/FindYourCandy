@@ -156,6 +156,10 @@ $ bin/tune_robot.sh
 ```
 $ bin/start_all.sh
 ```
-Note that even though the command returns immediately, the webapp will take some time to start the first time
+Note that even though the command returns immediately, the webapp will take some time to start the first time.
+To see the log output of the services, use the command
+```
+$ bin/tail_logs.sh
+```
 
 Go to settings and ensure that the correct microphone/input is selected, as this is often an issue it seems. 
