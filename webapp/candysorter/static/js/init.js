@@ -473,7 +473,7 @@ $(function () {
                 .text(dataSet2[i].label);
             svg.append("text")
                 .attr("x", camdata[i].box[0][0]).attr("y", camdata[i].box[0][1] - 15)
-                .text(dataSet2[i].em.toFixed(3) * 100 + "%");
+                .text((dataSet2[i].em * 100).toFixed(1) + "%");
         }
 
         setTimeout(function () {
