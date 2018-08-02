@@ -41,3 +41,10 @@ gcloud ml-engine jobs submit training {job_name} ^
 ```
 
 The training script can also be run locally, in which case only the arguments following -- are applicable
+
+
+### Plotter
+The training script, if set to test mode, will produce a file called plot_data.sjon, which contains the required data to plot accuracy and loss using training, both overall and per label. This file can be plotted using the plotter.py. It is used by passing it the path to the plot file. 
+```
+> python plotter.py /path/to/plot_data.json
+```
