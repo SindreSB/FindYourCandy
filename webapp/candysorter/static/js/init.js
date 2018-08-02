@@ -132,14 +132,14 @@ $(function () {
             url: tranUrl,
             data: JSON.stringify({
                 "id": pid,
-                "text": inputSpeech,
+                "text": "Det er fint vær i dag",
                 "source": config.getSpeechLang().translate,
             }),
             error: function (textStatus) {
                 console.log(textStatus);
             },
             success: function (data) {
-                speechTxt = data[0].translatedText;
+                speechTxt = he.decode(data[0].translatedText);
                 $("body").addClass("mode-tran-loaded");
                 $(".tran-word").text(inputSpeech);
 
@@ -189,6 +189,7 @@ $(function () {
                 $("body").addClass("mode-tran-finish");
                 // generate morpheme
                 data = data.morphs
+                console.log(data);
                 for (var i in data) {
                     var morph = "";
                     for (key in data[i].pos) {
