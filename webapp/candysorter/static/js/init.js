@@ -350,9 +350,13 @@ $(function () {
             .attr("class", function (d) { //adding class .label-X to all nodes, varying color
                 return "label-" + d.lid;
             });
+        var sort = svg.selectAll('g')
+            .sort(function(a, b) {
+                return a.em > b.em;
+            })
         var circle = g.append("circle") //all elements "g" appended circle class
             .attr("r", function (d) { //setting each radius based on similarity
-                var r = 80 + d.em * 100;
+                var r = 70 + d.em * 75;
                 return r;
             });
         var label = g.append("text")
