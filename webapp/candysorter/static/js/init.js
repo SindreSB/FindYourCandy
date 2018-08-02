@@ -132,7 +132,7 @@ $(function () {
             url: tranUrl,
             data: JSON.stringify({
                 "id": pid,
-                "text": "Det er fint vær i dag",
+                "text": inputSpeech,
                 "source": config.getSpeechLang().translate,
             }),
             error: function (textStatus) {
@@ -462,6 +462,8 @@ $(function () {
             svg.append("polygon")
                 .attr("points", camdata[i].box[0][0] + "," + camdata[i].box[0][1] + " " + camdata[i].box[1][0] + "," + camdata[i].box[1][1] + " " + camdata[i].box[2][0] + "," + camdata[i].box[2][1] + " " + camdata[i].box[3][0] + "," + camdata[i].box[3][1] + " ")
                 .attr("class", "label-" + dataSet2[i].lid);
+        }
+        for (var i in camdata) {
             svg.append("circle")
                 .attr("r", "80")
                 .attr("cx", camdata[i].box[0][0]).attr("cy", camdata[i].box[0][1])
